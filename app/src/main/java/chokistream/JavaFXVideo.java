@@ -17,8 +17,6 @@ public class JavaFXVideo extends VideoOutputInterface {
 	private ArrayList<Stage> stages = new ArrayList<>();
 	private ImageView topImageView;
 	private ImageView bottomImageView;
-	double width = 400;
-	double height = 240;
 	
 	public JavaFXVideo(StreamingInterface client, Layout layout) {
 		super(client);
@@ -34,6 +32,18 @@ public class JavaFXVideo extends VideoOutputInterface {
 				break;
 			case VERTICAL_INV:
 				setupVerticalInv();
+				break;
+			case HORIZONTAL:
+				setupHorizontal();
+				break;
+			case HORIZONTAL_INV:
+				setupHorizontalInv();
+				break;
+			case TOP_ONLY:
+				setupTopOnly();
+				break;
+			case BOTTOM_ONLY:
+				setupBottomOnly();
 				break;
 			default:
 				displayError(new InvalidOptionException("Layout for JavaFXVideo", layout.toString()));
@@ -136,5 +146,75 @@ public class JavaFXVideo extends VideoOutputInterface {
 		stage.show();
 		
 		stages.add(stage);
+	}
+	
+	private void setupHorizontal() {
+		topImageView = new ImageView();
+		bottomImageView = new ImageView();
+		Group g = new Group();
+		g.getChildren().addAll(topImageView, bottomImageView);
+		Scene scene = new Scene(g);
+		scene.setFill(Color.BLACK);
+		
+		Stage stage = new Stage();
+		stage.setWidth(720);
+		stage.setHeight(240);
+		stage.setTitle("Chokistream");
+		stage.setScene(scene);
+		stage.show();
+		
+		stages.add(stage);
+	}
+	
+	private void setupHorizontalInv() {
+		topImageView = new ImageView();
+		bottomImageView = new ImageView();
+		Group g = new Group();
+		g.getChildren().addAll(bottomImageView, topImageView);
+		Scene scene = new Scene(g);
+		scene.setFill(Color.BLACK);
+		
+		Stage stage = new Stage();
+		stage.setWidth(720);
+		stage.setHeight(240);
+		stage.setTitle("Chokistream");
+		stage.setScene(scene);
+		stage.show();
+		
+		stages.add(stage);
+	}
+	
+	private void setupTopOnly() {
+		Stage topStage = new Stage();
+		topStage.setWidth(400);
+		topStage.setHeight(240);
+		topImageView = new ImageView();
+		Group gt = new Group();
+		gt.getChildren().add(topImageView);
+		Scene st = new Scene(gt);
+		topStage.setScene(st);
+		topStage.setTitle("Chokistream");
+		topStage.show();
+		
+		stages.add(topStage);
+		
+		bottomImageView = new ImageView(); // Still needs something to send to, just gets unused
+	}
+	
+	private void setupBottomOnly() {
+		Stage bottomStage = new Stage();
+		bottomStage.setWidth(320);
+		bottomStage.setHeight(240);
+		bottomImageView = new ImageView();
+		Group gb = new Group();
+		gb.getChildren().add(bottomImageView);
+		Scene sb = new Scene(gb);
+		bottomStage.setScene(sb);
+		bottomStage.setTitle("Chokistream");
+		bottomStage.show();
+		
+		stages.add(bottomStage);
+		
+		topImageView = new ImageView(); // Still needs something to send to, just gets unused
 	}
 }
