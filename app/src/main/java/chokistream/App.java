@@ -11,6 +11,11 @@ public class App extends Application {
 	private VideoOutputInterface output;
 	private Stage stage;
 	
+    /**
+     * Adds the basic elements to a JavaFX stage. Triggered via main.
+     * 
+     * @param stage	The Stage to display on.
+     */
     @Override
     public void start(Stage stage) throws Exception {
     	scene = new SnickerstreamGUI(this);
@@ -20,11 +25,18 @@ public class App extends Application {
         this.stage = stage;
     }
     
+    /**
+     * Starts a new instance of Chickerstream.
+     * 
+     * @param args	Currently unused
+     */
     public static void main(String[] args) {
     	launch();
     }
     
-    // Triggered from the button press in the GUI.
+    /**
+     * Triggered from the UI. Attempts to instantiate the connection to the 3DS.
+     */
     public void connect() {
     	// These are universal, so get these first and then sort out the rest by mod.
     	// Technically quality could be here.

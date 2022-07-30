@@ -17,7 +17,13 @@ public class JavaFXVideo extends VideoOutputInterface {
 	private ArrayList<Stage> stages = new ArrayList<>();
 	private ImageView topImageView;
 	private ImageView bottomImageView;
-	
+		
+	/**
+	 * Instantiates a viewer using JavaFX.
+	 * 
+	 * @param client	The HzModClient or NTRClient to get frames from
+	 * @param layout	The output layout configuration setting
+	 */
 	public JavaFXVideo(StreamingInterface client, Layout layout) {
 		super(client);
 		
@@ -48,8 +54,16 @@ public class JavaFXVideo extends VideoOutputInterface {
 			default:
 				displayError(new InvalidOptionException("Layout for JavaFXVideo", layout.toString()));
 		}
+		
+		networkThread.start();
 	}
 	
+	/**
+	 * Renders the given frame.
+	 * 
+	 * @param fr	The Frame to be rendered, including screen information.
+	 */
+	@Override
 	public void renderFrame(Frame fr) {
 		if(fr.screen == NTRScreen.BOTTOM) {
 			bottomImageView.setImage(fr.image);
@@ -58,6 +72,10 @@ public class JavaFXVideo extends VideoOutputInterface {
 		}
 	}
 	
+	/**
+	 * Attempts to kill the output windows, the thread communicating to the client,
+	 * and the client itself.
+	 */
 	public void kill() {
 		networkThread.interrupt();
 		try {
@@ -70,7 +88,12 @@ public class JavaFXVideo extends VideoOutputInterface {
 		}
 	}
 	
-	// Generic popup
+	/**
+	 * Generic pop-up error box
+	 * 
+	 * @param e	The exception to display the type and message of
+	 */
+	@Override
 	public void displayError(Exception e) {
 		Stage popup = new Stage();
 		popup.initModality(Modality.APPLICATION_MODAL);

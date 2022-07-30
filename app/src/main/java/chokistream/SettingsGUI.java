@@ -24,27 +24,68 @@ public class SettingsGUI extends Scene {
 	protected Layout layout = Layout.SEPARATE;
 	
 	// These can throw exceptions in case the user inputs bad data (like "yummy" for the quality or something)
+	
+	/**
+	 * @return The IP of the 3DS to connect to
+	 * @throws InvalidOptionException
+	 */
 	public String getIp() throws InvalidOptionException {
 		return ip;
 	}
+	
+	/**
+	 * @return The mod on the 3DS (NTR/HzMod)
+	 * @throws InvalidOptionException
+	 */
 	public Mod getMod() throws InvalidOptionException {
 		return mod;
 	}
+	
+	/**
+	 * @return The quality level for JPEG compression
+	 * @throws InvalidOptionException
+	 */
 	public int getQuality() throws InvalidOptionException {
 		return quality;
 	}
+	
+	/**
+	 * @return Whether the top or bottom screen should be prioritized
+	 * @throws InvalidOptionException
+	 */
 	public NTRScreen getScreen() throws InvalidOptionException {
 		return screen;
 	}
+	
+	/**
+	 * @return The degree to which the prioritized screen is prioritized
+	 * @throws InvalidOptionException
+	 */
 	public int getPriority() throws InvalidOptionException {
 		return priority;
 	}
+	
+	
+	/**
+	 * @return Network packet priority setting
+	 * @throws InvalidOptionException
+	 */
 	public int getQos() throws InvalidOptionException {
 		return qos;
 	}
+	
+	/**
+	 * @return 
+	 * @throws InvalidOptionException
+	 */
 	public int getCapCPU() throws InvalidOptionException {
 		return capCPU;
 	}
+	
+	/**
+	 * @return The layout of the output video
+	 * @throws InvalidOptionException
+	 */
 	public Layout getLayout() throws InvalidOptionException {
 		return layout;
 	}
