@@ -12,6 +12,7 @@ public class SettingsGUI extends Scene {
 		super(p, width, height);
 	}
 	
+	// Use defaults from Snickerstream if the GUI doesn't implement them, could change in the future.
 	private String ip = "0.0.0.0";
 	private Mod mod = Mod.NTR;
 	private int quality = 70;
@@ -20,6 +21,7 @@ public class SettingsGUI extends Scene {
 	private int qos = 26;
 	private int capCPU  = 0;
 	
+	// These can throw exceptions in case the user inputs bad data (like "yummy" for the quality or something)
 	public String getIp() throws InvalidOptionException {
 		return ip;
 	}
@@ -42,11 +44,12 @@ public class SettingsGUI extends Scene {
 		return capCPU;
 	}
 	
+	// Generic popup
 	public void displayError(Exception e) {
 		Stage popup = new Stage();
 		popup.initModality(Modality.APPLICATION_MODAL);
 		Label message = new Label(e.getClass().getSimpleName()+": "+e.getMessage());
-		Scene scene = new Scene(message);
+		Scene scene = new Scene(message); // TODO: Add some margins around the text
 		popup.setScene(scene);
 		popup.show();
 	}

@@ -5,6 +5,10 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.Pane;
 
+/*
+ * This is a super bare-bones GUI, just type in an IP and select your mod
+ * Could be used for an early release or something where we don't support all of the features of the big UI
+ */
 public class OldGUI extends SettingsGUI {
 	
 	private TextField tf;

@@ -4,7 +4,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
 import javafx.scene.layout.Pane;
+import javafx.util.converter.IntegerStringConverter;
 
 public class SnickerstreamGUI extends SettingsGUI {
 	private ChoiceBox<String> preset;
@@ -36,6 +38,7 @@ public class SnickerstreamGUI extends SettingsGUI {
     	qosVal = new TextField();
     	qosVal.relocate(110, 152);
     	qosVal.setPrefSize(175,25);
+    	qosVal.setTextFormatter(new TextFormatter<>(new IntegerStringConverter()));
     	qosVal.setText("26");
     	
     	Label iqLab = new Label("Image Quality");
@@ -43,6 +46,7 @@ public class SnickerstreamGUI extends SettingsGUI {
     	imgQual = new TextField();
     	imgQual.relocate(110, 117);
     	imgQual.setPrefSize(175,25);
+    	imgQual.setTextFormatter(new TextFormatter<>(new IntegerStringConverter()));
     	imgQual.setText("70");
     	
     	Label pfLab = new Label("Priority Factor");
@@ -50,6 +54,7 @@ public class SnickerstreamGUI extends SettingsGUI {
     	priFac = new TextField();
     	priFac.relocate(110, 82);
     	priFac.setPrefSize(175,25);
+    	priFac.setTextFormatter(new TextFormatter<>(new IntegerStringConverter()));
     	priFac.setText("8");
     	
     	Label spLab = new Label("Screen Priority");
@@ -131,11 +136,11 @@ public class SnickerstreamGUI extends SettingsGUI {
 	}
 	
 	public int getQuality() throws InvalidOptionException {
-		try {
-			return Integer.parseInt(imgQual.getText());
-		} catch (NumberFormatException e) {
+		int quality = Integer.parseInt(imgQual.getText());
+		if(quality < 0 || quality > 100) {
 			throw new InvalidOptionException("Image Quality", imgQual.getText());
 		}
+		return quality;
 	}
 	
 	public NTRScreen getScreen() throws InvalidOptionException {
@@ -151,18 +156,18 @@ public class SnickerstreamGUI extends SettingsGUI {
 	}
 	
 	public int getPriority() throws InvalidOptionException {
-		try {
-			return Integer.parseInt(priFac.getText());
-		} catch (NumberFormatException e) {
+		int priority = Integer.parseInt(priFac.getText());
+		if(priority < 0 || priority > 100) {
 			throw new InvalidOptionException("Priority Factor", priFac.getText());
 		}
+		return priority;
 	}
 	
 	public int getQos() throws InvalidOptionException {
-		try {
-			return Integer.parseInt(qosVal.getText());
-		} catch (NumberFormatException e) {
+		int qos = Integer.parseInt(qosVal.getText());
+		if(qos < 0 || qos > 100) {
 			throw new InvalidOptionException("QoS Value", qosVal.getText());
 		}
+		return qos;
 	}
 }

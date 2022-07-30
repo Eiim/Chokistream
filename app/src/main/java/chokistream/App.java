@@ -21,7 +21,10 @@ public class App extends Application {
     	launch();
     }
     
+    // Triggered from the button press in the GUI.
     public void connect() {
+    	// These are universal, so get these first and then sort out the rest by mod.
+    	// Technically quality could be here.
     	Mod mod;
     	String ip;
     	try {
@@ -40,7 +43,9 @@ public class App extends Application {
 	    			int priority = scene.getPriority();
 	    			int qos = scene.getQos();
 	    			
+	    			// Initializes connection
 	    			client = new NTRClient(ip, quality, screen, priority, qos);
+	    			// TODO: process stream
 				} catch (Exception e) {
 					scene.displayError(e);
 					return;
@@ -50,7 +55,9 @@ public class App extends Application {
     				int quality = scene.getQuality();
     				int capCpu = scene.getCapCPU();
     				
+    				// Initializes connection
     				client = new HZModClient(ip, quality, capCpu);
+    				// TODO: process stream
     			} catch (Exception e) {
     				scene.displayError(e);
     			}
