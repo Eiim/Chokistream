@@ -6,4 +6,8 @@ Nintendo 3DS wireless video capture, compatible with BootNTR (https://github.com
 
 Currently a work in progress.
 
-Written in Java 17
+# Build Instructions
+
+Written in Java 17, requires Java 17 to be installed (:
+
+No other requirements. Run `gradlew build` in Windows Command Prompt or Unix Terminal.
