@@ -1,11 +1,13 @@
 package chokistream;
 
+import javafx.scene.image.Image;
+
 public class HZModClient implements StreamingInterface {
 	
 	/**
 	 * Internal buffer of frames.
 	 */
-	private byte[][] buffer;
+	private Image[] buffer;
 
 	/**
 	 * HzMod version:
@@ -27,7 +29,7 @@ public class HZModClient implements StreamingInterface {
 	}
 
 	@Override
-	public byte[] getFrame() {
+	public Image getFrame() {
 		// TODO Auto-generated method stub
 		return null;
 	}

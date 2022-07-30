@@ -4,12 +4,14 @@
 
 package chokistream;
 
+import javafx.scene.image.Image;
+
 public class NTRClient implements StreamingInterface {
 	
 	/**
 	 * Internal buffer of frames.
 	 */
-	private byte[][] buffer;
+	private Image[] buffer;
 
 	/**
 	 * NTR version:
@@ -33,7 +35,7 @@ public class NTRClient implements StreamingInterface {
 	}
 
 	@Override
-	public byte[] getFrame() {
+	public Image getFrame() {
 		// TODO Auto-generated method stub
 		return null;
 	}

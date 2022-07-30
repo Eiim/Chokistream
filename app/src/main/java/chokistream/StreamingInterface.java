@@ -4,6 +4,8 @@
 
 package chokistream;
 
+import javafx.scene.image.Image;
+
 public interface StreamingInterface {
 	
 	/**
@@ -15,6 +17,6 @@ public interface StreamingInterface {
 	 * Gets a single frame from the streaming source.
 	 * @return The frame data.
 	 */
-	public byte[] getFrame();
+	public Image getFrame();
 	
 }
