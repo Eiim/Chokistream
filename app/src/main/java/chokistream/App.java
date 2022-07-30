@@ -9,6 +9,7 @@ public class App extends Application {
 	private SettingsGUI scene;
 	private StreamingInterface client;
 	private VideoOutputInterface output;
+	private Stage stage;
 	
     @Override
     public void start(Stage stage) throws Exception {
@@ -16,6 +17,7 @@ public class App extends Application {
         stage.setScene(scene);
         stage.setTitle("Chokistream");
         stage.show();
+        this.stage = stage;
     }
     
     public static void main(String[] args) {
@@ -28,9 +30,11 @@ public class App extends Application {
     	// Technically quality could be here.
     	Mod mod;
     	String ip;
+    	Layout layout;
     	try {
 			mod = scene.getMod();
 			ip = scene.getIp();
+			layout = scene.getLayout();
 		} catch (InvalidOptionException e) {
 			scene.displayError(e);
 			return;
@@ -46,7 +50,8 @@ public class App extends Application {
 	    			
 	    			// Initializes connection
 	    			client = new NTRClient(ip, quality, screen, priority, qos);
-	    			output = new JavaFXVideo(client);
+	    			output = new JavaFXVideo(client, layout);
+	    			stage.close();
 				} catch (Exception e) {
 					scene.displayError(e);
 					return;
@@ -59,7 +64,8 @@ public class App extends Application {
     				
     				// Initializes connection
     				client = new HZModClient(ip, quality, capCpu);
-    				output = new JavaFXVideo(client);
+    				output = new JavaFXVideo(client, layout);
+    				stage.close();
     			} catch (Exception e) {
     				scene.displayError(e);
     			}

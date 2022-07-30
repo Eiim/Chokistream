@@ -95,6 +95,8 @@ public class SnickerstreamGUI extends SettingsGUI {
     	layout = new ChoiceBox<String>();
     	layout.relocate(411, 82);
     	layout.setPrefSize(175, 25);
+    	layout.getItems().addAll("Separate", "Vertical", "Vertical (Inv)", "Horizontal", "Horizontal (Inv)", "Top Only", "Bottom Only");
+    	layout.setValue("Separate");
     	
     	about = new Button("About");
     	about.relocate(307, 117);
@@ -171,5 +173,27 @@ public class SnickerstreamGUI extends SettingsGUI {
 			throw new InvalidOptionException("QoS Value", qosVal.getText());
 		}
 		return qos;
+	}
+	
+	public Layout getLayout() throws InvalidOptionException {
+		String lay = layout.getValue();
+		switch(lay) {
+			case "Separate":
+				return Layout.SEPARATE;
+			case "Vertical":
+				return Layout.VERTICAL;
+			case "Horizontal":
+				return Layout.HORIZONTAL;
+			case "Vertical (Inv)":
+				return Layout.VERTICAL_INV;
+			case "Horizontal (Inv)":
+				return Layout.HORIZONTAL_INV;
+			case "Top Only":
+				return Layout.TOP_ONLY;
+			case "Bottom Only":
+				return Layout.BOTTOM_ONLY;
+			default:
+				throw new InvalidOptionException("Layout", lay);
+		}
 	}
 }

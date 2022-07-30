@@ -1,0 +1,7 @@
+package chokistream;
+
+public enum Layout {
+	SEPARATE,
+	VERTICAL, VERTICAL_INV, HORIZONTAL, HORIZONTAL_INV,
+	TOP_ONLY, BOTTOM_ONLY
+}

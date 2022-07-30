@@ -21,6 +21,7 @@ public class SettingsGUI extends Scene {
 	protected int priority = 8;
 	protected int qos = 26;
 	protected int capCPU  = 0;
+	protected Layout layout = Layout.SEPARATE;
 	
 	// These can throw exceptions in case the user inputs bad data (like "yummy" for the quality or something)
 	public String getIp() throws InvalidOptionException {
@@ -43,6 +44,9 @@ public class SettingsGUI extends Scene {
 	}
 	public int getCapCPU() throws InvalidOptionException {
 		return capCPU;
+	}
+	public Layout getLayout() throws InvalidOptionException {
+		return layout;
 	}
 	
 	// Generic popup
