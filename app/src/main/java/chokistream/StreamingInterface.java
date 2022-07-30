@@ -4,6 +4,8 @@
 
 package chokistream;
 
+import java.io.IOException;
+
 import javafx.scene.image.Image;
 
 public interface StreamingInterface {
@@ -11,7 +13,7 @@ public interface StreamingInterface {
 	/**
 	 * Disconnect from the streaming source and tear down this object.
 	 */
-	public void close();
+	public void close() throws IOException;
 	
 	/**
 	 * Gets a single frame from the streaming source.
