@@ -75,7 +75,7 @@ public class SettingsGUI extends Scene {
 	}
 	
 	/**
-	 * @return 
+	 * @return The CPU cap for NTR
 	 * @throws InvalidOptionException
 	 */
 	public int getCapCPU() throws InvalidOptionException {
@@ -101,4 +101,8 @@ public class SettingsGUI extends Scene {
 		popup.setTitle("Error");
 		popup.show();
 	}
+	
+	public void saveSettings() {}
+	
+	public void loadSettings() {}
 }

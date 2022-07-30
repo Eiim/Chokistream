@@ -19,3 +19,4 @@ build
 
 # Used for local config
 gradle.properties
+app/chokistream.ini

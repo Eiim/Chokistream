@@ -1,5 +1,10 @@
 package chokistream;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
+import chokistream.INIParser.IniParseException;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
@@ -105,17 +110,26 @@ public class SnickerstreamGUI extends SettingsGUI {
     	adv = new Button("Advanced");
     	adv.relocate(402, 117);
     	adv.setPrefSize(90, 25);
+    	adv.setOnAction((e) -> {
+    		saveSettings();
+    	});
     	
     	patch = new Button("NFC Patch");
     	patch.relocate(495, 117);
     	patch.setPrefSize(90, 25);
+    	patch.setOnAction((e) -> {
+    		loadSettings();
+    	});
     	
     	connect = new Button("Connect!");
     	connect.relocate(308, 152);
     	connect.setPrefSize(279, 61);
     	connect.setOnAction((e) -> {
+    		saveSettings();
     		app.connect();
     	});
+    	
+    	loadSettings();
     	
     	pane = new Pane();
     	pane.getChildren().addAll(psLab, preset, qsvLab, qosVal, iqLab, imgQual, pfLab, priFac, spLab, scrPri, ipLab, ip,
@@ -194,6 +208,64 @@ public class SnickerstreamGUI extends SettingsGUI {
 				return Layout.BOTTOM_ONLY;
 			default:
 				throw new InvalidOptionException("Layout", lay);
+		}
+	}
+	
+	public void saveSettings() {
+		File f = new File("chokistream.ini");
+		if(!f.exists()) {
+			try {
+				f.createNewFile();
+			} catch (IOException e) {
+				displayError(e);
+			}
+		}
+		try {
+			INIParser parser = new INIParser(f);
+			
+			parser.setProperty("ip", getIp());
+			parser.setProperty("qos", getQos());
+			parser.setProperty("quality", getQuality());
+			parser.setProperty("priority", getPriority());
+			parser.setProperty("priorityScreen", scrPri.getValue());
+			parser.setProperty("mod", strApp.getValue());
+			parser.setProperty("layout", layout.getValue());
+		} catch (Exception e) {
+			displayError(e);
+		}
+	}
+	
+	public void loadSettings() {
+		File f = new File("chokistream.ini");
+		if(!f.exists()) {
+			return;
+		}
+		try {
+			INIParser parser = new INIParser(f);
+			
+			setTextIfProp(parser, ip, "ip");
+			setTextIfProp(parser, qosVal, "qos");
+			setTextIfProp(parser, imgQual, "quality");
+			setTextIfProp(parser, priFac, "priority");
+			setValueIfProp(parser, scrPri, "priorityScreen");
+			setValueIfProp(parser, strApp, "mod");
+			setValueIfProp(parser, layout, "layout");
+		} catch (Exception e) {
+			displayError(e);
+		}
+	}
+	
+	private void setTextIfProp(INIParser parser, TextField tf, String prop) {
+		String val = parser.getProperty(prop);
+		if(!val.equals("")) {
+			tf.setText(val);
+		}
+	}
+	
+	private void setValueIfProp(INIParser parser, ChoiceBox<String> cb, String prop) {
+		String val = parser.getProperty(prop);
+		if(!val.equals("")) {
+			cb.setValue(val);
 		}
 	}
 }
