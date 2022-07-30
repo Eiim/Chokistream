@@ -1,6 +1,15 @@
+/**
+ * 
+ */
+
 package chokistream;
 
 public class NTRClient implements StreamingInterface {
+	
+	/**
+	 * Internal buffer of frames.
+	 */
+	private byte[][] buffer;
 
 	/**
 	 * NTR version:

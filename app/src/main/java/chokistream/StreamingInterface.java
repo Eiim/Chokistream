@@ -5,6 +5,7 @@
 package chokistream;
 
 public interface StreamingInterface {
+	
 	/**
 	 * Disconnect from the streaming source and tear down this object.
 	 */
@@ -15,4 +16,5 @@ public interface StreamingInterface {
 	 * @return The frame data.
 	 */
 	public byte[] getFrame();
+	
 }

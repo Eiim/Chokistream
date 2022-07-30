@@ -1,6 +1,11 @@
 package chokistream;
 
 public class HZModClient implements StreamingInterface {
+	
+	/**
+	 * Internal buffer of frames.
+	 */
+	private byte[][] buffer;
 
 	/**
 	 * HzMod version:
