@@ -1,5 +1,6 @@
 package chokistream;
 
+import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
@@ -49,8 +50,10 @@ public class SettingsGUI extends Scene {
 		Stage popup = new Stage();
 		popup.initModality(Modality.APPLICATION_MODAL);
 		Label message = new Label(e.getClass().getSimpleName()+": "+e.getMessage());
-		Scene scene = new Scene(message); // TODO: Add some margins around the text
+		message.setPadding(new Insets(7));
+		Scene scene = new Scene(message);
 		popup.setScene(scene);
+		popup.setTitle("Error");
 		popup.show();
 	}
 }

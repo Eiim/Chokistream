@@ -27,6 +27,8 @@ public class SnickerstreamGUI extends SettingsGUI {
 	public SnickerstreamGUI(App app) {
 		super(new Pane(), 600, 255);
 		
+		// Left Half
+		
 		Label psLab = new Label("Preset");
     	psLab.relocate(14, 191);
     	preset = new ChoiceBox<String>();
