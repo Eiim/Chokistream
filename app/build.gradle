@@ -35,3 +35,11 @@ application {
     // Define the main class for the application.
     mainClass = 'chokistream.App'
 }
+
+jar {
+	manifest {
+		attributes (
+			'Main-Class': 'chokistream.App'
+		)
+	}
+}

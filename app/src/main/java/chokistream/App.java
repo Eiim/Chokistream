@@ -11,10 +11,16 @@ import javafx.stage.Stage;
 
 
 public class App extends Application {
-
+	
+	private SettingsGUI scene;
+	private StreamingInterface client;
+	
     @Override
     public void start(Stage stage) throws Exception {
-    	useSSUI(stage);
+    	scene = new SnickerstreamGUI(this);
+        stage.setScene(scene);
+        stage.setTitle("Chokistream");
+        stage.show();
     }
     
     public static void main(String[] args) {
@@ -46,91 +52,40 @@ public class App extends Application {
         stage.show();
     }
     
-    public void useSSUI(Stage stage) throws Exception {
+    public void connect() {
+    	Mod mod;
+    	String ip;
+    	try {
+			mod = scene.getMod();
+			ip = scene.getIp();
+		} catch (InvalidOptionException e) {
+			scene.displayError(e);
+			return;
+		}
     	
-    	// Left Half
-    	
-    	Label psLab = new Label("Preset");
-    	psLab.relocate(14, 191);
-    	ChoiceBox<String> preset = new ChoiceBox<String>();
-    	preset.relocate(111, 187);
-    	preset.setPrefSize(175, 25);
-    	
-    	Label qsvLab = new Label("QoS Value");
-    	qsvLab.relocate(14, 156);
-    	TextField qosVal = new TextField();
-    	qosVal.relocate(110, 152);
-    	qosVal.setPrefSize(175,25);
-    	
-    	Label iqLab = new Label("Image Quality");
-    	iqLab.relocate(14, 121);
-    	TextField imgQual = new TextField();
-    	imgQual.relocate(110, 117);
-    	imgQual.setPrefSize(175,25);
-    	
-    	Label pfLab = new Label("Priority Factor");
-    	pfLab.relocate(14, 86);
-    	TextField priFac = new TextField();
-    	priFac.relocate(110, 82);
-    	priFac.setPrefSize(175,25);
-    	
-    	Label spLab = new Label("Screen Priority");
-    	spLab.relocate(14, 51);
-    	ChoiceBox<String> scrPri = new ChoiceBox<String>();
-    	scrPri.relocate(111, 47);
-    	scrPri.setPrefSize(175, 25);
-    	
-    	Label ipLab = new Label("3DS IP");
-    	ipLab.relocate(14, 18);
-    	TextField ip = new TextField();
-    	ip.relocate(110, 14);
-    	ip.setPrefSize(175,25);
-    	ip.setPromptText("0.0.0.0");
-    	
-    	// Right Half
-    	
-    	Label saLab = new Label("Streaming App");
-    	saLab.relocate(307, 18);
-    	ChoiceBox<String> strApp = new ChoiceBox<String>();
-    	strApp.relocate(411, 14);
-    	strApp.setPrefSize(175, 25);
-    	
-    	Label intLab = new Label("Interpolation");
-    	intLab.relocate(307, 52);
-    	ChoiceBox<String> intrp = new ChoiceBox<String>();
-    	intrp.relocate(411, 47);
-    	intrp.setPrefSize(175, 25);
-    	
-    	Label slLab = new Label("Screen Layout");
-    	slLab.relocate(307, 86);
-    	ChoiceBox<String> layout = new ChoiceBox<String>();
-    	layout.relocate(411, 82);
-    	layout.setPrefSize(175, 25);
-    	
-    	Button about = new Button("About");
-    	about.relocate(307, 117);
-    	about.setPrefSize(90, 25);
-    	
-    	Button adv = new Button("Advanced");
-    	adv.relocate(402, 117);
-    	adv.setPrefSize(90, 25);
-    	
-    	Button patch = new Button("NFC Patch");
-    	patch.relocate(495, 117);
-    	patch.setPrefSize(90, 25);
-    	
-    	Button connect = new Button("Connect!");
-    	connect.relocate(308, 152);
-    	connect.setPrefSize(279, 61);
-    	
-    	Pane p = new Pane();
-    	p.getChildren().addAll(psLab, preset, qsvLab, qosVal, iqLab, imgQual, pfLab, priFac, spLab, scrPri, ipLab, ip,
-    			saLab, strApp, intLab, intrp, slLab, layout, about, adv, patch, connect);
-    	
-    	Scene scene = new Scene(p, 600, 225);
-        stage.setScene(scene);
-        stage.setTitle("Chokistream");
-        stage.show();
+    	switch(mod) {
+    		case NTR:
+				try {
+					int quality = scene.getQuality();
+	    			NTRScreen screen = scene.getScreen();
+	    			int priority = scene.getPriority();
+	    			int qos = scene.getQos();
+	    			
+	    			client = new NTRClient(ip, quality, screen, priority, qos);
+				} catch (Exception e) {
+					scene.displayError(e);
+					return;
+				}
+    		case HZMOD:
+    			try {
+    				int quality = scene.getQuality();
+    				int capCpu = scene.getCapCPU();
+    				
+    				client = new HZModClient(ip, quality, capCpu);
+    			} catch (Exception e) {
+    				scene.displayError(e);
+    			}
+    	}
     }
 
 }
