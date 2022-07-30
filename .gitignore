@@ -16,3 +16,6 @@ gradle-app.setting
 # Ignore Gradle build output directory
 build
 /bin/
+
+# Used for local config
+gradle.properties
