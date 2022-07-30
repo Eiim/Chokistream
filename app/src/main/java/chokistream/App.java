@@ -8,6 +8,7 @@ public class App extends Application {
 	
 	private SettingsGUI scene;
 	private StreamingInterface client;
+	private VideoOutputInterface output;
 	
     @Override
     public void start(Stage stage) throws Exception {
@@ -45,11 +46,12 @@ public class App extends Application {
 	    			
 	    			// Initializes connection
 	    			client = new NTRClient(ip, quality, screen, priority, qos);
-	    			// TODO: process stream
+	    			output = new JavaFXVideo(client);
 				} catch (Exception e) {
 					scene.displayError(e);
 					return;
 				}
+				break;
     		case HZMOD:
     			try {
     				int quality = scene.getQuality();
@@ -57,7 +59,7 @@ public class App extends Application {
     				
     				// Initializes connection
     				client = new HZModClient(ip, quality, capCpu);
-    				// TODO: process stream
+    				output = new JavaFXVideo(client);
     			} catch (Exception e) {
     				scene.displayError(e);
     			}

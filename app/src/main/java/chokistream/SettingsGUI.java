@@ -14,13 +14,13 @@ public class SettingsGUI extends Scene {
 	}
 	
 	// Use defaults from Snickerstream if the GUI doesn't implement them, could change in the future.
-	private String ip = "0.0.0.0";
-	private Mod mod = Mod.NTR;
-	private int quality = 70;
-	private NTRScreen screen = NTRScreen.TOP;
-	private int priority = 8;
-	private int qos = 26;
-	private int capCPU  = 0;
+	protected String ip = "0.0.0.0";
+	protected Mod mod = Mod.NTR;
+	protected int quality = 70;
+	protected NTRScreen screen = NTRScreen.TOP;
+	protected int priority = 8;
+	protected int qos = 26;
+	protected int capCPU  = 0;
 	
 	// These can throw exceptions in case the user inputs bad data (like "yummy" for the quality or something)
 	public String getIp() throws InvalidOptionException {
