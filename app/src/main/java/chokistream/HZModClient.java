@@ -1,7 +1,3 @@
-/**
- * 
- */
-
 package chokistream;
 
 import java.io.IOException;
@@ -10,8 +6,9 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-import javafx.scene.image.Image;
-
+/**
+ * 
+ */
 public class HZModClient implements StreamingInterface {
 	
 	private Socket client = null;
@@ -38,7 +35,7 @@ public class HZModClient implements StreamingInterface {
 	}
 
 	@Override
-	public Image getFrame() {
+	public Frame getFrame() {
 		// TODO Auto-generated method stub
 		return null;
 	}

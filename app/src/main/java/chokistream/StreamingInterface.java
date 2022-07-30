@@ -1,13 +1,10 @@
-/**
- * Defines an interface that all streaming clients must implement.
- */
-
 package chokistream;
 
 import java.io.IOException;
 
-import javafx.scene.image.Image;
-
+/**
+ * Defines an interface that all streaming clients must implement.
+ */
 public interface StreamingInterface {
 	
 	/**
@@ -19,6 +16,6 @@ public interface StreamingInterface {
 	 * Gets a single frame from the streaming source.
 	 * @return The frame data.
 	 */
-	public Image getFrame();
+	public Frame getFrame() throws InterruptedException;
 	
 }

@@ -1,7 +1,3 @@
-/**
- * 
- */
-
 package chokistream;
 
 import java.io.IOException;
@@ -10,9 +6,15 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.concurrent.TimeUnit;
 
-import javafx.scene.image.Image;
-
+/**
+ * 
+ */
 public class NTRClient implements StreamingInterface {
+	
+	/**
+	 * Thread used by NTRClient to read and buffer Frames received from the 3DS.
+	 */
+	private NTRUDPThread thread;
 
 	/**
 	 * Create an NTRClient.
@@ -27,6 +29,8 @@ public class NTRClient implements StreamingInterface {
 	 */
 	public NTRClient(String host, int quality, NTRScreen screen, int priority, int qos) throws UnknownHostException, IOException, InterruptedException {
 		// Connect to TCP port and set up client
+		thread = new NTRUDPThread(host);
+		thread.start();
 		Socket client = new Socket(host, 8000);
 		client.setTcpNoDelay(true);
 		OutputStream out = client.getOutputStream();
@@ -62,18 +66,25 @@ public class NTRClient implements StreamingInterface {
 
 	@Override
 	public void close() throws IOException {
-		// TODO Auto-generated method stub
+		thread.interrupt();
+		thread.close();
 	}
 
 	@Override
-	public Image getFrame() {
-		// TODO Auto-generated method stub
-		return null;
+	public Frame getFrame() throws InterruptedException {
+		return thread.getFrame();
 	}
 	
+	/**
+	 * FOR DEBUG ONLY
+	 * TODO REMOVE THIS
+	 * @param args EEEEE
+	 */
 	public static void main(String[] args) {
 		try {
-			NTRClient client = new NTRClient("192.168.1.42", 100, NTRScreen.TOP, 100, 100);
+			NTRClient client = new NTRClient("192.168.1.42", 100, NTRScreen.TOP, 1, 100);
+			client.getFrame();
+			client.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
