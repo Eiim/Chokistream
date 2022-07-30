@@ -6,6 +6,7 @@ import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.Arrays;
 import java.util.concurrent.BlockingQueue;
 
 import javafx.scene.image.Image;
@@ -35,6 +36,8 @@ public class NTRUDPThread extends Thread {
 	 */
 	private AtomicBoolean shouldDie = new AtomicBoolean(false);
 	
+	WritableInputStream priorityInputStream = new WritableInputStream();
+	WritableInputStream secondaryInputStream = new WritableInputStream();
 	private Image priorityImage;
 	private Image secondaryImage;
 	private byte priorityExpectedFrame = 0;
@@ -48,7 +51,8 @@ public class NTRUDPThread extends Thread {
 	 * @param host The host or IP to connect to.
 	 * @throws SocketException
 	 */
-	NTRUDPThread(String host) throws SocketException {
+	NTRUDPThread(String host, NTRScreen screen) throws SocketException {
+		activeScreen = screen;
 		socket = new DatagramSocket(8001);
 	}
 	
@@ -68,7 +72,7 @@ public class NTRUDPThread extends Thread {
 				byte[] data = packet.getData();
 				byte currentFrame = data[0];
 				NTRScreen currentScreen = ((data[1] & 0x0F) == 1) ? NTRScreen.TOP : NTRScreen.BOTTOM;
-				boolean isLastPacket = (((data[1] & 0xF) >> 4) == 1);
+				boolean isLastPacket = (((data[1] & 0xF0) >> 4) == 1);
 				int currentPacket = data[3];
 				
 				if (priorityExpectedFrame == 0 && currentScreen == activeScreen) {
@@ -79,33 +83,43 @@ public class NTRUDPThread extends Thread {
 				
 				if (priorityExpectedFrame == currentFrame && priorityExpectedPacket == currentPacket && activeScreen == currentScreen) {
 					// Priority screen
-					// TODO Write image data
+					byte[] dataToWrite = Arrays.copyOfRange(data, 4, data.length);
+					priorityInputStream.write(dataToWrite);
 					priorityExpectedPacket++;
 					
 					if (isLastPacket) {
+						priorityInputStream.markFinishedWriting();
+						priorityImage = new Image(priorityInputStream.getInputStream());
 						frameBuffer.add(new Frame(currentScreen, priorityImage));
+						priorityInputStream = new WritableInputStream();
 						priorityImage = null;
 						priorityExpectedFrame = 0;
 	                    priorityExpectedPacket = 0;
 					}
 				} else if (currentScreen == activeScreen) {
 					// Unexpected priority packet or frame
+					priorityInputStream = new WritableInputStream();
 					priorityImage = null;
 					priorityExpectedFrame = 0;
                     priorityExpectedPacket = 0;
 				} else if(secondaryExpectedPacket == currentPacket) {
-					// Priority screen
-					// TODO Write image data
+					// Secondary screen
+					byte[] dataToWrite = Arrays.copyOfRange(data, 4, data.length);
+					secondaryInputStream.write(dataToWrite);
 					secondaryExpectedPacket++;
 					
 					if (isLastPacket) {
+						secondaryInputStream.markFinishedWriting();
+						secondaryImage = new Image(secondaryInputStream.getInputStream());
 						frameBuffer.add(new Frame(currentScreen, secondaryImage));
+						secondaryInputStream = new WritableInputStream();
 						secondaryImage = null;
 						secondaryExpectedFrame = 0;
 	                    secondaryExpectedPacket = 0;
 					}
 				} else {
 					// Unexpected secondary packet or frame
+					secondaryInputStream = new WritableInputStream();
 					secondaryImage = null;
 					secondaryExpectedFrame = 0;
                     secondaryExpectedPacket = 0;

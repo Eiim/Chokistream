@@ -17,6 +17,13 @@ public class Frame {
 	 */
 	public Image image;
 	
+	
+	/**
+	 * For debugging only
+	 * TODO REMOVE THIS
+	 */
+	public byte[] rawImageData;
+	
 	/**
 	 * HZMod version:
 	 * Create a new Frame object.

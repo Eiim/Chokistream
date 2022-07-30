@@ -29,7 +29,7 @@ public class NTRClient implements StreamingInterface {
 	 */
 	public NTRClient(String host, int quality, NTRScreen screen, int priority, int qos) throws UnknownHostException, IOException, InterruptedException {
 		// Connect to TCP port and set up client
-		thread = new NTRUDPThread(host);
+		thread = new NTRUDPThread(host, screen);
 		thread.start();
 		Socket client = new Socket(host, 8000);
 		client.setTcpNoDelay(true);
@@ -73,21 +73,6 @@ public class NTRClient implements StreamingInterface {
 	@Override
 	public Frame getFrame() throws InterruptedException {
 		return thread.getFrame();
-	}
-	
-	/**
-	 * FOR DEBUG ONLY
-	 * TODO REMOVE THIS
-	 * @param args EEEEE
-	 */
-	public static void main(String[] args) {
-		try {
-			NTRClient client = new NTRClient("192.168.1.42", 100, NTRScreen.TOP, 1, 100);
-			client.getFrame();
-			client.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 	}
 
 }
