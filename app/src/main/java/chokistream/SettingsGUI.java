@@ -45,7 +45,7 @@ public class SettingsGUI extends Scene {
 	public void displayError(Exception e) {
 		Stage popup = new Stage();
 		popup.initModality(Modality.APPLICATION_MODAL);
-		Label message = new Label(e.getMessage());
+		Label message = new Label(e.getClass().getSimpleName()+": "+e.getMessage());
 		Scene scene = new Scene(message);
 		popup.setScene(scene);
 		popup.show();

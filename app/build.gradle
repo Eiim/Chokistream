@@ -20,7 +20,7 @@ repositories {
 
 javafx {
     version = "17.0.2"
-    modules = [ 'javafx.controls', 'javafx.fxml' ]
+    modules = [ 'javafx.controls' ]
 }
 
 dependencies {
@@ -33,13 +33,16 @@ dependencies {
 
 application {
     // Define the main class for the application.
-    mainClass = 'chokistream.App'
+    mainClass = 'chokistream.Main'
 }
 
 jar {
+	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
 	manifest {
-		attributes (
-			'Main-Class': 'chokistream.App'
-		)
+		attributes 'Main-Class': 'chokistream.Main'
 	}
+	from {
+        configurations.compileClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
 }

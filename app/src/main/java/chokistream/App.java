@@ -1,12 +1,6 @@
 package chokistream;
 
 import javafx.application.Application;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
 
@@ -25,31 +19,6 @@ public class App extends Application {
     
     public static void main(String[] args) {
     	launch();
-    }
-    
-    public void useTestUI(Stage stage) throws Exception {
-    	TextField tf = new TextField();
-    	ChoiceBox<String> cb = new ChoiceBox<>();
-    	cb.getItems().addAll("NTR", "HzMod");
-    	cb.setValue("NTR");
-    	
-        Button b = new Button();
-        b.setText("Connect!");
-        b.setOnAction((e) -> {
-        	System.out.println("Text: "+tf.getText()+"\nCheckbox: "+cb.getValue());
-        });
-        
-        tf.relocate(25,25);
-        cb.relocate(25, 75);
-        b.relocate(25, 125);
-        
-        Pane p = new Pane();
-        p.getChildren().addAll(tf, cb, b);
-        
-        Scene scene = new Scene(p, 400, 200);
-        stage.setScene(scene);
-        stage.setTitle("Chokistream");
-        stage.show();
     }
     
     public void connect() {
