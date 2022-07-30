@@ -6,7 +6,13 @@ public class NetworkThread extends Thread {
 	private StreamingInterface input;
 	
 	public void run() {
-		output.renderFrame(input.getFrame());
+		while(true) {
+			try {
+				output.renderFrame(input.getFrame());
+			} catch(InterruptedException e) {
+				output.displayError(e);
+			}
+		}
 	}
 	
 	public void setOutput(VideoOutputInterface out) {

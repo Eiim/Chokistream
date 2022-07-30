@@ -7,7 +7,6 @@ import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import javafx.stage.Modality;
@@ -33,13 +32,20 @@ public class JavaFXVideo extends VideoOutputInterface {
 			case VERTICAL:
 				setupVertical();
 				break;
+			case VERTICAL_INV:
+				setupVerticalInv();
+				break;
 			default:
 				displayError(new InvalidOptionException("Layout for JavaFXVideo", layout.toString()));
 		}
 	}
 	
-	public void renderFrame(Image im) {
-		topImageView.setImage(im);
+	public void renderFrame(Frame fr) {
+		if(fr.screen == NTRScreen.BOTTOM) {
+			bottomImageView.setImage(fr.image);
+		} else {
+			topImageView.setImage(fr.image);
+		}
 	}
 	
 	public void kill() {
@@ -97,6 +103,26 @@ public class JavaFXVideo extends VideoOutputInterface {
 		topImageView = new ImageView();
 		bottomImageView = new ImageView();
 		bottomImageView.relocate(40, 240);
+		Group g = new Group();
+		g.getChildren().addAll(topImageView, bottomImageView);
+		Scene scene = new Scene(g);
+		scene.setFill(Color.BLACK);
+		
+		Stage stage = new Stage();
+		stage.setWidth(400);
+		stage.setHeight(480);
+		stage.setTitle("Chokistream");
+		stage.setScene(scene);
+		stage.show();
+		
+		stages.add(stage);
+	}
+	
+	private void setupVerticalInv() {
+		topImageView = new ImageView();
+		topImageView.relocate(0, 240);
+		bottomImageView = new ImageView();
+		bottomImageView.relocate(40, 0);
 		Group g = new Group();
 		g.getChildren().addAll(topImageView, bottomImageView);
 		Scene scene = new Scene(g);

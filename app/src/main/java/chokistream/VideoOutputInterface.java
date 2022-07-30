@@ -16,5 +16,9 @@ public class VideoOutputInterface {
 		networkThread.start();
 	}
 	
-	public void renderFrame(Image frame) {}
+	public void renderFrame(Frame frame) {}
+	
+	public void displayError(Exception e) {
+		System.out.println(e.getClass().getSimpleName()+": "+e.getMessage());
+	}
 }
