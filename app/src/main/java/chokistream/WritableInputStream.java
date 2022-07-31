@@ -7,8 +7,7 @@ public class WritableInputStream {
 	
 	private boolean finished = false;
 	private int length = 0;
-	// TODO mark this private, is public for debugging
-	public byte[] contents = new byte[1];
+	private byte[] contents = new byte[1];
 	
 	/**
 	 * Writes a byte to the ImageInputStream.
