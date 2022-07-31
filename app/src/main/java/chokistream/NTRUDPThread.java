@@ -64,6 +64,27 @@ public class NTRUDPThread extends Thread {
 		socket.close();
 	}
 	
+	/**
+	 * Attempt to hot-fix the colors if the option is enabled(?)
+	 * This is specifically aimed at Virtual Console games:
+	 * Most notably Pokemon Yellow, but also Super Mario Bros, etc.
+	 */
+	private Image hotfixColors(Image hotfixImageInput) {
+		Image hotfixImageOutput = null;
+		int currentW = 0; // Current Width (position of pixel being processed)
+		int currentH = 0; // Current Height
+		int pixelsConverted = 0;
+		int numPixelsMax = (int)( (hotfixImageInput.getHeight() * (int)(hotfixImageInput.getWidth()) ) );
+		
+		while (pixelsConverted < numPixelsMax) {
+			while (currentH < 0) {
+				pixelsConverted++;
+			}
+		}
+		
+		return hotfixImageOutput;
+	}
+	
 	public void run() {
 		while (!shouldDie.get()) {
 			DatagramPacket packet = new DatagramPacket(packetBuffer, packetBuffer.length);
@@ -90,6 +111,9 @@ public class NTRUDPThread extends Thread {
 					if (isLastPacket) {
 						priorityInputStream.markFinishedWriting();
 						priorityImage = new Image(priorityInputStream.getInputStream());
+						if (1 == 0) { // Placeholder
+							priorityImage = hotfixColors(priorityImage);
+						}
 						frameBuffer.add(new Frame(currentScreen, priorityImage));
 						priorityInputStream = new WritableInputStream();
 						priorityImage = null;
@@ -111,6 +135,9 @@ public class NTRUDPThread extends Thread {
 					if (isLastPacket) {
 						secondaryInputStream.markFinishedWriting();
 						secondaryImage = new Image(secondaryInputStream.getInputStream());
+						if (1 == 0) { // Placeholder
+							secondaryImage = hotfixColors(secondaryImage);
+						}
 						frameBuffer.add(new Frame(currentScreen, secondaryImage));
 						secondaryInputStream = new WritableInputStream();
 						secondaryImage = null;
