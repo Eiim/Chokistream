@@ -21,3 +21,4 @@ build
 gradle.properties
 app/chokistream.ini
 chokistream.ini
+.classpath
