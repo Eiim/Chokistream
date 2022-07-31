@@ -120,6 +120,7 @@ public class NTRUDPThread extends Thread {
 			currentW = 0;
 			currentH++;
 		}
+		hotfixImageOutput = hotfixImageWritable;
 		return hotfixImageOutput;
 	}
 	/**
