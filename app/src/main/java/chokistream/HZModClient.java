@@ -1,10 +1,13 @@
 package chokistream;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
 import javafx.scene.image.Image;
 
@@ -78,8 +81,7 @@ public class HZModClient implements StreamingInterface {
 		
 		returnPacket.type = (byte) in.read();
 		returnPacket.length = in.read() + (in.read() << 8) + (in.read() << 16);
-		in.readNBytes(8);
-		returnPacket.data = in.readNBytes(returnPacket.length - 8);
+		returnPacket.data = in.readNBytes(returnPacket.length);
 		
 		return returnPacket;
 	}
@@ -93,14 +95,26 @@ public class HZModClient implements StreamingInterface {
 			packet = getPacket();
 		}
 		
+		/*
+		 * No clue why, but HzMod includes an extra 8 bytes at the front of the image.
+		 * We need to trim it off.
+		 */
+		byte[] data = Arrays.copyOfRange(packet.data, 8, packet.data.length);
+		
 		Image image = null;
 		
 		if (packet.type == jpegPacket) {
-			WritableInputStream imageData = new WritableInputStream(packet.data, true);
+			WritableInputStream imageData = new WritableInputStream(data, true);
 			image = new Image(imageData.getInputStream());
 		} else if (packet.type == targaPacket) {
 			// TODO implement TARGA support
 		}
+		
+		/*
+		 * For some reason the red and blue channels are swapped.
+		 * Fix it.
+		 */
+		image = ColorHotfix.HzModSwapRedBlue(image);
 		
 		returnFrame = new Frame(image);
 		
