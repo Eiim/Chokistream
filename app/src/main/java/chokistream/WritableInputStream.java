@@ -8,6 +8,25 @@ public class WritableInputStream {
 	private boolean finished = false;
 	private int length = 0;
 	private byte[] contents = new byte[1];
+
+	/**
+	 * Create a new WritableInputStream.
+	 */
+	public WritableInputStream() {
+		// Left blank but must exist.
+	}
+	
+	/**
+	 * Create a new WritableInputStream with existing data, and tell it
+	 * if the data is already finished or not.
+	 * @param data Data to store.
+	 * @param isFinished If the data is already finished.
+	 */
+	public WritableInputStream(byte[] data, boolean isFinished) {
+		finished = isFinished;
+		length = data.length;
+		contents = data;
+	}
 	
 	/**
 	 * Writes a byte to the ImageInputStream.

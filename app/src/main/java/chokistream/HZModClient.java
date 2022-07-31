@@ -6,12 +6,13 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
+import javafx.scene.image.Image;
+
 /**
  * 
  */
 public class HZModClient implements StreamingInterface {
 	
-	private final int maxBytes = 1360;
 	private final byte targaPacket = 0x03;
 	private final byte jpegPacket = 0x04;
 	
@@ -42,6 +43,14 @@ public class HZModClient implements StreamingInterface {
 			out.write(limitCPUPacket);
 		}
 		
+		// Creates the quality packet to the 3DS
+		byte[] qualityPacket = new byte[9];
+		qualityPacket[0] = 0x7E;
+		qualityPacket[1] = 0x05;
+		qualityPacket[4] = 0x03;
+		qualityPacket[8] = (byte) quality;
+		out.write(qualityPacket);
+		
 		// Creates the initialization packet to the 3DS
 		byte[] initializationPacket = new byte[9];
 		initializationPacket[0] = 0x7E;
@@ -49,28 +58,53 @@ public class HZModClient implements StreamingInterface {
 		initializationPacket[8] = 0x01;
 		
 		out.write(initializationPacket);
+		
 	}
 
 	@Override
 	public void close() throws IOException {
+		in.close();
+		out.close();
 		client.close();
 	}
 
+	/**
+	 * Get a packet from HzMod
+	 * @return The packet received from HzMod
+	 * @throws IOException 
+	 */
+	private Packet getPacket() throws IOException {
+		Packet returnPacket = new Packet();
+		
+		returnPacket.type = (byte) in.read();
+		returnPacket.length = in.read() + (in.read() << 8) + (in.read() << 16);
+		in.readNBytes(8);
+		returnPacket.data = in.readNBytes(returnPacket.length - 8);
+		
+		return returnPacket;
+	}
+	
 	@Override
 	public Frame getFrame() throws IOException {
-		int imageSize = 0;
-		int bytesRead = 0;
-		byte[] packet = new byte[maxBytes];
-		int socketBytesRead = in.read(packet);
-		byte type = (socketBytesRead == 0) ? packet[0] : 0x00;
-		while (socketBytesRead == 0 || type != targaPacket || type != jpegPacket) {
-			packet = new byte[maxBytes];
-			socketBytesRead = in.read(packet);
-			type = (socketBytesRead == 0) ? packet[0] : 0x00;
+		Frame returnFrame = null;
+		Packet packet = new Packet();
+		
+		while (packet.type != jpegPacket && packet.type != targaPacket) {
+			packet = getPacket();
 		}
-		// Convert LE to BE
-		imageSize = (packet[3] << 16) + (packet[2] << 8) + packet[1];
-		return null;
+		
+		Image image = null;
+		
+		if (packet.type == jpegPacket) {
+			WritableInputStream imageData = new WritableInputStream(packet.data, true);
+			image = new Image(imageData.getInputStream());
+		} else if (packet.type == targaPacket) {
+			// TODO implement TARGA support
+		}
+		
+		returnFrame = new Frame(image);
+		
+		return returnFrame;
 	}
 	
 	public void sendNFCPatch(String host, byte[] addr, ConsoleModel model) throws UnknownHostException, IOException {
@@ -86,6 +120,15 @@ public class HZModClient implements StreamingInterface {
 		patchOut.write(binaryPacketPatch);
 		patchOut.close();
 		patchClient.close();
+	}
+	
+	/**
+	 * Represents a packet received from HzMod
+	 */
+	private class Packet {
+		public byte type;
+		public int length;
+		public byte[] data;
 	}
 	
 }
