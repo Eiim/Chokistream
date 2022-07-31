@@ -128,7 +128,6 @@ public class JavaFXVideo extends VideoOutputInterface {
 		Stage topStage = new Stage();
 		topStage.setWidth(400);
 		topStage.setHeight(240);
-		topImageView = new ImageView();
 		Group gt = new Group(); // For some reason we can't use the imageView as root directly since it's not a parent
 		gt.getChildren().add(topImageView);
 		Scene st = new Scene(gt);
@@ -139,7 +138,6 @@ public class JavaFXVideo extends VideoOutputInterface {
 		Stage bottomStage = new Stage();
 		bottomStage.setWidth(320);
 		bottomStage.setHeight(240);
-		bottomImageView = new ImageView();
 		Group gb = new Group(); // For some reason we can't use the imageView as root directly since it's not a parent
 		gb.getChildren().add(bottomImageView);
 		Scene sb = new Scene(gb);
@@ -152,8 +150,6 @@ public class JavaFXVideo extends VideoOutputInterface {
 	}
 	
 	private void setupVertical() {
-		topImageView = new ImageView();
-		bottomImageView = new ImageView();
 		bottomImageView.relocate(40, 240);
 		Group g = new Group();
 		g.getChildren().addAll(topImageView, bottomImageView);
@@ -172,7 +168,6 @@ public class JavaFXVideo extends VideoOutputInterface {
 	
 	private void setupVerticalInv() {
 		topImageView.relocate(0, 240);
-		bottomImageView = new ImageView();
 		bottomImageView.relocate(40, 0);
 		Group g = new Group();
 		g.getChildren().addAll(topImageView, bottomImageView);
@@ -190,8 +185,6 @@ public class JavaFXVideo extends VideoOutputInterface {
 	}
 	
 	private void setupHorizontal() {
-		topImageView = new ImageView();
-		bottomImageView = new ImageView();
 		Group g = new Group();
 		g.getChildren().addAll(topImageView, bottomImageView);
 		Scene scene = new Scene(g);
@@ -208,8 +201,6 @@ public class JavaFXVideo extends VideoOutputInterface {
 	}
 	
 	private void setupHorizontalInv() {
-		topImageView = new ImageView();
-		bottomImageView = new ImageView();
 		Group g = new Group();
 		g.getChildren().addAll(bottomImageView, topImageView);
 		Scene scene = new Scene(g);
@@ -229,7 +220,6 @@ public class JavaFXVideo extends VideoOutputInterface {
 		Stage topStage = new Stage();
 		topStage.setWidth(400);
 		topStage.setHeight(240);
-		topImageView = new ImageView();
 		Group gt = new Group();
 		gt.getChildren().add(topImageView);
 		Scene st = new Scene(gt);
@@ -238,15 +228,12 @@ public class JavaFXVideo extends VideoOutputInterface {
 		topStage.show();
 		
 		stages.add(topStage);
-		
-		bottomImageView = new ImageView(); // Still needs something to send to, just gets unused
 	}
 	
 	private void setupBottomOnly() {
 		Stage bottomStage = new Stage();
 		bottomStage.setWidth(320);
 		bottomStage.setHeight(240);
-		bottomImageView = new ImageView();
 		Group gb = new Group();
 		gb.getChildren().add(bottomImageView);
 		Scene sb = new Scene(gb);
@@ -255,7 +242,5 @@ public class JavaFXVideo extends VideoOutputInterface {
 		bottomStage.show();
 		
 		stages.add(bottomStage);
-		
-		topImageView = new ImageView(); // Still needs something to send to, just gets unused
 	}
 }
