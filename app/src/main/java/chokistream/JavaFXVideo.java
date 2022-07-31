@@ -3,11 +3,13 @@ package chokistream;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 import javafx.scene.transform.Rotate;
 import javafx.stage.Modality;
@@ -73,6 +75,14 @@ public class JavaFXVideo extends VideoOutputInterface {
 		rotateB.setPivotY(bottomImageView.getY()+120);
 		rotateB.setAngle(-90);
 		bottomImageView.getTransforms().add(rotateB);
+		
+		// Kill on close
+		for(Stage stage : stages) {
+			stage.setOnCloseRequest((e) -> {
+	        	Platform.exit();
+	        	System.exit(0);
+	        });
+		}
 		
 		networkThread.start();
 	}

@@ -1,6 +1,7 @@
 package chokistream;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.stage.Stage;
 
 
@@ -23,6 +24,11 @@ public class App extends Application {
         stage.setTitle("Chokistream");
         stage.show();
         this.stage = stage;
+        
+        stage.setOnCloseRequest((e) -> {
+        	Platform.exit();
+        	System.exit(0);
+        });
     }
     
     /**
