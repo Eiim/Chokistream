@@ -23,13 +23,14 @@ public class NTRClient implements StreamingInterface {
 	 * @param screen Which screen gets priority.
 	 * @param priority Priority factor.
 	 * @param qos QoS value.
+	 * @param colorMode The color filter (option to enable hotfixColors).
 	 * @throws IOException 
 	 * @throws UnknownHostException 
 	 * @throws InterruptedException 
 	 */
-	public NTRClient(String host, int quality, NTRScreen screen, int priority, int qos) throws UnknownHostException, IOException, InterruptedException {
+	public NTRClient(String host, int quality, NTRScreen screen, int priority, int qos, ColorMode colorMode) throws UnknownHostException, IOException, InterruptedException {
 		// Connect to TCP port and set up client
-		thread = new NTRUDPThread(host, screen);
+		thread = new NTRUDPThread(host, screen, colorMode);
 		thread.start();
 		Socket client = new Socket(host, 8000);
 		client.setTcpNoDelay(true);

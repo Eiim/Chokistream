@@ -46,15 +46,17 @@ public class NTRUDPThread extends Thread {
 	private byte priorityExpectedPacket = 0;
     private byte secondaryExpectedPacket = 0;
     private NTRScreen activeScreen = NTRScreen.TOP;
+    private ColorMode colorMode;
 	
 	/**
 	 * Create an NTRUDPThread.
 	 * @param host The host or IP to connect to.
 	 * @throws SocketException
 	 */
-	NTRUDPThread(String host, NTRScreen screen) throws SocketException {
+	NTRUDPThread(String host, NTRScreen screen, ColorMode colorMode) throws SocketException {
 		activeScreen = screen;
 		socket = new DatagramSocket(8001);
+		this.colorMode = colorMode;
 	}
 	
 	public Frame getFrame() throws InterruptedException {
@@ -158,7 +160,7 @@ public class NTRUDPThread extends Thread {
 						priorityInputStream.markFinishedWriting();
 						priorityImage = new Image(priorityInputStream.getInputStream());
 						priorityInputStream = new WritableInputStream();
-						if (1 == 1) { // Placeholder
+						if (colorMode == ColorMode.VC_BLUE_SHIFT) {
 							priorityImage = hotfixColors(priorityImage);
 						}
 						frameBuffer.add(new Frame(currentScreen, priorityImage));
@@ -182,7 +184,7 @@ public class NTRUDPThread extends Thread {
 						secondaryInputStream.markFinishedWriting();
 						secondaryImage = new Image(secondaryInputStream.getInputStream());
 						secondaryInputStream = new WritableInputStream();
-						if (1 == 1) { // Placeholder
+						if (colorMode == ColorMode.VC_BLUE_SHIFT) {
 							secondaryImage = hotfixColors(secondaryImage);
 						}
 						frameBuffer.add(new Frame(currentScreen, secondaryImage));

@@ -77,9 +77,10 @@ public class App extends Application {
 	    			NTRScreen screen = scene.getScreen();
 	    			int priority = scene.getPriority();
 	    			int qos = scene.getQos();
+	    			ColorMode colorMode = scene.getColorMode();
 	    			
 	    			// Initializes connection
-	    			client = new NTRClient(ip, quality, screen, priority, qos);
+	    			client = new NTRClient(ip, quality, screen, priority, qos, colorMode);
 	    			output = new JavaFXVideo(client, layout);
 	    			stage.close();
 				} catch (Exception e) {
