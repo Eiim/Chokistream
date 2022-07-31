@@ -9,6 +9,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
+import javafx.scene.transform.Rotate;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -28,6 +29,9 @@ public class JavaFXVideo extends VideoOutputInterface {
 		super(client);
 		
 		System.out.println("Starting JFXV");
+		
+		topImageView = new ImageView();
+		bottomImageView = new ImageView();
 		
 		switch(layout) {
 			case SEPARATE:
@@ -54,6 +58,21 @@ public class JavaFXVideo extends VideoOutputInterface {
 			default:
 				displayError(new InvalidOptionException("Layout for JavaFXVideo", layout.toString()));
 		}
+		
+		// Set rotation, as the images come in rotated 90 degrees
+		// We need to rotate around (120,120) in local coordinates
+		// 120 is derived from height / 2
+		Rotate rotateT = new Rotate();
+		rotateT.setPivotX(topImageView.getX()+120);
+		rotateT.setPivotY(topImageView.getY()+120);
+		rotateT.setAngle(-90);
+		topImageView.getTransforms().add(rotateT);
+		
+		Rotate rotateB = new Rotate();
+		rotateB.setPivotX(bottomImageView.getX()+120);
+		rotateB.setPivotY(bottomImageView.getY()+120);
+		rotateB.setAngle(-90);
+		bottomImageView.getTransforms().add(rotateB);
 		
 		networkThread.start();
 	}
@@ -152,7 +171,6 @@ public class JavaFXVideo extends VideoOutputInterface {
 	}
 	
 	private void setupVerticalInv() {
-		topImageView = new ImageView();
 		topImageView.relocate(0, 240);
 		bottomImageView = new ImageView();
 		bottomImageView.relocate(40, 0);
