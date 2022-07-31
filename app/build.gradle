@@ -45,4 +45,8 @@ jar {
 	from {
         configurations.compileClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
+	into 'res', {
+		from 'res'
+	}
+	baseName 'chokistream'
 }

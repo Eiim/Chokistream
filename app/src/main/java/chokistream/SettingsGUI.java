@@ -22,6 +22,7 @@ public class SettingsGUI extends Scene {
 	protected int qos = 26;
 	protected int capCPU  = 0;
 	protected Layout layout = Layout.SEPARATE;
+	protected ColorMode colorMode = ColorMode.REGULAR;
 	
 	// These can throw exceptions in case the user inputs bad data (like "yummy" for the quality or something)
 	
@@ -88,6 +89,14 @@ public class SettingsGUI extends Scene {
 	 */
 	public Layout getLayout() throws InvalidOptionException {
 		return layout;
+	}
+	
+	/**
+	 * @return The selected color adjustment mode
+	 * @throws InvalidOptionException
+	 */
+	public ColorMode getColorMode() throws InvalidOptionException {
+		return colorMode;
 	}
 	
 	// Generic popup

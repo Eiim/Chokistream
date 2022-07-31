@@ -19,7 +19,7 @@ public class SnickerstreamGUI extends SettingsGUI {
 	private ChoiceBox<String> scrPri;
 	private TextField ip;
 	private ChoiceBox<String> strApp;
-	private ChoiceBox<String> intrp;
+	private ChoiceBox<String> clrMod;
 	private ChoiceBox<String> layout;
 	private Button about;
 	private Button adv;
@@ -32,27 +32,20 @@ public class SnickerstreamGUI extends SettingsGUI {
 		
 		// Left Half
 		
-		Label psLab = new Label("Preset");
-    	psLab.relocate(14, 191);
-    	preset = new ChoiceBox<String>();
-    	preset.relocate(111, 187);
-    	preset.setPrefSize(175, 25);
-    	
-    	Label qsvLab = new Label("QoS Value");
-    	qsvLab.relocate(14, 156);
-    	qosVal = new TextField();
-    	qosVal.relocate(110, 152);
-    	qosVal.setPrefSize(175,25);
-    	qosVal.setTextFormatter(new TextFormatter<>(new IntegerStringConverter()));
-    	qosVal.setText("26");
-    	
-    	Label iqLab = new Label("Image Quality");
-    	iqLab.relocate(14, 121);
-    	imgQual = new TextField();
-    	imgQual.relocate(110, 117);
-    	imgQual.setPrefSize(175,25);
-    	imgQual.setTextFormatter(new TextFormatter<>(new IntegerStringConverter()));
-    	imgQual.setText("70");
+		Label ipLab = new Label("3DS IP");
+    	ipLab.relocate(14, 18);
+    	ip = new TextField();
+    	ip.relocate(110, 14);
+    	ip.setPrefSize(175,25);
+    	ip.setPromptText("0.0.0.0");
+		
+    	Label spLab = new Label("Screen Priority");
+    	spLab.relocate(14, 51);
+    	scrPri = new ChoiceBox<String>();
+    	scrPri.relocate(111, 47);
+    	scrPri.setPrefSize(175, 25);
+    	scrPri.getItems().addAll("Top", "Bottom");
+    	scrPri.setValue("Top");
     	
     	Label pfLab = new Label("Priority Factor");
     	pfLab.relocate(14, 86);
@@ -62,20 +55,27 @@ public class SnickerstreamGUI extends SettingsGUI {
     	priFac.setTextFormatter(new TextFormatter<>(new IntegerStringConverter()));
     	priFac.setText("8");
     	
-    	Label spLab = new Label("Screen Priority");
-    	spLab.relocate(14, 51);
-    	scrPri = new ChoiceBox<String>();
-    	scrPri.relocate(111, 47);
-    	scrPri.setPrefSize(175, 25);
-    	scrPri.getItems().addAll("Top", "Bottom");
-    	scrPri.setValue("Top");
+    	Label iqLab = new Label("Image Quality");
+    	iqLab.relocate(14, 121);
+    	imgQual = new TextField();
+    	imgQual.relocate(110, 117);
+    	imgQual.setPrefSize(175,25);
+    	imgQual.setTextFormatter(new TextFormatter<>(new IntegerStringConverter()));
+    	imgQual.setText("70");
     	
-    	Label ipLab = new Label("3DS IP");
-    	ipLab.relocate(14, 18);
-    	ip = new TextField();
-    	ip.relocate(110, 14);
-    	ip.setPrefSize(175,25);
-    	ip.setPromptText("0.0.0.0");
+    	Label qsvLab = new Label("QoS Value");
+    	qsvLab.relocate(14, 156);
+    	qosVal = new TextField();
+    	qosVal.relocate(110, 152);
+    	qosVal.setPrefSize(175,25);
+    	qosVal.setTextFormatter(new TextFormatter<>(new IntegerStringConverter()));
+    	qosVal.setText("26");  
+    	
+		Label psLab = new Label("Preset");
+    	psLab.relocate(14, 191);
+    	preset = new ChoiceBox<String>();
+    	preset.relocate(111, 187);
+    	preset.setPrefSize(175, 25);
     	
     	// Right Half
     	
@@ -87,11 +87,14 @@ public class SnickerstreamGUI extends SettingsGUI {
     	strApp.getItems().addAll("NTR", "HzMod");
     	strApp.setValue("NTR");
     	
-    	Label intLab = new Label("Interpolation");
-    	intLab.relocate(307, 52);
-    	intrp = new ChoiceBox<String>();
-    	intrp.relocate(411, 47);
-    	intrp.setPrefSize(175, 25);
+    	Label clrLab = new Label("Color Mode");
+    	clrLab.relocate(307, 52);
+    	clrMod = new ChoiceBox<String>();
+    	clrMod.relocate(411, 47);
+    	clrMod.setPrefSize(175, 25);
+    	clrMod.getItems().addAll("Regular", "VC Blue Shift");
+    	clrMod.setValue("Regular");
+    	
     	
     	Label slLab = new Label("Screen Layout");
     	slLab.relocate(307, 86);
@@ -130,8 +133,8 @@ public class SnickerstreamGUI extends SettingsGUI {
     	loadSettings();
     	
     	pane = new Pane();
-    	pane.getChildren().addAll(psLab, preset, qsvLab, qosVal, iqLab, imgQual, pfLab, priFac, spLab, scrPri, ipLab, ip,
-    			saLab, strApp, intLab, intrp, slLab, layout, about, adv, patch, connect);
+    	pane.getChildren().addAll(ipLab, ip, spLab, scrPri, pfLab, priFac, iqLab, imgQual, qsvLab, qosVal, psLab, preset,
+    			saLab, strApp, clrLab, clrMod, slLab, layout, about, adv, patch, connect);
     	this.setRoot(pane);
 	}
 	
@@ -209,6 +212,18 @@ public class SnickerstreamGUI extends SettingsGUI {
 		}
 	}
 	
+	public ColorMode getColorMode() throws InvalidOptionException {
+		String cm = clrMod.getValue();
+		switch(cm) {
+			case "Regular":
+				return ColorMode.REGULAR;
+			case "VC Blue Shift":
+				return ColorMode.VC_BLUE_SHIFT;
+			default:
+				throw new InvalidOptionException("Color Mode", cm);
+		}
+	}
+	
 	public void saveSettings() {
 		File f = new File("chokistream.ini");
 		if(!f.exists()) {
@@ -228,6 +243,7 @@ public class SnickerstreamGUI extends SettingsGUI {
 			parser.setProperty("priorityScreen", scrPri.getValue());
 			parser.setProperty("mod", strApp.getValue());
 			parser.setProperty("layout", layout.getValue());
+			parser.setProperty("colorMode", clrMod.getValue());
 		} catch (Exception e) {
 			displayError(e);
 		}
@@ -248,6 +264,7 @@ public class SnickerstreamGUI extends SettingsGUI {
 			setValueIfProp(parser, scrPri, "priorityScreen");
 			setValueIfProp(parser, strApp, "mod");
 			setValueIfProp(parser, layout, "layout");
+			setValueIfProp(parser, clrMod, "colorMode");
 		} catch (Exception e) {
 			displayError(e);
 		}

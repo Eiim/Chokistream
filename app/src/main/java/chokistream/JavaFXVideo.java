@@ -12,6 +12,7 @@ import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyCode;
@@ -22,7 +23,7 @@ import javafx.stage.Stage;
 
 public class JavaFXVideo extends VideoOutputInterface {
 	
-	private ArrayList<Stage> stages = new ArrayList<>();
+	private ArrayList<Stage> stages = new ArrayList<>();	
 	private ImageView topImageView;
 	private ImageView bottomImageView;
 		
@@ -103,6 +104,19 @@ public class JavaFXVideo extends VideoOutputInterface {
 				}
 			});
 		}
+		
+		try {
+	        Image logo64 = new Image(getClass().getResourceAsStream("/res/logo64.png"));
+	        Image logo48 = new Image(getClass().getResourceAsStream("/res/logo48.png"));
+	        Image logo32 = new Image(getClass().getResourceAsStream("/res/logo32.png"));
+	        Image logo16 = new Image(getClass().getResourceAsStream("/res/logo16.png"));
+	        
+	        for(Stage stage : stages) {
+	        	stage.getIcons().addAll(logo16, logo32, logo48, logo64);
+	        }
+        } catch(NullPointerException e) {
+        	System.out.println("Couldn't find icons, most likely not running from jar");
+        }
 		
 		networkThread.start();
 	}
