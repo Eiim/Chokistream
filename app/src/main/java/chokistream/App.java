@@ -32,7 +32,7 @@ public class App extends Application {
     }
     
     /**
-     * Starts a new instance of Chickerstream.
+     * Starts a new instance of Chokistream.
      * 
      * @param args	Currently unused
      */

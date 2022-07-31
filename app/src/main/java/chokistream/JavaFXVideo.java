@@ -1,14 +1,19 @@
 package chokistream;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import javax.imageio.ImageIO;
+
 import javafx.application.Platform;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
+import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 import javafx.scene.transform.Rotate;
@@ -82,6 +87,21 @@ public class JavaFXVideo extends VideoOutputInterface {
 	        	Platform.exit();
 	        	System.exit(0);
 	        });
+			stage.getScene().setOnKeyPressed((e) -> {
+				if(e.getCode() == KeyCode.S) {
+					WritableImage imgt = topImageView.snapshot(null, null);
+					File ft = new File("chokistream_top.png");
+					WritableImage imgb = bottomImageView.snapshot(null, null);
+					File fb = new File("chokistream_bottom.png");
+					try {
+						ImageIO.write(SwingFXUtils.fromFXImage(imgt, null), "png", ft);
+						ImageIO.write(SwingFXUtils.fromFXImage(imgb, null), "png", fb);
+						System.out.println("Took a screenshot!");
+					} catch (IOException e1) {
+						displayError(e1);
+					}
+				}
+			});
 		}
 		
 		networkThread.start();
