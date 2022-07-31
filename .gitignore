@@ -22,3 +22,4 @@ gradle.properties
 app/chokistream.ini
 chokistream.ini
 .classpath
+.settings/org.eclipse.buildship.core.prefs
