@@ -16,6 +16,6 @@ public interface StreamingInterface {
 	 * Gets a single frame from the streaming source.
 	 * @return The frame data.
 	 */
-	public Frame getFrame() throws InterruptedException;
+	public Frame getFrame() throws InterruptedException, IOException;
 	
 }

@@ -1,5 +1,7 @@
 package chokistream;
 
+import java.io.IOException;
+
 public class NetworkThread extends Thread {
 	
 	private VideoOutputInterface output;
@@ -13,6 +15,8 @@ public class NetworkThread extends Thread {
 			try {
 				output.renderFrame(input.getFrame());
 			} catch(InterruptedException e) {
+				output.displayError(e);
+			} catch(IOException e) {
 				output.displayError(e);
 			}
 		}
