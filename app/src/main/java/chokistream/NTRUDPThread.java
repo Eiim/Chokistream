@@ -110,9 +110,14 @@ public class NTRUDPThread extends Thread {
 				currentPixelArgbBefore = hotfixImageInput.getPixelReader().getArgb(currentW, currentH);
 				
 				// Here's the magic. On second thought, this should definitely be optimized with bitwise-AND,OR,NOT,XOR,etc.
-				int newBluPixel = ((int)((currentPixelArgbBefore%256)/16))*8 + (int)((currentPixelArgbBefore%256)/32);
-				newBluPixel = newBluPixel + ((int)(currentPixelArgbBefore/8)%2)*128;
-				currentPixelArgbAfter = ((int)(currentPixelArgbBefore/256))*256 + newBluPixel;
+				int newBluPixel = 0;
+//				newBluPixel = ((int)((currentPixelArgbBefore%256)/16))*8 + (int)((currentPixelArgbBefore%256)/32);
+//				newBluPixel = newBluPixel + ((int)(currentPixelArgbBefore/8)%2)*128;
+				
+				newBluPixel = currentPixelArgbBefore%256;
+				newBluPixel = (int)((newBluPixel/256.0) * 0x48) + newBluPixel;
+				
+				currentPixelArgbAfter = ((int)(currentPixelArgbBefore/256))*256 + (newBluPixel%256);
 				
 				hotfixImageWritable.getPixelWriter().setArgb(currentW,currentH,currentPixelArgbAfter);
 				currentW++;
@@ -152,11 +157,11 @@ public class NTRUDPThread extends Thread {
 					if (isLastPacket) {
 						priorityInputStream.markFinishedWriting();
 						priorityImage = new Image(priorityInputStream.getInputStream());
-						if (1 == 0) { // Placeholder
+						priorityInputStream = new WritableInputStream();
+						if (1 == 1) { // Placeholder
 							priorityImage = hotfixColors(priorityImage);
 						}
 						frameBuffer.add(new Frame(currentScreen, priorityImage));
-						priorityInputStream = new WritableInputStream();
 						priorityImage = null;
 						priorityExpectedFrame = 0;
 	                    priorityExpectedPacket = 0;
@@ -176,11 +181,11 @@ public class NTRUDPThread extends Thread {
 					if (isLastPacket) {
 						secondaryInputStream.markFinishedWriting();
 						secondaryImage = new Image(secondaryInputStream.getInputStream());
-						if (1 == 0) { // Placeholder
+						secondaryInputStream = new WritableInputStream();
+						if (1 == 1) { // Placeholder
 							secondaryImage = hotfixColors(secondaryImage);
 						}
 						frameBuffer.add(new Frame(currentScreen, secondaryImage));
-						secondaryInputStream = new WritableInputStream();
 						secondaryImage = null;
 						secondaryExpectedFrame = 0;
 	                    secondaryExpectedPacket = 0;
