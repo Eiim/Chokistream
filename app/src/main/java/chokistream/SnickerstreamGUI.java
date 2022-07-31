@@ -1,10 +1,8 @@
 package chokistream;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import chokistream.INIParser.IniParseException;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
