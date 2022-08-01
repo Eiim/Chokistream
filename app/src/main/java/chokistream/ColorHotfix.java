@@ -5,6 +5,36 @@ import javafx.scene.image.WritableImage;
 
 public class ColorHotfix {
 
+	public static Image HzModSwapRedBlue(Image hotfixImageInput) {
+		WritableImage hotfixImageWritable = new WritableImage( (int)hotfixImageInput.getWidth() , (int)hotfixImageInput.getHeight() );
+		Image hotfixImageOutput = null;
+		int currentPixelArgbBefore = 0;
+		int currentPixelArgbAfter = 0;
+		int currentW = 0;
+		int currentH = 0;
+		while (currentH < hotfixImageInput.getHeight()) {
+			while (currentW < hotfixImageInput.getWidth()) {
+				currentPixelArgbBefore = hotfixImageInput.getPixelReader().getArgb(currentW, currentH);
+				//int newAlphaIdk = (currentPixelArgbBefore/16777216);
+				int newRedPixel = ((currentPixelArgbBefore&0b00000000000000000000000011111111)); //bitwise AND
+				int newGrnPixel = ((currentPixelArgbBefore&0b00000000000000001111111100000000) >>> 8); //bit-shift right (unsigned)
+				int newBluPixel = ((currentPixelArgbBefore&0b00000000111111110000000000000000) >>> 16);
+				//if (newRedPixel == 255) {
+				//	newRedPixel = 0;
+				//}
+				//if (newBluPixel == 255) {
+				//	newBluPixel = 0;
+				//}
+				currentPixelArgbAfter = 0xFF000000 +  ((newRedPixel&0xFF)<<16) + ((newGrnPixel&0xFF)<<8) + (newBluPixel&0xFF);
+				hotfixImageWritable.getPixelWriter().setArgb(currentW,currentH,currentPixelArgbAfter);
+				currentW++;
+			}
+			currentW = 0;
+			currentH++;
+		}
+		hotfixImageOutput = hotfixImageWritable;
+		return hotfixImageOutput;
+	}
 	/**
 	 * Attempt to hot-fix the colors if the option is enabled(?)
 	 * This is specifically aimed at Virtual Console games:
