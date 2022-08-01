@@ -85,7 +85,6 @@ public class App extends Application {
 	    			stage.close();
 				} catch (Exception e) {
 					scene.displayError(e);
-					return;
 				}
 				break;
     		case HZMOD:

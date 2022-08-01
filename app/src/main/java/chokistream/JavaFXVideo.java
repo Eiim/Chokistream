@@ -1,5 +1,6 @@
 package chokistream;
 
+import java.awt.Toolkit;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -18,6 +19,8 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 import javafx.scene.transform.Rotate;
+import javafx.scene.transform.Scale;
+import javafx.scene.transform.Translate;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -40,6 +43,33 @@ public class JavaFXVideo extends VideoOutputInterface {
 		
 		topImageView = new ImageView();
 		bottomImageView = new ImageView();
+		
+		/*
+		 * Transforms should be applied to the image in this order:
+		 *  * Rotate
+		 *  * Translate (layout)
+		 *  * Translate (rotate/scale adjustment)
+		 *  * Scale
+		 * Because of the way transforms work, the easiest way to accomplish this
+		 * is to add them to the transforms list in reverse order. Thus, we add the
+		 * adjustment translate and the scale now, then add the layout translate
+		 * during the layout setup, and then add the rotate at the end.
+		 * 
+		 * Note that the translates are interchangeable, and the rotate may be
+		 * interchangeable with them as well, but I've spent so long getting this
+		 * order than I'm not going to screw with it any more.
+		 */
+		
+		// Scaling last is very important
+		// If you don't do this you may spend hours of your life trying to
+		// solve geometry formulas and multiplying matrices
+		double uiScale = 96/(double)Toolkit.getDefaultToolkit().getScreenResolution();
+		topImageView.getTransforms().add(new Scale(uiScale, uiScale));
+		bottomImageView.getTransforms().add(new Scale(uiScale, uiScale));
+		
+		// 240s come from the height of the screens
+		topImageView.getTransforms().add(new Translate(0,240));
+		bottomImageView.getTransforms().add(new Translate(0,240));
 		
 		switch(layout) {
 			case SEPARATE:
@@ -67,27 +97,17 @@ public class JavaFXVideo extends VideoOutputInterface {
 				displayError(new InvalidOptionException("Layout for JavaFXVideo", layout.toString()));
 		}
 		
-		// Set rotation, as the images come in rotated 90 degrees
-		// We need to rotate around (120,120) in local coordinates
-		// 120 is derived from height / 2
-		Rotate rotateT = new Rotate();
-		rotateT.setPivotX(topImageView.getX()+120);
-		rotateT.setPivotY(topImageView.getY()+120);
-		rotateT.setAngle(-90);
-		topImageView.getTransforms().add(rotateT);
+		// Set rotation, as the images come in rotated by 90 degrees.
+		topImageView.getTransforms().add(new Rotate(-90));
+		bottomImageView.getTransforms().add(new Rotate(-90));
 		
-		Rotate rotateB = new Rotate();
-		rotateB.setPivotX(bottomImageView.getX()+120);
-		rotateB.setPivotY(bottomImageView.getY()+120);
-		rotateB.setAngle(-90);
-		bottomImageView.getTransforms().add(rotateB);
-		
-		// Kill on close
 		for(Stage stage : stages) {
+			// Kill on close
 			stage.setOnCloseRequest((e) -> {
 	        	Platform.exit();
 	        	System.exit(0);
 	        });
+			// Add screenshot trigger
 			stage.getScene().setOnKeyPressed((e) -> {
 				if(e.getCode() == KeyCode.S) {
 					WritableImage imgt = topImageView.snapshot(null, null);
@@ -182,8 +202,7 @@ public class JavaFXVideo extends VideoOutputInterface {
 		Stage bottomStage = new Stage();
 		bottomStage.setWidth(320);
 		bottomStage.setHeight(240);
-		Group gb = new Group(); // For some reason we can't use the imageView as root directly since it's not a parent
-		gb.getChildren().add(bottomImageView);
+		Group gb = new Group(bottomImageView); // For some reason we can't use the imageView as root directly since it's not a parent
 		Scene sb = new Scene(gb);
 		bottomStage.setScene(sb);
 		bottomStage.setTitle("Chokistream - Bottom Screen");
@@ -194,7 +213,7 @@ public class JavaFXVideo extends VideoOutputInterface {
 	}
 	
 	private void setupVertical() {
-		bottomImageView.relocate(40, 240);
+		bottomImageView.getTransforms().add(new Translate(40, 240));
 		Group g = new Group();
 		g.getChildren().addAll(topImageView, bottomImageView);
 		Scene scene = new Scene(g);
@@ -211,8 +230,8 @@ public class JavaFXVideo extends VideoOutputInterface {
 	}
 	
 	private void setupVerticalInv() {
-		topImageView.relocate(0, 240);
-		bottomImageView.relocate(40, 0);
+		topImageView.getTransforms().add(new Translate(0, 240));
+		bottomImageView.getTransforms().add(new Translate(40, 0));
 		Group g = new Group();
 		g.getChildren().addAll(topImageView, bottomImageView);
 		Scene scene = new Scene(g);
@@ -229,6 +248,7 @@ public class JavaFXVideo extends VideoOutputInterface {
 	}
 	
 	private void setupHorizontal() {
+		bottomImageView.getTransforms().add(new Translate(400, 0));
 		Group g = new Group();
 		g.getChildren().addAll(topImageView, bottomImageView);
 		Scene scene = new Scene(g);
@@ -245,6 +265,7 @@ public class JavaFXVideo extends VideoOutputInterface {
 	}
 	
 	private void setupHorizontalInv() {
+		topImageView.getTransforms().add(new Translate(320, 0));
 		Group g = new Group();
 		g.getChildren().addAll(bottomImageView, topImageView);
 		Scene scene = new Scene(g);
