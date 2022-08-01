@@ -92,9 +92,10 @@ public class App extends Application {
     			try {
     				int quality = scene.getQuality();
     				int capCpu = scene.getCapCPU();
+    				ColorMode colorMode = scene.getColorMode();
     				
     				// Initializes connection
-    				client = new HZModClient(ip, quality, capCpu);
+    				client = new HZModClient(ip, quality, capCpu, colorMode);
     				output = new JavaFXVideo(client, layout);
     				stage.close();
     			} catch (Exception e) {

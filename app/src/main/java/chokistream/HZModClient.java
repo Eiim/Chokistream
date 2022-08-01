@@ -22,19 +22,24 @@ public class HZModClient implements StreamingInterface {
 	private Socket client = null;
 	private InputStream in = null;
 	private OutputStream out = null;
+	private ColorMode colorMode;
+	private Mod whichMod = Mod.HZMOD;
 
 	/**
 	 * Create an HZModClient.
 	 * @param host The host or IP to connect to.
 	 * @param quality The quality to stream at.
 	 * @param capCPU Cap CPU cycles.
+	 * @param colorMode The color filter (option to enable hotfixColors).
 	 */
-	public HZModClient(String host, int quality, int capCPU) throws UnknownHostException, IOException {
+	public HZModClient(String host, int quality, int capCPU, ColorMode receivedColorMode) throws UnknownHostException, IOException {
 		// Connect to TCP port and set up client
 		client = new Socket(host, 6464);
 		client.setTcpNoDelay(true);
 		in = client.getInputStream();
 		out = client.getOutputStream();
+		
+		colorMode = receivedColorMode;
 		
 		if (capCPU > 0) {
 			// Creates the limit CPU packet to the 3DS
@@ -114,7 +119,7 @@ public class HZModClient implements StreamingInterface {
 		 * For some reason the red and blue channels are swapped.
 		 * Fix it.
 		 */
-		image = ColorHotfix.HzModSwapRedBlue(image);
+		image = ColorHotfix.DoColorHotfix(image, colorMode, whichMod);
 		
 		returnFrame = new Frame(image);
 		
