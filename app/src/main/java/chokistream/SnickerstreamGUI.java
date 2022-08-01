@@ -92,7 +92,7 @@ public class SnickerstreamGUI extends SettingsGUI {
     	clrMod = new ChoiceBox<String>();
     	clrMod.relocate(411, 47);
     	clrMod.setPrefSize(175, 25);
-    	clrMod.getItems().addAll("Regular", "VC Blue Shift");
+    	clrMod.getItems().addAll("Regular", "VC Blue Shift (Test)", "Grayscale");
     	clrMod.setValue("Regular");
     	
     	
@@ -219,6 +219,10 @@ public class SnickerstreamGUI extends SettingsGUI {
 				return ColorMode.REGULAR;
 			case "VC Blue Shift":
 				return ColorMode.VC_BLUE_SHIFT;
+			case "VC Blue Shift (Test)":
+				return ColorMode.VC_BLUE_SHIFT;
+			case "Grayscale":
+				return ColorMode.GRAYSCALE;
 			default:
 				throw new InvalidOptionException("Color Mode", cm);
 		}

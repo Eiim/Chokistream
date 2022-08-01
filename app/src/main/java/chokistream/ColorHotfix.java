@@ -14,6 +14,20 @@ public class ColorHotfix {
 		return currentPixelColor;
 	}
 	
+	private static int ReverseEightBits(int a) {
+		return (a&0b1)*128 + (a&0b10)*32 + (a&0b100)*8 + (a&0b1000)*2 + (a&0b10000)/2 + (a&0b100000)/8 + (a&0b1000000)/32 + (a&0b10000000)/128;
+	}
+	
+	private static int MakeGrayscale(int currentPixelColor) {
+		int newRedPixel = ((currentPixelColor&0b00000000111111110000000000000000) >>> 16);
+		int newGrnPixel = ((currentPixelColor&0b00000000000000001111111100000000) >>> 8);
+		int newBluPixel = ((currentPixelColor&0b00000000000000000000000011111111));
+		int newGrayPixel = (newRedPixel + newGrnPixel + newBluPixel)/3;
+		currentPixelColor = 0xFF000000 + ((newGrayPixel)<<16) + ((newGrayPixel)<<8) + (newGrayPixel);
+		return currentPixelColor;
+	}
+	
+	// THIS IS BROKEN. IT IS BORDERLINE UNSOLVABLE. TRUST ME, I SPENT HOURS ON THIS. -C
 	private static int VcBlueShift(int currentPixelColor) {
 		//int newAlphaIdk = ((currentPixelColor&0b11111111000000000000000000000000) >>> 24);
 		int newRedPixel = ((currentPixelColor&0b00000000111111110000000000000000) >>> 16);
@@ -22,15 +36,33 @@ public class ColorHotfix {
 		
 		// Formula: if Blue > 127, decrease proportional to how far from 128 it is.
 		// If Blue < 128, *increase* proportional to how far it is.
-		//int newBluLevelCenter = 96;
-		//int maxBluFix = 48;
-		//if (newBluPixel > newBluLevelCenter) {
-		//	newBluPixel = newBluPixel - (int)(((newBluPixel-newBluLevelCenter)/255.0)*maxBluFix);
-		//} else {
-		//	newBluPixel = newBluPixel + (int)(((newBluLevelCenter-newBluPixel)/255.0)*maxBluFix);
-		//}
+		int newBluLevelCenter = 64;
+		int maxBluFix = 48; // Don't go over 127 pwease :...3
+		int maxBluPredictedOverflow = 2;
+		if (newBluPixel < maxBluPredictedOverflow) {
+			newBluPixel = (int)( newBluPixel + ((newBluPixel*1.0)/maxBluPredictedOverflow)*maxBluFix*2);
+		} else if (newBluPixel > newBluLevelCenter) {
+			newBluPixel = newBluPixel - (int)(((newBluPixel-newBluLevelCenter)/255.0)*maxBluFix);
+		} else { //if (newBluPixel < newBluLevelCenter)
+				newBluPixel = newBluPixel + (int)(((newBluLevelCenter-newBluPixel)/255.0)*maxBluFix);
+		}
 		//newBluPixel = (int)( (newBluPixel/2.0) );
-		newBluPixel = (int)((((newBluPixel-128.0)/128)*0x48)+newBluPixel);
+		//newBluPixel = (int)((((newBluPixel-128.0)/128)*0x48)+newBluPixel);
+		//
+		//newBluPixel = (newBluPixel/16)*8 + newBluPixel/32;
+		//
+		//newBluPixel = newBluPixel%128 + 80;
+		//
+		//newBluPixel = ReverseEightBits(newBluPixel);
+		//
+		//newBluPixel = newBluPixel%128 + 64*((newBluPixel&0b10000000)>>>7);
+		//
+		//These two don't work vvv
+		//newBluPixel = newBluPixel&0b111 + newBluPixel&0b10000000>>>4 + newBluPixel&0b1000000>>>1 + newBluPixel&0b100000>>>1 + newBluPixel&0b10000>>>1 + newBluPixel&0b1000<<4;
+		//newBluPixel = (newBluPixel&0b111 + newBluPixel&0b10000000>>>3 + newBluPixel&0b1000000>>>1 + newBluPixel&0b100000>>>1 + newBluPixel&0b10000<<3 + newBluPixel&0b1000);
+		//
+		
+		
 		currentPixelColor = 0xFF000000 + ((newRedPixel&0xFF)<<16) + ((newGrnPixel&0xFF)<<8) + (newBluPixel&0xFF);
 		return currentPixelColor;
 	}
@@ -59,8 +91,6 @@ public class ColorHotfix {
 	 * newBluPixel = newBluPixel + ((int)(currentPixelArgbBefore/8)%2)*128;
 	 * 
 	 * newBluPixel = (int)((newBluPixel/256.0) * 0x48) + newBluPixel;
-	 *
-	 * currentPixelArgbAfter = ((int)(currentPixelArgbBefore/256))*256 + (newBluPixel%256);
 	 */
 	
 	
@@ -85,6 +115,8 @@ public class ColorHotfix {
 					
 					if (colorMode == ColorMode.VC_BLUE_SHIFT) {
 						currentPixelColor = VcBlueShift(currentPixelColor);
+					} else if (colorMode == ColorMode.GRAYSCALE) {
+						currentPixelColor = MakeGrayscale(currentPixelColor);
 					}
 					
 					hotfixImageWritable.getPixelWriter().setArgb(currentW,currentH,currentPixelColor);
