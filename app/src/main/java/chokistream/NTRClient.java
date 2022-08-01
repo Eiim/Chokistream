@@ -30,11 +30,11 @@ public class NTRClient implements StreamingInterface {
 	 */
 	public NTRClient(String host, int quality, NTRScreen screen, int priority, int qos, ColorMode colorMode) throws UnknownHostException, IOException, InterruptedException {
 		// Connect to TCP port and set up client
-		thread = new NTRUDPThread(host, screen, colorMode);
-		thread.start();
 		Socket client = new Socket(host, 8000);
 		client.setTcpNoDelay(true);
 		OutputStream out = client.getOutputStream();
+		thread = new NTRUDPThread(host, screen, colorMode);
+		thread.start();
 		
 		// Creates and sends the initialization packet to the 3DS
 		byte[] initializationPacket = new byte[84];
