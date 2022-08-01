@@ -6,26 +6,37 @@ import javafx.scene.image.WritableImage;
 public class ColorHotfix {
 	
 	private static int HzModSwapRedBlue(int currentPixelColor) {
-		int newAlphaIdk = ((currentPixelColor&0b11111111000000000000000000000000) >>> 24);
+		//int newAlphaIdk = ((currentPixelColor&0b11111111000000000000000000000000) >>> 24);
 		int newRedPixel = ((currentPixelColor&0b00000000000000000000000011111111)); //bitwise AND
 		int newGrnPixel = ((currentPixelColor&0b00000000000000001111111100000000) >>> 8); //bit-shift right (unsigned)
 		int newBluPixel = ((currentPixelColor&0b00000000111111110000000000000000) >>> 16);
-		currentPixelColor = ((newAlphaIdk << 24)) +  ((newRedPixel)<<16) + ((newGrnPixel)<<8) + (newBluPixel);
+		currentPixelColor = 0xFF000000 +  ((newRedPixel)<<16) + ((newGrnPixel)<<8) + (newBluPixel);
 		return currentPixelColor;
 	}
 	
 	private static int VcBlueShift(int currentPixelColor) {
-		int newAlphaIdk = ((currentPixelColor&0b11111111000000000000000000000000) >>> 24);
+		//int newAlphaIdk = ((currentPixelColor&0b11111111000000000000000000000000) >>> 24);
 		int newRedPixel = ((currentPixelColor&0b00000000111111110000000000000000) >>> 16);
 		int newGrnPixel = ((currentPixelColor&0b00000000000000001111111100000000) >>> 8);
-		//int newBluPixel = ((currentPixelColor&0b00000000000000000000000011111111));
-		int newBluPixel = newAlphaIdk; // Test and Placeholder
+		int newBluPixel = ((currentPixelColor&0b00000000000000000000000011111111));
+		
+		// Formula: if Blue > 127, decrease proportional to how far from 128 it is.
+		// If Blue < 128, *increase* proportional to how far it is.
+		//int newBluLevelCenter = 96;
+		//int maxBluFix = 48;
+		//if (newBluPixel > newBluLevelCenter) {
+		//	newBluPixel = newBluPixel - (int)(((newBluPixel-newBluLevelCenter)/255.0)*maxBluFix);
+		//} else {
+		//	newBluPixel = newBluPixel + (int)(((newBluLevelCenter-newBluPixel)/255.0)*maxBluFix);
+		//}
+		//newBluPixel = (int)( (newBluPixel/2.0) );
+		newBluPixel = (int)((((newBluPixel-128.0)/128)*0x48)+newBluPixel);
 		currentPixelColor = 0xFF000000 + ((newRedPixel&0xFF)<<16) + ((newGrnPixel&0xFF)<<8) + (newBluPixel&0xFF);
 		return currentPixelColor;
 	}
 	/*
 	 *
-	 * Logic for VcBlueShift
+	 * Old logic for VcBlueShift
 	 * 
 	 * Guide to what's what... (What this code intends to do.)
 	 * Letters ARGB stand for Alpha,Red,Green,Blue respectively.
