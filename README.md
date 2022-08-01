@@ -1,4 +1,5 @@
-# Chokistream
+![Chokistream](banner.svg)
+
 A from-scratch re-implementation of Snickerstream (https://github.com/RattletraPM/Snickerstream)
 With TARGA support from TGAHz (https://github.com/ChainSwordCS/TGAHz-Parsing) and HorizonScreen (https://github.com/gamingaddictionz03/HorizonM)
 
