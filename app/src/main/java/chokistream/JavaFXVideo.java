@@ -29,6 +29,7 @@ public class JavaFXVideo extends VideoOutputInterface {
 	private ArrayList<Stage> stages = new ArrayList<>();	
 	private ImageView topImageView;
 	private ImageView bottomImageView;
+	private double uiScale;
 		
 	/**
 	 * Instantiates a viewer using JavaFX.
@@ -63,7 +64,7 @@ public class JavaFXVideo extends VideoOutputInterface {
 		// Scaling last is very important
 		// If you don't do this you may spend hours of your life trying to
 		// solve geometry formulas and multiplying matrices
-		double uiScale = 96/(double)Toolkit.getDefaultToolkit().getScreenResolution();
+		uiScale = 96/(double)Toolkit.getDefaultToolkit().getScreenResolution();
 		topImageView.getTransforms().add(new Scale(uiScale, uiScale));
 		bottomImageView.getTransforms().add(new Scale(uiScale, uiScale));
 		
@@ -123,6 +124,10 @@ public class JavaFXVideo extends VideoOutputInterface {
 					}
 				}
 			});
+			// Set black background
+			stage.getScene().setFill(Color.BLACK);
+			// Non-resizable
+			//stage.setResizable(false);
 		}
 		
 		try {
@@ -190,20 +195,16 @@ public class JavaFXVideo extends VideoOutputInterface {
 	
 	private void setupSeparate() {
 		Stage topStage = new Stage();
-		topStage.setWidth(400);
-		topStage.setHeight(240);
 		Group gt = new Group(); // For some reason we can't use the imageView as root directly since it's not a parent
 		gt.getChildren().add(topImageView);
-		Scene st = new Scene(gt);
+		Scene st = new Scene(gt, 400*uiScale, 240*uiScale);
 		topStage.setScene(st);
 		topStage.setTitle("Chokistream - Top Screen");
 		topStage.show();
 		
 		Stage bottomStage = new Stage();
-		bottomStage.setWidth(320);
-		bottomStage.setHeight(240);
 		Group gb = new Group(bottomImageView); // For some reason we can't use the imageView as root directly since it's not a parent
-		Scene sb = new Scene(gb);
+		Scene sb = new Scene(gb, 320*uiScale, 240*uiScale);
 		bottomStage.setScene(sb);
 		bottomStage.setTitle("Chokistream - Bottom Screen");
 		bottomStage.show();
@@ -217,7 +218,6 @@ public class JavaFXVideo extends VideoOutputInterface {
 		Group g = new Group();
 		g.getChildren().addAll(topImageView, bottomImageView);
 		Scene scene = new Scene(g);
-		scene.setFill(Color.BLACK);
 		
 		Stage stage = new Stage();
 		stage.setWidth(400);
@@ -235,7 +235,6 @@ public class JavaFXVideo extends VideoOutputInterface {
 		Group g = new Group();
 		g.getChildren().addAll(topImageView, bottomImageView);
 		Scene scene = new Scene(g);
-		scene.setFill(Color.BLACK);
 		
 		Stage stage = new Stage();
 		stage.setWidth(400);
@@ -252,7 +251,6 @@ public class JavaFXVideo extends VideoOutputInterface {
 		Group g = new Group();
 		g.getChildren().addAll(topImageView, bottomImageView);
 		Scene scene = new Scene(g);
-		scene.setFill(Color.BLACK);
 		
 		Stage stage = new Stage();
 		stage.setWidth(720);
@@ -269,7 +267,6 @@ public class JavaFXVideo extends VideoOutputInterface {
 		Group g = new Group();
 		g.getChildren().addAll(bottomImageView, topImageView);
 		Scene scene = new Scene(g);
-		scene.setFill(Color.BLACK);
 		
 		Stage stage = new Stage();
 		stage.setWidth(720);
