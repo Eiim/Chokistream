@@ -28,7 +28,7 @@ public class SnickerstreamGUI extends SettingsGUI {
 	private Pane pane;
 	
 	public SnickerstreamGUI(App app) {
-		super(new Pane(), 600, 255);
+		super(new Pane(), 600, 226);
 		
 		// Left Half
 		
@@ -76,6 +76,47 @@ public class SnickerstreamGUI extends SettingsGUI {
     	preset = new ChoiceBox<String>();
     	preset.relocate(111, 187);
     	preset.setPrefSize(175, 25);
+    	preset.getItems().addAll("Best Quality", "Great Quality", "Good Quality", "Balanced", "Good Framerate", "Great Framerate", "Best Framerate");
+    	preset.setOnAction((e) -> {
+    		String val = ((ChoiceBox<String>)e.getTarget()).getValue();
+    		switch(val) {
+    			case "Best Quality":
+    				priFac.setText("2");
+    				imgQual.setText("90");
+    				qosVal.setText("10");
+    				break;
+    			case "Great Quality":
+    				priFac.setText("5");
+    				imgQual.setText("80");
+    				qosVal.setText("18");
+    				break;
+    			case "Good Quality":
+    				priFac.setText("5");
+    				imgQual.setText("75");
+    				qosVal.setText("18");
+    				break;
+    			case "Balanced":
+    				priFac.setText("5");
+    				imgQual.setText("70");
+    				qosVal.setText("20");
+    				break;
+    			case "Good Framerate":
+    				priFac.setText("8");
+    				imgQual.setText("60");
+    				qosVal.setText("26");
+    				break;
+    			case "Great Framerate":
+    				priFac.setText("8");
+    				imgQual.setText("50");
+    				qosVal.setText("26");
+    				break;
+    			case "Best Framerate":
+    				priFac.setText("10");
+    				imgQual.setText("40");
+    				qosVal.setText("34");
+    				break;
+    		}
+    	});
     	
     	// Right Half
     	

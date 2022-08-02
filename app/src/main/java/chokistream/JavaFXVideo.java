@@ -133,7 +133,7 @@ public class JavaFXVideo extends VideoOutputInterface {
 			// Set black background
 			stage.getScene().setFill(Color.BLACK);
 			// Non-resizable
-			//stage.setResizable(false);
+			stage.setResizable(false);
 		}
 		
 		try {

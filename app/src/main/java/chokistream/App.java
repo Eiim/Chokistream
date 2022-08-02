@@ -23,6 +23,7 @@ public class App extends Application {
     	scene = new SnickerstreamGUI(this);
         stage.setScene(scene);
         stage.setTitle("Chokistream");
+        stage.setResizable(false);
         
         try {
 	        Image logo64 = new Image(getClass().getResourceAsStream("/res/logo64.png"));
