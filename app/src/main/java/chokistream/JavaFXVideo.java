@@ -111,13 +111,19 @@ public class JavaFXVideo extends VideoOutputInterface {
 			// Add screenshot trigger
 			stage.getScene().setOnKeyPressed((e) -> {
 				if(e.getCode() == KeyCode.S) {
-					WritableImage imgt = topImageView.snapshot(null, null);
-					File ft = new File("chokistream_top.png");
-					WritableImage imgb = bottomImageView.snapshot(null, null);
-					File fb = new File("chokistream_bottom.png");
 					try {
-						ImageIO.write(SwingFXUtils.fromFXImage(imgt, null), "png", ft);
-						ImageIO.write(SwingFXUtils.fromFXImage(imgb, null), "png", fb);
+						// Only take the screenshots if the image exists - mostly for HzMod, but perhaps
+						// also if the images just haven't come yet because we're still initializing
+						if(topImageView.getImage() != null) {
+							WritableImage imgt = topImageView.snapshot(null, null);
+							File ft = new File("chokistream_top.png");
+							ImageIO.write(SwingFXUtils.fromFXImage(imgt, null), "png", ft);
+						}
+						if(bottomImageView.getImage() != null) {
+							WritableImage imgb = bottomImageView.snapshot(null, null);
+							File fb = new File("chokistream_bottom.png");
+							ImageIO.write(SwingFXUtils.fromFXImage(imgb, null), "png", fb);
+						}
 						System.out.println("Took a screenshot!");
 					} catch (IOException e1) {
 						displayError(e1);
@@ -217,7 +223,7 @@ public class JavaFXVideo extends VideoOutputInterface {
 		bottomImageView.getTransforms().add(new Translate(40, 240));
 		Group g = new Group();
 		g.getChildren().addAll(topImageView, bottomImageView);
-		Scene scene = new Scene(g);
+		Scene scene = new Scene(g, 400*uiScale, 480*uiScale);
 		
 		Stage stage = new Stage();
 		stage.setWidth(400);
@@ -234,7 +240,7 @@ public class JavaFXVideo extends VideoOutputInterface {
 		bottomImageView.getTransforms().add(new Translate(40, 0));
 		Group g = new Group();
 		g.getChildren().addAll(topImageView, bottomImageView);
-		Scene scene = new Scene(g);
+		Scene scene = new Scene(g, 400*uiScale, 480*uiScale);
 		
 		Stage stage = new Stage();
 		stage.setWidth(400);
@@ -250,7 +256,7 @@ public class JavaFXVideo extends VideoOutputInterface {
 		bottomImageView.getTransforms().add(new Translate(400, 0));
 		Group g = new Group();
 		g.getChildren().addAll(topImageView, bottomImageView);
-		Scene scene = new Scene(g);
+		Scene scene = new Scene(g, 720*uiScale, 240*uiScale);
 		
 		Stage stage = new Stage();
 		stage.setWidth(720);
@@ -266,7 +272,7 @@ public class JavaFXVideo extends VideoOutputInterface {
 		topImageView.getTransforms().add(new Translate(320, 0));
 		Group g = new Group();
 		g.getChildren().addAll(bottomImageView, topImageView);
-		Scene scene = new Scene(g);
+		Scene scene = new Scene(g, 720*uiScale, 240*uiScale);
 		
 		Stage stage = new Stage();
 		stage.setWidth(720);
@@ -284,7 +290,7 @@ public class JavaFXVideo extends VideoOutputInterface {
 		topStage.setHeight(240);
 		Group gt = new Group();
 		gt.getChildren().add(topImageView);
-		Scene st = new Scene(gt);
+		Scene st = new Scene(gt, 400*uiScale, 240*uiScale);
 		topStage.setScene(st);
 		topStage.setTitle("Chokistream");
 		topStage.show();
@@ -298,7 +304,7 @@ public class JavaFXVideo extends VideoOutputInterface {
 		bottomStage.setHeight(240);
 		Group gb = new Group();
 		gb.getChildren().add(bottomImageView);
-		Scene sb = new Scene(gb);
+		Scene sb = new Scene(gb, 400*uiScale, 240*uiScale);
 		bottomStage.setScene(sb);
 		bottomStage.setTitle("Chokistream");
 		bottomStage.show();
