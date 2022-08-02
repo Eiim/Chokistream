@@ -9,6 +9,6 @@ Currently a work in progress.
 
 # Build Instructions
 
-Written in Java 17, requires Java 17 to be installed (:
+Written in Java 17 with Gradle 7.5, requires Java 17 to be installed (:
 
-No other requirements. Run `gradlew build` in Windows Command Prompt or Unix Terminal.
+No other requirements. Run `gradlew build` in Windows Command Prompt or `./gradlew build` in a Unix terminal.

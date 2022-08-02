@@ -48,5 +48,8 @@ jar {
 	into 'res', {
 		from 'res'
 	}
+	from('..') {
+		include 'LICENSE'
+	}
 	baseName 'chokistream'
 }
