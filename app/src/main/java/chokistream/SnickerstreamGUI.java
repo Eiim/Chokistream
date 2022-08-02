@@ -3,12 +3,22 @@ package chokistream;
 import java.io.File;
 import java.io.IOException;
 
+import javafx.scene.Group;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
+import javafx.scene.control.ScrollPane.ScrollBarPolicy;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
+import javafx.stage.Stage;
 import javafx.util.converter.IntegerStringConverter;
 
 public class SnickerstreamGUI extends SettingsGUI {
@@ -148,6 +158,9 @@ public class SnickerstreamGUI extends SettingsGUI {
     	about = new Button("About");
     	about.relocate(307, 117);
     	about.setPrefSize(90, 25);
+    	about.setOnAction((e) -> {
+    		displayAbout();
+    	});
     	
     	adv = new Button("Advanced");
     	adv.relocate(402, 117);
@@ -327,5 +340,47 @@ public class SnickerstreamGUI extends SettingsGUI {
 		if(!val.equals("")) {
 			cb.setValue(val);
 		}
+	}
+	
+	private void displayAbout() {
+		ImageView logo = new ImageView();
+		try {
+			Image logoImg = new Image(getClass().getResourceAsStream("/res/logo64.png"));
+			logo.setImage(logoImg);
+		} catch(NullPointerException e) {
+			// Default to a pixely 64x64 "three-circle" image just so something's there
+			logo.setImage(new Image("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABABAMAAABYR2ztAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAMUExURf///9GxOe0cJFYfAFmmd6UAAAAJcEhZcwAADsMAAA7DAcdvqGQAAADsSURBVEjH7ZZdDoQgDIThBrI3UG5A7383aflJkcKYbLJP2yfjfLaDQqsbIki4VYQeSDcJz/c/V46Trw7reZEbYuiXionwRY+UIxXimHWRGzISUr/rQpy6iCRQuhA6BScYdCZUCs8F6BFc5FBAfAJJAeyAaE7RapgJdAqfl0BkpiiA5aClaBXIjFpjVaHXyEC0gVSAlYVuYmlBTOw8VpdrC9XE90DYA2G3iLKMP/AWQK/6B58bbjm4afG2hwfnxdEDhxcef9xAYAuCTQy3QdhIYSvGzRyOAzxQ4EjCQw2PRTxY4Wh2eLg74/fAuRu/eQmwlppoFQAAAABJRU5ErkJggg=="));
+		}
+		logo.relocate(10, 10);
+		Text name = new Text(84, 64, "Chokistream");
+		Font f = Font.font("System", FontWeight.BOLD, 60);
+		name.setFont(f);
+		
+		ScrollPane textScroll = new ScrollPane();
+		textScroll.setHbarPolicy(ScrollBarPolicy.NEVER);
+		textScroll.setVbarPolicy(ScrollBarPolicy.ALWAYS);
+		Text t = new Text("Made by Eiim, herronjo, and ChainSwordCS.\r\n"
+				+ "\r\n"
+				+ "This software and its source code are provided under the GPL-3.0 License.  See LICENSE for the full license.\r\n"
+				+ "\r\n"
+				+ "Chokistream was made possible by the use and reference of several projects. Special thanks to:\r\n"
+				+ " * RattletraPM for Snickerstream\r\n"
+				+ " * Sono for HzMod\r\n"
+				+ " * Cell9/44670 for BootNTR\r\n"
+				+ " * Nanquitas for BootNTRSelector\r\n"
+				+ " * All other open-source contributors");
+		t.setWrappingWidth(400);
+		textScroll.setContent(t);
+		t.relocate(7, 7);
+		textScroll.relocate(10, 84);
+		textScroll.setPrefWidth(425);
+		textScroll.setPrefHeight(300);
+		
+		Group g = new Group(logo, name, textScroll);
+		Scene scene = new Scene(g, 500, 400);
+		Stage stage = new Stage();
+		stage.setScene(scene);
+		stage.setResizable(false);
+		stage.show();
 	}
 }
