@@ -52,7 +52,7 @@ public class SnickerstreamGUI extends SettingsGUI {
 	private ChoiceBox<String> intrp;
 	private TextField custDPI;
 	private Button apply;
-	private Scene advScene;
+	private Stage advStage;
 	
 	private static final Logger logger = Logger.INSTANCE;
 	
@@ -187,6 +187,10 @@ public class SnickerstreamGUI extends SettingsGUI {
     	adv = new Button("Advanced");
     	adv.relocate(402, 117);
     	adv.setPrefSize(90, 25);
+    	adv.setOnAction((e) -> {
+    		if(advStage == null || !advStage.isShowing())
+    			displayAdvanced();
+    	});
     	
     	patch = new Button("NFC Patch");
     	patch.relocate(495, 117);
@@ -289,7 +293,7 @@ public class SnickerstreamGUI extends SettingsGUI {
 	public int getPort() throws InvalidOptionException {
 		int portVal = Integer.parseInt(port.getText());
 		if(portVal != 8000 && portVal != 6464) {
-			logger.log("Warning: port is not one of the expected ports!", LogLevel.REGULAR);
+			logger.log("Warning: 3DS port is not one of the expected ports!", LogLevel.REGULAR);
 		}
 		return portVal;
 	}
@@ -354,7 +358,7 @@ public class SnickerstreamGUI extends SettingsGUI {
 			case "Smooth":
 				return InterpolationMode.SMOOTH;
 			default:
-				throw new InvalidOptionException("Interpolation Mode", mode);
+				throw new InvalidOptionException("Interpolation", mode);
 		}
 	}
 	
@@ -512,5 +516,62 @@ public class SnickerstreamGUI extends SettingsGUI {
 		stage.setResizable(false);
 		IconLoader.applyFavicon(stage);
 		stage.show();
+	}
+	
+	private void displayAdvanced() {
+		// Left column
+		
+		Label topLab = new Label("Top Scale");
+		topLab.relocate(14, 15);
+		topScale.relocate(106, 10);
+		
+		Label botLab = new Label("Bottom Scale");
+		botLab.relocate(14, 48);
+		bottomScale.relocate(106, 43);
+		
+		Label intrpLab = new Label("Interpolation");
+		intrpLab.relocate(14, 81);
+		intrp.relocate(106, 76);
+		intrp.setPrefWidth(150);
+		
+		Label dpiLab = new Label("Custom DPI");
+		dpiLab.relocate(14, 115);
+		custDPI.relocate(106, 110);
+		
+		Label portLab = new Label("3DS Port");
+		portLab.relocate(14, 147);
+		port.relocate(106, 142);
+		
+		// Right column
+		
+		Label logModeLab = new Label("Log Output");
+		logModeLab.relocate(271, 15);
+		logMode.relocate(363, 10);
+		logMode.setPrefWidth(150);
+		
+		Label logLevelLab = new Label("Log Level");
+		logLevelLab.relocate(271, 48);
+		logLevel.relocate(363, 43);
+		logLevel.setPrefWidth(150);
+		
+		Label logFileLab = new Label("Log File");
+		logFileLab.relocate(271, 81);
+		logFile.relocate(363, 76);
+		
+		apply = new Button("Apply");
+		apply.relocate(271, 109);
+		apply.setPrefSize(242, 57);
+		apply.setOnAction((e) -> {
+			advStage.close();
+		});
+		
+		Pane advPane = new Pane();
+		advPane.getChildren().addAll(topLab, topScale, botLab, bottomScale, intrpLab, intrp, dpiLab, custDPI, portLab, port,
+				logModeLab, logMode, logLevelLab, logLevel, logFileLab, logFile, apply);
+		Scene advScene = new Scene(advPane, 526, 181);
+		advStage = new Stage();
+		advStage.setScene(advScene);
+		IconLoader.applyFavicon(advStage);
+		advStage.show();
 	}
 }
