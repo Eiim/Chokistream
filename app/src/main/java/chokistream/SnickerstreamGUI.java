@@ -344,13 +344,7 @@ public class SnickerstreamGUI extends SettingsGUI {
 	
 	private void displayAbout() {
 		ImageView logo = new ImageView();
-		try {
-			Image logoImg = new Image(getClass().getResourceAsStream("/res/logo64.png"));
-			logo.setImage(logoImg);
-		} catch(NullPointerException e) {
-			// Default to a pixely 64x64 "three-circle" image just so something's there
-			logo.setImage(new Image("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABABAMAAABYR2ztAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAMUExURf///9GxOe0cJFYfAFmmd6UAAAAJcEhZcwAADsMAAA7DAcdvqGQAAADsSURBVEjH7ZZdDoQgDIThBrI3UG5A7383aflJkcKYbLJP2yfjfLaDQqsbIki4VYQeSDcJz/c/V46Trw7reZEbYuiXionwRY+UIxXimHWRGzISUr/rQpy6iCRQuhA6BScYdCZUCs8F6BFc5FBAfAJJAeyAaE7RapgJdAqfl0BkpiiA5aClaBXIjFpjVaHXyEC0gVSAlYVuYmlBTOw8VpdrC9XE90DYA2G3iLKMP/AWQK/6B58bbjm4afG2hwfnxdEDhxcef9xAYAuCTQy3QdhIYSvGzRyOAzxQ4EjCQw2PRTxY4Wh2eLg74/fAuRu/eQmwlppoFQAAAABJRU5ErkJggg=="));
-		}
+		logo.setImage(IconLoader.get64x());
 		logo.relocate(10, 10);
 		Text name = new Text(84, 64, "Chokistream");
 		Font f = Font.font("System", FontWeight.BOLD, 60);
@@ -381,6 +375,7 @@ public class SnickerstreamGUI extends SettingsGUI {
 		Stage stage = new Stage();
 		stage.setScene(scene);
 		stage.setResizable(false);
+		IconLoader.applyFavicon(stage);
 		stage.show();
 	}
 }

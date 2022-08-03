@@ -24,16 +24,7 @@ public class App extends Application {
         stage.setScene(scene);
         stage.setTitle("Chokistream");
         stage.setResizable(false);
-        
-        try {
-	        Image logo64 = new Image(getClass().getResourceAsStream("/res/logo64.png"));
-	        Image logo48 = new Image(getClass().getResourceAsStream("/res/logo48.png"));
-	        Image logo32 = new Image(getClass().getResourceAsStream("/res/logo32.png"));
-	        Image logo16 = new Image(getClass().getResourceAsStream("/res/logo16.png"));
-	        stage.getIcons().addAll(logo16, logo32, logo48, logo64);
-        } catch(NullPointerException e) {
-        	System.out.println("Couldn't find icons, most likely not running from jar");
-        }
+        IconLoader.applyFavicon(stage);
         
         stage.show();
         this.stage = stage;

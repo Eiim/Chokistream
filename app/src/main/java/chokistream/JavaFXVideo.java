@@ -134,20 +134,9 @@ public class JavaFXVideo extends VideoOutputInterface {
 			stage.getScene().setFill(Color.BLACK);
 			// Non-resizable
 			stage.setResizable(false);
+			// Add icons
+			IconLoader.applyFavicon(stage);
 		}
-		
-		try {
-	        Image logo64 = new Image(getClass().getResourceAsStream("/res/logo64.png"));
-	        Image logo48 = new Image(getClass().getResourceAsStream("/res/logo48.png"));
-	        Image logo32 = new Image(getClass().getResourceAsStream("/res/logo32.png"));
-	        Image logo16 = new Image(getClass().getResourceAsStream("/res/logo16.png"));
-	        
-	        for(Stage stage : stages) {
-	        	stage.getIcons().addAll(logo16, logo32, logo48, logo64);
-	        }
-        } catch(NullPointerException e) {
-        	System.out.println("Couldn't find icons, most likely not running from jar");
-        }
 		
 		networkThread.start();
 	}
