@@ -36,6 +36,7 @@ public class App extends Application {
         this.stage = stage;
         
         stage.setOnCloseRequest((e) -> {
+        	logger.close();
         	Platform.exit();
         	System.exit(0);
         });
@@ -55,15 +56,15 @@ public class App extends Application {
 			INIParser parser = new INIParser(new File("chokistream.ini"));
 			String levelS = parser.getProperty("logLevel");
 			switch(levelS) {
-				case "verbose":
+				case "Verbose":
 					level = LogLevel.VERBOSE;
 			}
 			String modeS = parser.getProperty("logMode");
 			switch(modeS) {
-				case "file":
+				case "File":
 					mode = LogMode.FILE;
 					break;
-				case "both":
+				case "Both":
 					mode = LogMode.BOTH;
 			}
 			logFile = parser.getProperty("logFile");

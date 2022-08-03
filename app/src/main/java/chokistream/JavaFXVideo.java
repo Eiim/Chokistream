@@ -107,6 +107,7 @@ public class JavaFXVideo extends VideoOutputInterface {
 		for(Stage stage : stages) {
 			// Kill on close
 			stage.setOnCloseRequest((e) -> {
+				logger.close();
 	        	Platform.exit();
 	        	System.exit(0);
 	        });

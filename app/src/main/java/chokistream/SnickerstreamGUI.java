@@ -471,6 +471,15 @@ public class SnickerstreamGUI extends SettingsGUI {
 			setValueIfProp(parser, strApp, "mod");
 			setValueIfProp(parser, layout, "layout");
 			setValueIfProp(parser, clrMod, "colorMode");
+			
+			setTextIfProp(parser, port, "port");
+			setTextIfProp(parser, topScale, "topScale");
+			setTextIfProp(parser, bottomScale, "bottomSCale");
+			setValueIfProp(parser, logMode, "logMode");
+			setValueIfProp(parser, logLevel, "logLevel");
+			setTextIfProp(parser, logFile, "logFile");
+			setValueIfProp(parser, intrp, "interpolationMode");
+			setTextIfProp(parser, custDPI, "dpi");
 		} catch (Exception e) {
 			displayError(e);
 		}
@@ -571,6 +580,13 @@ public class SnickerstreamGUI extends SettingsGUI {
 		apply.relocate(271, 109);
 		apply.setPrefSize(242, 57);
 		apply.setOnAction((e) -> {
+			try {
+				logger.setLevel(getLogLevel());
+				logger.setMode(getLogMode());
+				logger.setFile(getLogFile());
+			} catch(InvalidOptionException ioe) {
+				displayError(ioe);
+			}
 			advStage.close();
 		});
 		
