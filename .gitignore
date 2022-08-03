@@ -21,5 +21,7 @@ build
 gradle.properties
 app/chokistream.ini
 chokistream.ini
+app/chokistream.log
+chokistream.log
 .classpath
 .settings/org.eclipse.buildship.core.prefs

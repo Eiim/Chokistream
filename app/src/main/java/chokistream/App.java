@@ -1,8 +1,13 @@
 package chokistream;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+
+import chokistream.INIParser.IniParseException;
+import chokistream.Logger.LogLevel;
+import chokistream.Logger.LogMode;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 
@@ -12,6 +17,7 @@ public class App extends Application {
 	private StreamingInterface client;
 	private VideoOutputInterface output;
 	private Stage stage;
+	private static final Logger logger = Logger.INSTANCE;
 	
     /**
      * Adds the basic elements to a JavaFX stage. Triggered via main.
@@ -41,6 +47,31 @@ public class App extends Application {
      * @param args	Currently unused
      */
     public static void main(String[] args) {
+    	// Set up logger before anything else
+    	LogLevel level = LogLevel.REGULAR;
+    	LogMode mode = LogMode.CONSOLE;
+    	String logFile = "chokistream.log";
+    	try {
+			INIParser parser = new INIParser(new File("chokistream.ini"));
+			String levelS = parser.getProperty("logLevel");
+			switch(levelS) {
+				case "verbose":
+					level = LogLevel.VERBOSE;
+			}
+			String modeS = parser.getProperty("logMode");
+			switch(modeS) {
+				case "file":
+					mode = LogMode.FILE;
+					break;
+				case "both":
+					mode = LogMode.BOTH;
+			}
+		} catch (FileNotFoundException | IniParseException e) {
+			System.out.println("No config found or config was unreadable");
+			System.out.println("This is expected on first launch");
+		}
+    	logger.init(mode, level, logFile);
+    	
     	launch();
     }
     

@@ -7,6 +7,7 @@ import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 
+import chokistream.Logger.LogLevel;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Insets;
@@ -30,6 +31,7 @@ public class JavaFXVideo extends VideoOutputInterface {
 	private ImageView topImageView;
 	private ImageView bottomImageView;
 	private double uiScale;
+	private static final Logger logger = Logger.INSTANCE;
 		
 	/**
 	 * Instantiates a viewer using JavaFX.
@@ -40,7 +42,7 @@ public class JavaFXVideo extends VideoOutputInterface {
 	public JavaFXVideo(StreamingInterface client, Layout layout) {
 		super(client);
 		
-		System.out.println("Starting JFXV");
+		logger.log("Starting JFX Video", LogLevel.VERBOSE);
 		
 		topImageView = new ImageView();
 		bottomImageView = new ImageView();
@@ -124,7 +126,7 @@ public class JavaFXVideo extends VideoOutputInterface {
 							File fb = new File("chokistream_bottom.png");
 							ImageIO.write(SwingFXUtils.fromFXImage(imgb, null), "png", fb);
 						}
-						System.out.println("Took a screenshot!");
+						logger.log("Took a screenshot!");
 					} catch (IOException e1) {
 						displayError(e1);
 					}

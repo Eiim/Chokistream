@@ -2,7 +2,7 @@ package chokistream;
 
 /**
  * A class to extend to provide an output location for a video.
- * Intended to be very agnostic of format, so you could for exmaple write to a file.
+ * Intended to be very agnostic of format, so you could for example write to a file.
  */
 public class VideoOutputInterface {
 	
@@ -36,6 +36,6 @@ public class VideoOutputInterface {
 	 * @param e The exception to display.
 	 */
 	public void displayError(Exception e) {
-		System.out.println(e.getClass().getSimpleName()+": "+e.getMessage());
+		Logger.INSTANCE.log(e.getClass().getSimpleName()+": "+e.getMessage());
 	}
 }

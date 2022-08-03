@@ -1,5 +1,6 @@
 package chokistream;
 
+import java.awt.Toolkit;
 import java.io.File;
 import java.io.IOException;
 
@@ -19,6 +20,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.util.converter.DoubleStringConverter;
 import javafx.util.converter.IntegerStringConverter;
 
 public class SnickerstreamGUI extends SettingsGUI {
@@ -36,6 +38,19 @@ public class SnickerstreamGUI extends SettingsGUI {
 	private Button patch;
 	private Button connect;
 	private Pane pane;
+	
+	// Advanced Settings
+	
+	private TextField port;
+	private TextField topScale;
+	private TextField bottomScale;
+	private ChoiceBox<String> logOutput;
+	private ChoiceBox<String> logLevel;
+	private TextField logFile;
+	private ChoiceBox<String> intrp;
+	private TextField custDPI;
+	private Button apply;
+	private Scene advScene;
 	
 	public SnickerstreamGUI(App app) {
 		super(new Pane(), 600, 226);
@@ -137,6 +152,9 @@ public class SnickerstreamGUI extends SettingsGUI {
     	strApp.setPrefSize(175, 25);
     	strApp.getItems().addAll("NTR", "HzMod");
     	strApp.setValue("NTR");
+    	strApp.setOnAction((e) -> {
+    		
+    	});
     	
     	Label clrLab = new Label("Color Mode");
     	clrLab.relocate(307, 52);
@@ -165,16 +183,11 @@ public class SnickerstreamGUI extends SettingsGUI {
     	adv = new Button("Advanced");
     	adv.relocate(402, 117);
     	adv.setPrefSize(90, 25);
-    	adv.setOnAction((e) -> {
-    		saveSettings();
-    	});
     	
     	patch = new Button("NFC Patch");
     	patch.relocate(495, 117);
     	patch.setPrefSize(90, 25);
-    	patch.setOnAction((e) -> {
-    		loadSettings();
-    	});
+    	patch.setDisable(true);
     	
     	connect = new Button("Connect!");
     	connect.relocate(308, 152);
@@ -183,6 +196,31 @@ public class SnickerstreamGUI extends SettingsGUI {
     		saveSettings();
     		app.connect();
     	});
+    	
+    	// Initialize advanced options so we can refer to them in the background
+    	topScale = new TextField();
+    	topScale.setTextFormatter(new TextFormatter<>(new DoubleStringConverter()));
+    	topScale.setText("1");
+    	bottomScale = new TextField();
+    	bottomScale.setTextFormatter(new TextFormatter<>(new DoubleStringConverter()));
+    	bottomScale.setText("1");
+    	intrp = new ChoiceBox<String>();
+    	intrp.getItems().addAll("Nearest Neighbor", "Smooth");
+    	intrp.setValue("Nearest Neighbor");
+    	custDPI = new TextField();
+    	custDPI.setTextFormatter(new TextFormatter<>(new IntegerStringConverter()));
+    	custDPI.setText(""+Toolkit.getDefaultToolkit().getScreenResolution());
+    	port = new TextField();
+    	port.setTextFormatter(new TextFormatter<>(new IntegerStringConverter()));
+    	port.setText("8001");
+    	logOutput = new ChoiceBox<String>();
+    	logOutput.getItems().addAll("Console", "File", "Both");
+    	logOutput.setValue("Console");
+    	logLevel = new ChoiceBox<String>();
+    	logLevel.getItems().addAll("Regular", "Verbose");
+    	logLevel.setValue("Regular");
+    	logFile = new TextField();
+    	logFile.setText("chokistream.log");
     	
     	loadSettings();
     	
