@@ -87,11 +87,13 @@ public class App extends Application {
     	String ip;
     	Layout layout;
     	int port;
+    	int dpi;
     	try {
 			mod = scene.getMod();
 			ip = scene.getIp();
 			layout = scene.getLayout();
 			port = scene.getPort();
+			dpi = scene.getDPI();
 		} catch (InvalidOptionException e) {
 			scene.displayError(e);
 			return;
@@ -108,7 +110,7 @@ public class App extends Application {
 	    			
 	    			// Initializes connection
 	    			client = new NTRClient(ip, quality, screen, priority, qos, colorMode, port);
-	    			output = new JavaFXVideo(client, layout);
+	    			output = new JavaFXVideo(client, layout, dpi);
 	    			stage.close();
 				} catch (Exception e) {
 					scene.displayError(e);
@@ -122,7 +124,7 @@ public class App extends Application {
     				
     				// Initializes connection
     				client = new HZModClient(ip, quality, capCpu, colorMode, port);
-    				output = new JavaFXVideo(client, layout);
+    				output = new JavaFXVideo(client, layout, dpi);
     				stage.close();
     			} catch (Exception e) {
     				scene.displayError(e);

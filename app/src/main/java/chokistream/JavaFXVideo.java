@@ -1,6 +1,5 @@
 package chokistream;
 
-import java.awt.Toolkit;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,7 +13,6 @@ import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyCode;
@@ -39,7 +37,7 @@ public class JavaFXVideo extends VideoOutputInterface {
 	 * @param client	The HzModClient or NTRClient to get frames from
 	 * @param layout	The output layout configuration setting
 	 */
-	public JavaFXVideo(StreamingInterface client, Layout layout) {
+	public JavaFXVideo(StreamingInterface client, Layout layout, int dpi) {
 		super(client);
 		
 		logger.log("Starting JFX Video", LogLevel.VERBOSE);
@@ -66,7 +64,7 @@ public class JavaFXVideo extends VideoOutputInterface {
 		// Scaling last is very important
 		// If you don't do this you may spend hours of your life trying to
 		// solve geometry formulas and multiplying matrices
-		uiScale = 96/(double)Toolkit.getDefaultToolkit().getScreenResolution();
+		uiScale = 96.0/dpi;
 		topImageView.getTransforms().add(new Scale(uiScale, uiScale));
 		bottomImageView.getTransforms().add(new Scale(uiScale, uiScale));
 		
