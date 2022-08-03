@@ -23,7 +23,6 @@ public class HZModClient implements StreamingInterface {
 	private InputStream in = null;
 	private OutputStream out = null;
 	private ColorMode colorMode;
-	private Mod whichMod = Mod.HZMOD;
 
 	/**
 	 * Create an HZModClient.
@@ -119,7 +118,7 @@ public class HZModClient implements StreamingInterface {
 		 * For some reason the red and blue channels are swapped.
 		 * Fix it.
 		 */
-		image = ColorHotfix.DoColorHotfix(image, colorMode, whichMod);
+		image = ColorHotfix.doColorHotfix(image, colorMode, true);
 		
 		returnFrame = new Frame(image);
 		

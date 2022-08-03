@@ -47,7 +47,6 @@ public class NTRUDPThread extends Thread {
     private byte secondaryExpectedPacket = 0;
     private NTRScreen activeScreen = NTRScreen.TOP;
     private ColorMode colorMode;
-    private Mod whichMod = Mod.NTR;
 	
 	/**
 	 * Create an NTRUDPThread.
@@ -96,7 +95,7 @@ public class NTRUDPThread extends Thread {
 						priorityImage = new Image(priorityInputStream.getInputStream());
 						priorityInputStream = new WritableInputStream();
 						if (colorMode != ColorMode.REGULAR) {
-							priorityImage = ColorHotfix.DoColorHotfix(priorityImage, colorMode, whichMod);
+							priorityImage = ColorHotfix.doColorHotfix(priorityImage, colorMode, false);
 						}
 						frameBuffer.add(new Frame(currentScreen, priorityImage));
 						priorityImage = null;
@@ -120,7 +119,7 @@ public class NTRUDPThread extends Thread {
 						secondaryImage = new Image(secondaryInputStream.getInputStream());
 						secondaryInputStream = new WritableInputStream();
 						if (colorMode != ColorMode.REGULAR) {
-							secondaryImage = ColorHotfix.DoColorHotfix(secondaryImage, colorMode, whichMod);
+							secondaryImage = ColorHotfix.doColorHotfix(secondaryImage, colorMode, false);
 						}
 						frameBuffer.add(new Frame(currentScreen, secondaryImage));
 						secondaryImage = null;

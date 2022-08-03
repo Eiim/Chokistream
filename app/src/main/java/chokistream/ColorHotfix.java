@@ -5,7 +5,7 @@ import javafx.scene.image.WritableImage;
 
 public class ColorHotfix {
 	
-	private static int HzModSwapRedBlue(int currentPixelColor) {
+	private static int hzModSwapRedBlue(int currentPixelColor) {
 		//int newAlphaIdk = ((currentPixelColor&0b11111111000000000000000000000000) >>> 24);
 		int newRedPixel = ((currentPixelColor&0b00000000000000000000000011111111)); //bitwise AND
 		int newGrnPixel = ((currentPixelColor&0b00000000000000001111111100000000) >>> 8); //bit-shift right (unsigned)
@@ -14,11 +14,11 @@ public class ColorHotfix {
 		return currentPixelColor;
 	}
 	
-	private static int ReverseEightBits(int a) {
+	private static int reverseEightBits(int a) {
 		return (a&0b1)*128 + (a&0b10)*32 + (a&0b100)*8 + (a&0b1000)*2 + (a&0b10000)/2 + (a&0b100000)/8 + (a&0b1000000)/32 + (a&0b10000000)/128;
 	}
 	
-	private static int MakeGrayscale(int currentPixelColor) {
+	private static int makeGrayscale(int currentPixelColor) {
 		int newRedPixel = ((currentPixelColor&0b00000000111111110000000000000000) >>> 16);
 		int newGrnPixel = ((currentPixelColor&0b00000000000000001111111100000000) >>> 8);
 		int newBluPixel = ((currentPixelColor&0b00000000000000000000000011111111));
@@ -28,7 +28,7 @@ public class ColorHotfix {
 	}
 	
 	// THIS IS BROKEN. IT IS BORDERLINE UNSOLVABLE. TRUST ME, I SPENT HOURS ON THIS. -C
-	private static int VcBlueShift(int currentPixelColor) {
+	private static int vcBlueShift(int currentPixelColor) {
 		//int newAlphaIdk = ((currentPixelColor&0b11111111000000000000000000000000) >>> 24);
 		int newRedPixel = ((currentPixelColor&0b00000000111111110000000000000000) >>> 16);
 		int newGrnPixel = ((currentPixelColor&0b00000000000000001111111100000000) >>> 8);
@@ -98,7 +98,7 @@ public class ColorHotfix {
 	/*
 	 * Possible clients: "NTR","HzMod"... (Case Insensitive)
 	 */
-	public static Image DoColorHotfix(Image hotfixImageInput, ColorMode colorMode, Mod whichClient) {
+	public static Image doColorHotfix(Image hotfixImageInput, ColorMode colorMode, boolean swapRB) {
 		try {
 			WritableImage hotfixImageWritable = new WritableImage( (int)hotfixImageInput.getWidth() , (int)hotfixImageInput.getHeight() );
 			int currentPixelColor = 0;
@@ -109,14 +109,14 @@ public class ColorHotfix {
 					currentPixelColor = hotfixImageInput.getPixelReader().getArgb(currentW, currentH);
 					
 					// If the client is HzMod, then always swap Red and Blue first. Then proceed to extra processing.
-					if (whichClient == Mod.HZMOD) {
-						currentPixelColor = HzModSwapRedBlue(currentPixelColor);
+					if (swapRB) {
+						currentPixelColor = hzModSwapRedBlue(currentPixelColor);
 					}
 					
 					if (colorMode == ColorMode.VC_BLUE_SHIFT) {
-						currentPixelColor = VcBlueShift(currentPixelColor);
+						currentPixelColor = vcBlueShift(currentPixelColor);
 					} else if (colorMode == ColorMode.GRAYSCALE) {
-						currentPixelColor = MakeGrayscale(currentPixelColor);
+						currentPixelColor = makeGrayscale(currentPixelColor);
 					}
 					
 					hotfixImageWritable.getPixelWriter().setArgb(currentW,currentH,currentPixelColor);
