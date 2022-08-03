@@ -1,5 +1,9 @@
 package chokistream;
 
+import java.awt.Toolkit;
+
+import chokistream.Logger.LogLevel;
+import chokistream.Logger.LogMode;
 import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -23,6 +27,15 @@ public class SettingsGUI extends Scene {
 	protected int capCPU  = 0;
 	protected Layout layout = Layout.SEPARATE;
 	protected ColorMode colorMode = ColorMode.REGULAR;
+	// Advanced settings defaults generally aren't based off Snickerstream
+	protected int port = 8000;
+	protected double topScale = 1;
+	protected double bottomScale = 1;
+	protected LogMode logMode = LogMode.CONSOLE;
+	protected LogLevel logLevel = LogLevel.REGULAR;
+	protected String logFile = "chokistream.log";
+	protected InterpolationMode intrp = InterpolationMode.NONE;
+	protected int custDPI = Toolkit.getDefaultToolkit().getScreenResolution();
 	
 	// These can throw exceptions in case the user inputs bad data (like "yummy" for the quality or something)
 	
@@ -97,6 +110,70 @@ public class SettingsGUI extends Scene {
 	 */
 	public ColorMode getColorMode() throws InvalidOptionException {
 		return colorMode;
+	}
+	
+	/**
+	 * @return The selected port
+	 * @throws InvalidOptionException
+	 */
+	public int getPort() throws InvalidOptionException {
+		return port;
+	}
+	
+	/**
+	 * @return The scale of the top screen
+	 * @throws InvalidOptionException
+	 */
+	public double getTopScale() throws InvalidOptionException {
+		return topScale;
+	}
+	
+	/**
+	 * @return The Scale of the bottom screen
+	 * @throws InvalidOptionException
+	 */
+	public double getBottomScale() throws InvalidOptionException {
+		return bottomScale;
+	}
+	
+	/**
+	 * @return The logging output mode
+	 * @throws InvalidOptionException
+	 */
+	public LogMode getLogMode() throws InvalidOptionException {
+		return logMode;
+	}
+	
+	/**
+	 * @return The logging level
+	 * @throws InvalidOptionException
+	 */
+	public LogLevel getLogLevel() throws InvalidOptionException {
+		return logLevel;
+	}
+	
+	/**
+	 * @return The log file
+	 * @throws InvalidOptionException
+	 */
+	public String getLogFile() throws InvalidOptionException {
+		return logFile;
+	}
+	
+	/**
+	 * @return The interpolation mode for the stream display
+	 * @throws InvalidOptionException
+	 */
+	public InterpolationMode getIntrpMode() throws InvalidOptionException {
+		return intrp;
+	}
+	
+	/**
+	 * @return The DPI to use for scaling/DPI correction
+	 * @throws InvalidOptionException
+	 */
+	public int getDPI() throws InvalidOptionException {
+		return custDPI;
 	}
 	
 	// Generic popup

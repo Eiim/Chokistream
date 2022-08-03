@@ -4,6 +4,8 @@ import java.awt.Toolkit;
 import java.io.File;
 import java.io.IOException;
 
+import chokistream.Logger.LogLevel;
+import chokistream.Logger.LogMode;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -44,13 +46,15 @@ public class SnickerstreamGUI extends SettingsGUI {
 	private TextField port;
 	private TextField topScale;
 	private TextField bottomScale;
-	private ChoiceBox<String> logOutput;
+	private ChoiceBox<String> logMode;
 	private ChoiceBox<String> logLevel;
 	private TextField logFile;
 	private ChoiceBox<String> intrp;
 	private TextField custDPI;
 	private Button apply;
 	private Scene advScene;
+	
+	private static final Logger logger = Logger.INSTANCE;
 	
 	public SnickerstreamGUI(App app) {
 		super(new Pane(), 600, 226);
@@ -205,17 +209,17 @@ public class SnickerstreamGUI extends SettingsGUI {
     	bottomScale.setTextFormatter(new TextFormatter<>(new DoubleStringConverter()));
     	bottomScale.setText("1");
     	intrp = new ChoiceBox<String>();
-    	intrp.getItems().addAll("Nearest Neighbor", "Smooth");
-    	intrp.setValue("Nearest Neighbor");
+    	intrp.getItems().addAll("None", "Smooth");
+    	intrp.setValue("None");
     	custDPI = new TextField();
     	custDPI.setTextFormatter(new TextFormatter<>(new IntegerStringConverter()));
     	custDPI.setText(""+Toolkit.getDefaultToolkit().getScreenResolution());
     	port = new TextField();
     	port.setTextFormatter(new TextFormatter<>(new IntegerStringConverter()));
-    	port.setText("8001");
-    	logOutput = new ChoiceBox<String>();
-    	logOutput.getItems().addAll("Console", "File", "Both");
-    	logOutput.setValue("Console");
+    	port.setText("8000");
+    	logMode = new ChoiceBox<String>();
+    	logMode.getItems().addAll("Console", "File", "Both");
+    	logMode.setValue("Console");
     	logLevel = new ChoiceBox<String>();
     	logLevel.getItems().addAll("Regular", "Verbose");
     	logLevel.setValue("Regular");
@@ -282,6 +286,90 @@ public class SnickerstreamGUI extends SettingsGUI {
 		return qos;
 	}
 	
+	public int getPort() throws InvalidOptionException {
+		int portVal = Integer.parseInt(port.getText());
+		if(portVal != 8000 && portVal != 6464) {
+			logger.log("Warning: port is not one of the expected ports!", LogLevel.REGULAR);
+		}
+		return portVal;
+	}
+	
+	public double getTopScale() throws InvalidOptionException {
+		double scale = Double.parseDouble(topScale.getText());
+		if(scale <= 0) {
+			throw new InvalidOptionException("Top Scale", ""+scale);
+		}
+		if(scale > 10) {
+			logger.log("Warning: top scale seems really big", LogLevel.VERBOSE);
+		}
+		return scale;
+	}
+	
+	public double getBottomScale() throws InvalidOptionException {
+		double scale = Double.parseDouble(bottomScale.getText());
+		if(scale <= 0) {
+			throw new InvalidOptionException("Bottom Scale", ""+scale);
+		}
+		if(scale > 10) {
+			logger.log("Warning: bottom scale seems really big", LogLevel.VERBOSE);
+		}
+		return scale;
+	}
+	
+	public LogMode getLogMode() throws InvalidOptionException {
+		String mode = logMode.getValue();
+		switch(mode) {
+			case "Console":
+				return LogMode.CONSOLE;
+			case "File":
+				return LogMode.FILE;
+			case "Both":
+				return LogMode.BOTH;
+			default:
+				throw new InvalidOptionException("Log Mode", mode);
+		}
+	}
+	
+	public LogLevel getLogLevel() throws InvalidOptionException {
+		String level = logLevel.getValue();
+		switch(level) {
+			case "Regular":
+				return LogLevel.REGULAR;
+			case "Verbose":
+				return LogLevel.VERBOSE;
+			default:
+				throw new InvalidOptionException("Log Level", level);
+		}
+	}
+	
+	public String getLogFile() throws InvalidOptionException {
+		return logFile.getText();
+	}
+	
+	public InterpolationMode getIntrpMode() throws InvalidOptionException {
+		String mode = intrp.getValue();
+		switch(mode) {
+			case "None":
+				return InterpolationMode.NONE;
+			case "Smooth":
+				return InterpolationMode.SMOOTH;
+			default:
+				throw new InvalidOptionException("Interpolation Mode", mode);
+		}
+	}
+	
+	public int getDPI() throws InvalidOptionException {
+		int dpi = Integer.parseInt(custDPI.getText());
+		if(dpi < 1) {
+			throw new InvalidOptionException("DPI", ""+dpi);
+		} else if(dpi < 48) {
+			logger.log("DPI seems really low", LogLevel.VERBOSE);
+		} else if(dpi > 480) {
+			logger.log("DPI seems really high", LogLevel.VERBOSE);
+		}
+		return dpi;
+	}
+	
 	public Layout getLayout() throws InvalidOptionException {
 		String lay = layout.getValue();
 		switch(lay) {
@@ -340,6 +428,15 @@ public class SnickerstreamGUI extends SettingsGUI {
 			parser.setProperty("mod", strApp.getValue());
 			parser.setProperty("layout", layout.getValue());
 			parser.setProperty("colorMode", clrMod.getValue());
+			
+			parser.setProperty("port", getPort());
+			parser.setProperty("topScale", Double.toString(getTopScale()));
+			parser.setProperty("bottomScale", Double.toString(getBottomScale()));
+			parser.setProperty("logMode", logMode.getValue());
+			parser.setProperty("logLevel", logLevel.getValue());
+			parser.setProperty("logFile", getLogFile());
+			parser.setProperty("interpolationMode", intrp.getValue());
+			parser.setProperty("dpi", getDPI());
 		} catch (Exception e) {
 			displayError(e);
 		}

@@ -66,6 +66,7 @@ public class App extends Application {
 				case "both":
 					mode = LogMode.BOTH;
 			}
+			logFile = parser.getProperty("logFile");
 		} catch (FileNotFoundException | IniParseException e) {
 			System.out.println("No config found or config was unreadable");
 			System.out.println("This is expected on first launch");
