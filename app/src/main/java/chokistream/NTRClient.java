@@ -28,9 +28,9 @@ public class NTRClient implements StreamingInterface {
 	 * @throws UnknownHostException 
 	 * @throws InterruptedException 
 	 */
-	public NTRClient(String host, int quality, NTRScreen screen, int priority, int qos, ColorMode colorMode) throws UnknownHostException, IOException, InterruptedException {
+	public NTRClient(String host, int quality, NTRScreen screen, int priority, int qos, ColorMode colorMode, int port) throws UnknownHostException, IOException, InterruptedException {
 		// Connect to TCP port and set up client
-		Socket client = new Socket(host, 8000);
+		Socket client = new Socket(host, port);
 		client.setTcpNoDelay(true);
 		OutputStream out = client.getOutputStream();
 		thread = new NTRUDPThread(host, screen, colorMode);

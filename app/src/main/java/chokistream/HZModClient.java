@@ -31,7 +31,7 @@ public class HZModClient implements StreamingInterface {
 	 * @param capCPU Cap CPU cycles.
 	 * @param colorMode The color filter (option to enable hotfixColors).
 	 */
-	public HZModClient(String host, int quality, int capCPU, ColorMode receivedColorMode) throws UnknownHostException, IOException {
+	public HZModClient(String host, int quality, int capCPU, ColorMode receivedColorMode, int port) throws UnknownHostException, IOException {
 		// Connect to TCP port and set up client
 		client = new Socket(host, 6464);
 		client.setTcpNoDelay(true);

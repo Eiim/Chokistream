@@ -85,10 +85,12 @@ public class App extends Application {
     	Mod mod;
     	String ip;
     	Layout layout;
+    	int port;
     	try {
 			mod = scene.getMod();
 			ip = scene.getIp();
 			layout = scene.getLayout();
+			port = scene.getPort();
 		} catch (InvalidOptionException e) {
 			scene.displayError(e);
 			return;
@@ -104,7 +106,7 @@ public class App extends Application {
 	    			ColorMode colorMode = scene.getColorMode();
 	    			
 	    			// Initializes connection
-	    			client = new NTRClient(ip, quality, screen, priority, qos, colorMode);
+	    			client = new NTRClient(ip, quality, screen, priority, qos, colorMode, port);
 	    			output = new JavaFXVideo(client, layout);
 	    			stage.close();
 				} catch (Exception e) {
@@ -118,7 +120,7 @@ public class App extends Application {
     				ColorMode colorMode = scene.getColorMode();
     				
     				// Initializes connection
-    				client = new HZModClient(ip, quality, capCpu, colorMode);
+    				client = new HZModClient(ip, quality, capCpu, colorMode, port);
     				output = new JavaFXVideo(client, layout);
     				stage.close();
     			} catch (Exception e) {

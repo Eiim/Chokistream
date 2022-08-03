@@ -157,7 +157,16 @@ public class SnickerstreamGUI extends SettingsGUI {
     	strApp.getItems().addAll("NTR", "HzMod");
     	strApp.setValue("NTR");
     	strApp.setOnAction((e) -> {
-    		
+    		switch(strApp.getValue()) {
+    			case "HzMod":
+    				port.setText("6464");
+    				break;
+    			case "NTR":
+    				port.setText("8000");
+    				break;
+    			default:
+    				logger.log("Mod is not one of the expected mods!", LogLevel.VERBOSE);
+    		}
     	});
     	
     	Label clrLab = new Label("Color Mode");
