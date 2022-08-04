@@ -90,6 +90,7 @@ public class App extends Application {
     	int dpi;
     	double topScale;
     	double bottomScale;
+    	InterpolationMode intrp;
     	try {
 			mod = scene.getMod();
 			ip = scene.getIp();
@@ -98,6 +99,7 @@ public class App extends Application {
 			dpi = scene.getDPI();
 			topScale = scene.getTopScale();
 			bottomScale = scene.getBottomScale();
+			intrp = scene.getIntrpMode();
 		} catch (InvalidOptionException e) {
 			scene.displayError(e);
 			return;
@@ -114,7 +116,7 @@ public class App extends Application {
 	    			
 	    			// Initializes connection
 	    			client = new NTRClient(ip, quality, screen, priority, qos, colorMode, port);
-	    			output = new JavaFXVideo(client, layout, dpi, topScale, bottomScale);
+	    			output = new JavaFXVideo(client, layout, dpi, topScale, bottomScale, intrp);
 	    			stage.close();
 				} catch (Exception e) {
 					scene.displayError(e);
@@ -128,7 +130,7 @@ public class App extends Application {
     				
     				// Initializes connection
     				client = new HZModClient(ip, quality, capCpu, colorMode, port);
-    				output = new JavaFXVideo(client, layout, dpi, topScale, bottomScale);
+    				output = new JavaFXVideo(client, layout, dpi, topScale, bottomScale, intrp);
     				stage.close();
     			} catch (Exception e) {
     				scene.displayError(e);

@@ -39,13 +39,19 @@ public class JavaFXVideo extends VideoOutputInterface {
 	 * @param client	The HzModClient or NTRClient to get frames from
 	 * @param layout	The output layout configuration setting
 	 */
-	public JavaFXVideo(StreamingInterface client, Layout layout, int dpi, double topScale, double bottomScale) {
+	public JavaFXVideo(StreamingInterface client, Layout layout, int dpi, double topScale, double bottomScale, InterpolationMode intrp) {
 		super(client);
 		
 		logger.log("Starting JFX Video", LogLevel.VERBOSE);
 		
 		topImageView = new ImageView();
 		bottomImageView = new ImageView();
+		if(intrp == InterpolationMode.SMOOTH) {
+			topImageView.setSmooth(true);
+			bottomImageView.setSmooth(true);
+		}
+		topImageView.setCache(true);
+		bottomImageView.setCache(true);
 		
 		this.topScale = topScale;
 		this.bottomScale = bottomScale;

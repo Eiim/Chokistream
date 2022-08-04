@@ -1,5 +1,5 @@
 package chokistream;
 
 public enum Mod {
-	NTR, HZMOD
+	NTR, HZMOD, CHOKIMOD
 }

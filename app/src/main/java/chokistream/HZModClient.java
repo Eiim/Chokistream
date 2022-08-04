@@ -125,7 +125,7 @@ public class HZModClient implements StreamingInterface {
 		return returnFrame;
 	}
 	
-	public void sendNFCPatch(String host, byte[] addr, ConsoleModel model) throws UnknownHostException, IOException {
+	public static void sendNFCPatch(String host, byte[] addr, ConsoleModel model) throws UnknownHostException, IOException {
 		byte[] binaryPacketPatch = new byte[11 + addr.length];
 		binaryPacketPatch[0] = (byte) 0x81;
 		binaryPacketPatch[1] = 0x0A;
