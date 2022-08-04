@@ -3,6 +3,8 @@ package chokistream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.imageio.ImageIO;
 
@@ -32,6 +34,12 @@ public class JavaFXVideo extends VideoOutputInterface {
 	private static final Logger logger = Logger.INSTANCE;
 	private double topScale;
 	private double bottomScale;
+	private int topFrames = 0;
+	private int bottomFrames = 0;
+	private int topFPS = 0;
+	private int bottomFPS = 0;
+	private boolean newFPS;
+	private Timer fpsTimer;
 		
 	/**
 	 * Instantiates a viewer using JavaFX.
@@ -121,6 +129,7 @@ public class JavaFXVideo extends VideoOutputInterface {
 			// Kill on close
 			stage.setOnCloseRequest((e) -> {
 				logger.close();
+				fpsTimer.cancel();
 	        	Platform.exit();
 	        	System.exit(0);
 	        });
@@ -154,6 +163,28 @@ public class JavaFXVideo extends VideoOutputInterface {
 			IconLoader.applyFavicon(stage);
 		}
 		
+		fpsTimer = new Timer();
+		fpsTimer.scheduleAtFixedRate(new TimerTask() {
+			public void run() {
+				topFPS = topFrames;
+				bottomFPS = bottomFrames;
+				topFrames = 0;
+				bottomFrames = 0;
+				
+				// We can't update it from this thread, but Platform.runLater allows us to request an event on the main thread
+				Platform.runLater(new Runnable() {
+					public void run() {
+						if(stages.size() == 2) {
+							stages.get(0).setTitle("Snickerstream - Top Screen ("+topFPS+" FPS)");
+							stages.get(1).setTitle("Snickerstream - Bottom Screen ("+bottomFPS+" FPS)");
+						} else {
+							stages.get(0).setTitle("Snickerstream ("+(int)Math.max(topFPS, bottomFPS)+" FPS)");
+						}
+					}
+				});
+			}
+		}, 1000, 1000);
+		
 		networkThread.start();
 	}
 	
@@ -166,8 +197,10 @@ public class JavaFXVideo extends VideoOutputInterface {
 	public void renderFrame(Frame fr) {
 		if(fr.screen == NTRScreen.BOTTOM) {
 			bottomImageView.setImage(fr.image);
+			bottomFrames++;
 		} else {
 			topImageView.setImage(fr.image);
+			topFrames++;
 		}
 	}
 	
