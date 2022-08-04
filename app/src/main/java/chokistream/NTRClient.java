@@ -75,5 +75,19 @@ public class NTRClient implements StreamingInterface {
 	public Frame getFrame() throws InterruptedException {
 		return thread.getFrame();
 	}
-
+	
+	public static void sendNFCPatch(String host, int port, byte[] addr, ConsoleModel model) throws UnknownHostException, IOException {
+		byte[] binaryPacketPatch = new byte[11 + addr.length];
+		binaryPacketPatch[0] = (byte) 0x81;
+		binaryPacketPatch[1] = 0x0A;
+		binaryPacketPatch[4] = (byte) ((model == ConsoleModel.N3DS) ? 0x1A : 0x19);
+		binaryPacketPatch[binaryPacketPatch.length - 2] = 0x70;
+		binaryPacketPatch[binaryPacketPatch.length - 1] = 0x47;
+		
+		Socket patchClient = new Socket(host, port);
+		OutputStream patchOut = patchClient.getOutputStream();
+		patchOut.write(binaryPacketPatch);
+		patchOut.close();
+		patchClient.close();
+	}
 }

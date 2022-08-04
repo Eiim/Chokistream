@@ -204,7 +204,40 @@ public class SnickerstreamGUI extends SettingsGUI {
     	patch = new Button("NFC Patch");
     	patch.relocate(495, 117);
     	patch.setPrefSize(90, 25);
-    	patch.setDisable(true);
+    	patch.setOnAction((e) -> {
+    		Button n3ds = new Button("New 3DS");
+    		Button o3ds = new Button("Old 3DS");
+    		n3ds.relocate(7, 7);
+    		n3ds.setPrefSize(100, 25);
+    		o3ds.relocate(114, 7);
+    		o3ds.setPrefSize(100, 25);
+    		
+    		Group g = new Group(n3ds, o3ds);
+    		Scene selectScene = new Scene(g, 221, 39);
+    		Stage selectStage = new Stage();
+    		selectStage.setScene(selectScene);
+    		selectStage.setResizable(false);
+    		IconLoader.applyFavicon(selectStage);
+    		
+    		n3ds.setOnAction((e2) -> {
+    			try {
+    				selectStage.close();
+					NTRClient.sendNFCPatch(getIp(), getPort(), null, ConsoleModel.N3DS);
+				} catch (IOException | InvalidOptionException ex) {
+					displayError(ex);
+				}
+    		});
+    		o3ds.setOnAction((e2) -> {
+    			try {
+    				selectStage.close();
+					NTRClient.sendNFCPatch(getIp(), getPort(), null, ConsoleModel.O3DS);
+				} catch (IOException | InvalidOptionException ex) {
+					displayError(ex);
+				}
+    		});
+    		
+    		selectStage.show();
+    	});
     	
     	connect = new Button("Connect!");
     	connect.relocate(308, 152);
