@@ -30,6 +30,8 @@ public class JavaFXVideo extends VideoOutputInterface {
 	private ImageView bottomImageView;
 	private double uiScale;
 	private static final Logger logger = Logger.INSTANCE;
+	private double topScale;
+	private double bottomScale;
 		
 	/**
 	 * Instantiates a viewer using JavaFX.
@@ -37,13 +39,16 @@ public class JavaFXVideo extends VideoOutputInterface {
 	 * @param client	The HzModClient or NTRClient to get frames from
 	 * @param layout	The output layout configuration setting
 	 */
-	public JavaFXVideo(StreamingInterface client, Layout layout, int dpi) {
+	public JavaFXVideo(StreamingInterface client, Layout layout, int dpi, double topScale, double bottomScale) {
 		super(client);
 		
 		logger.log("Starting JFX Video", LogLevel.VERBOSE);
 		
 		topImageView = new ImageView();
 		bottomImageView = new ImageView();
+		
+		this.topScale = topScale;
+		this.bottomScale = bottomScale;
 		
 		/*
 		 * Transforms should be applied to the image in this order:
@@ -67,6 +72,10 @@ public class JavaFXVideo extends VideoOutputInterface {
 		uiScale = 96.0/dpi;
 		topImageView.getTransforms().add(new Scale(uiScale, uiScale));
 		bottomImageView.getTransforms().add(new Scale(uiScale, uiScale));
+		
+		// Temporary until we can get better algorithms in place
+		topImageView.getTransforms().add(new Scale(topScale, topScale));
+		bottomImageView.getTransforms().add(new Scale(bottomScale, bottomScale));
 		
 		// 240s come from the height of the screens
 		topImageView.getTransforms().add(new Translate(0,240));
@@ -193,14 +202,14 @@ public class JavaFXVideo extends VideoOutputInterface {
 		Stage topStage = new Stage();
 		Group gt = new Group(); // For some reason we can't use the imageView as root directly since it's not a parent
 		gt.getChildren().add(topImageView);
-		Scene st = new Scene(gt, 400*uiScale, 240*uiScale);
+		Scene st = new Scene(gt, 400*uiScale*topScale, 240*uiScale*topScale);
 		topStage.setScene(st);
 		topStage.setTitle("Chokistream - Top Screen");
 		topStage.show();
 		
 		Stage bottomStage = new Stage();
 		Group gb = new Group(bottomImageView); // For some reason we can't use the imageView as root directly since it's not a parent
-		Scene sb = new Scene(gb, 320*uiScale, 240*uiScale);
+		Scene sb = new Scene(gb, 320*uiScale*bottomScale, 240*uiScale*bottomScale);
 		bottomStage.setScene(sb);
 		bottomStage.setTitle("Chokistream - Bottom Screen");
 		bottomStage.show();
@@ -210,14 +219,14 @@ public class JavaFXVideo extends VideoOutputInterface {
 	}
 	
 	private void setupVertical() {
-		bottomImageView.getTransforms().add(new Translate(40, 240));
+		int maxWidth = (int) Math.round(Math.max(400*topScale, 320*bottomScale));
+		bottomImageView.getTransforms().add(new Translate((maxWidth-bottomScale*320)/2, 240*topScale));
+		topImageView.getTransforms().add(new Translate((maxWidth-topScale*400)/2, 0));
 		Group g = new Group();
 		g.getChildren().addAll(topImageView, bottomImageView);
-		Scene scene = new Scene(g, 400*uiScale, 480*uiScale);
+		Scene scene = new Scene(g, maxWidth*uiScale, 240*uiScale*topScale+240*uiScale*bottomScale);
 		
 		Stage stage = new Stage();
-		stage.setWidth(400);
-		stage.setHeight(480);
 		stage.setTitle("Chokistream");
 		stage.setScene(scene);
 		stage.show();
@@ -226,15 +235,14 @@ public class JavaFXVideo extends VideoOutputInterface {
 	}
 	
 	private void setupVerticalInv() {
-		topImageView.getTransforms().add(new Translate(0, 240));
-		bottomImageView.getTransforms().add(new Translate(40, 0));
+		int maxWidth = (int) Math.round(Math.max(400*topScale, 320*bottomScale));
+		topImageView.getTransforms().add(new Translate((maxWidth-topScale*400)/2, 240*bottomScale));
+		bottomImageView.getTransforms().add(new Translate((maxWidth-bottomScale*320)/2, 0));
 		Group g = new Group();
 		g.getChildren().addAll(topImageView, bottomImageView);
-		Scene scene = new Scene(g, 400*uiScale, 480*uiScale);
+		Scene scene = new Scene(g, maxWidth*uiScale, 240*uiScale*topScale+240*uiScale*bottomScale);
 		
 		Stage stage = new Stage();
-		stage.setWidth(400);
-		stage.setHeight(480);
 		stage.setTitle("Chokistream");
 		stage.setScene(scene);
 		stage.show();
@@ -242,15 +250,16 @@ public class JavaFXVideo extends VideoOutputInterface {
 		stages.add(stage);
 	}
 	
+	// TODO: known bug when bottom screen is larger than top
 	private void setupHorizontal() {
-		bottomImageView.getTransforms().add(new Translate(400, 0));
+		int maxHeight = (int) Math.round(Math.max(topScale, bottomScale)*240);
+		bottomImageView.getTransforms().add(new Translate(400*topScale, (maxHeight-bottomScale*240)/2));
+		topImageView.getTransforms().add(new Translate(0, (maxHeight-topScale*240)/2));
 		Group g = new Group();
 		g.getChildren().addAll(topImageView, bottomImageView);
-		Scene scene = new Scene(g, 720*uiScale, 240*uiScale);
+		Scene scene = new Scene(g, 400*uiScale*topScale+320*uiScale*bottomScale, maxHeight*uiScale);
 		
 		Stage stage = new Stage();
-		stage.setWidth(720);
-		stage.setHeight(240);
 		stage.setTitle("Chokistream");
 		stage.setScene(scene);
 		stage.show();
@@ -258,15 +267,16 @@ public class JavaFXVideo extends VideoOutputInterface {
 		stages.add(stage);
 	}
 	
+	// TODO: known bug when top screen is larger than bottom
 	private void setupHorizontalInv() {
-		topImageView.getTransforms().add(new Translate(320, 0));
+		int maxHeight = (int) Math.round(Math.max(topScale, bottomScale)*240);
+		topImageView.getTransforms().add(new Translate(320*bottomScale, (maxHeight-topScale*240)/2));
+		bottomImageView.getTransforms().add(new Translate(0, (maxHeight-bottomScale*240)/2));
 		Group g = new Group();
 		g.getChildren().addAll(bottomImageView, topImageView);
-		Scene scene = new Scene(g, 720*uiScale, 240*uiScale);
+		Scene scene = new Scene(g, 400*uiScale*topScale+320*uiScale*bottomScale, maxHeight*uiScale);
 		
 		Stage stage = new Stage();
-		stage.setWidth(720);
-		stage.setHeight(240);
 		stage.setTitle("Chokistream");
 		stage.setScene(scene);
 		stage.show();
@@ -276,11 +286,9 @@ public class JavaFXVideo extends VideoOutputInterface {
 	
 	private void setupTopOnly() {
 		Stage topStage = new Stage();
-		topStage.setWidth(400);
-		topStage.setHeight(240);
 		Group gt = new Group();
 		gt.getChildren().add(topImageView);
-		Scene st = new Scene(gt, 400*uiScale, 240*uiScale);
+		Scene st = new Scene(gt, 400*uiScale*topScale, 240*uiScale*topScale);
 		topStage.setScene(st);
 		topStage.setTitle("Chokistream");
 		topStage.show();
@@ -290,11 +298,9 @@ public class JavaFXVideo extends VideoOutputInterface {
 	
 	private void setupBottomOnly() {
 		Stage bottomStage = new Stage();
-		bottomStage.setWidth(320);
-		bottomStage.setHeight(240);
 		Group gb = new Group();
 		gb.getChildren().add(bottomImageView);
-		Scene sb = new Scene(gb, 400*uiScale, 240*uiScale);
+		Scene sb = new Scene(gb, 400*uiScale*bottomScale, 240*uiScale*bottomScale);
 		bottomStage.setScene(sb);
 		bottomStage.setTitle("Chokistream");
 		bottomStage.show();

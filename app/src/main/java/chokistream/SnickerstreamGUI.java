@@ -474,7 +474,7 @@ public class SnickerstreamGUI extends SettingsGUI {
 			
 			setTextIfProp(parser, port, "port");
 			setTextIfProp(parser, topScale, "topScale");
-			setTextIfProp(parser, bottomScale, "bottomSCale");
+			setTextIfProp(parser, bottomScale, "bottomScale");
 			setValueIfProp(parser, logMode, "logMode");
 			setValueIfProp(parser, logLevel, "logLevel");
 			setTextIfProp(parser, logFile, "logFile");
