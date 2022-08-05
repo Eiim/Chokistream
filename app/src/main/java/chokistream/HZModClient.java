@@ -89,7 +89,9 @@ public class HZModClient implements StreamingInterface {
 		Packet returnPacket = new Packet();
 		
 		returnPacket.type = (byte) in.read();
+		logger.log("Recieved packet type ("+String.format("%02X", returnPacket.type)+")");
 		returnPacket.length = in.read() + (in.read() << 8) + (in.read() << 16);
+		logger.log("Recieved packet length ("+returnPacket.length+")");
 		returnPacket.data = in.readNBytes(returnPacket.length);
 		
 		logger.log("Got packet of length "+returnPacket.length+" and type "+String.format("%02X", returnPacket.type)+":");
