@@ -51,6 +51,7 @@ public class SnickerstreamGUI extends SettingsGUI {
 	private TextField logFile;
 	private ChoiceBox<String> intrp;
 	private TextField custDPI;
+	private TextField cpuCap;
 	private Button apply;
 	private Stage advStage;
 	
@@ -160,9 +161,11 @@ public class SnickerstreamGUI extends SettingsGUI {
     		switch(strApp.getValue()) {
     			case "HzMod":
     				port.setText("6464");
+    				cpuCap.setDisable(false);
     				break;
     			case "NTR":
     				port.setText("8000");
+    				cpuCap.setDisable(true);
     				break;
     			default:
     				logger.log("Mod is not one of the expected mods!", LogLevel.VERBOSE);
@@ -271,6 +274,9 @@ public class SnickerstreamGUI extends SettingsGUI {
     	logLevel.setValue("Regular");
     	logFile = new TextField();
     	logFile.setText("chokistream.log");
+    	cpuCap = new TextField();
+    	cpuCap.setTextFormatter(new TextFormatter<>(new IntegerStringConverter()));
+    	cpuCap.setText("0");
     	
     	loadSettings();
     	
@@ -454,6 +460,18 @@ public class SnickerstreamGUI extends SettingsGUI {
 		}
 	}
 	
+	public int getCapCPU() throws InvalidOptionException {
+		int capCPU = Integer.parseInt(cpuCap.getText());
+		if(capCPU < 0) {
+			throw new InvalidOptionException("CPU Cap", ""+capCPU);
+		} else if(capCPU > 255) {
+			throw new InvalidOptionException("CPU Cap", ""+capCPU);
+		} else if(capCPU > 100) {
+			logger.log("CPU Cap seems high, but I don't actually know what it does, so :shrug:");
+		}
+		return capCPU;
+	}
+	
 	public void saveSettings() {
 		File f = new File("chokistream.ini");
 		if(!f.exists()) {
@@ -483,6 +501,7 @@ public class SnickerstreamGUI extends SettingsGUI {
 			parser.setProperty("logFile", getLogFile());
 			parser.setProperty("interpolationMode", intrp.getValue());
 			parser.setProperty("dpi", getDPI());
+			parser.setProperty("cpuCap", getCapCPU());
 		} catch (Exception e) {
 			displayError(e);
 		}
@@ -513,6 +532,7 @@ public class SnickerstreamGUI extends SettingsGUI {
 			setTextIfProp(parser, logFile, "logFile");
 			setValueIfProp(parser, intrp, "interpolationMode");
 			setTextIfProp(parser, custDPI, "dpi");
+			setTextIfProp(parser, cpuCap, "cpuCap");
 		} catch (Exception e) {
 			displayError(e);
 		}
@@ -609,9 +629,13 @@ public class SnickerstreamGUI extends SettingsGUI {
 		logFileLab.relocate(271, 81);
 		logFile.relocate(363, 76);
 		
+		Label cpuCapLab = new Label("CPU Cap");
+		cpuCapLab.relocate(271, 115);
+		cpuCap.relocate(363, 110);
+		
 		apply = new Button("Apply");
-		apply.relocate(271, 109);
-		apply.setPrefSize(242, 57);
+		apply.relocate(271, 142);
+		apply.setPrefSize(242, 25);
 		apply.setOnAction((e) -> {
 			try {
 				logger.setLevel(getLogLevel());
@@ -625,7 +649,7 @@ public class SnickerstreamGUI extends SettingsGUI {
 		
 		Pane advPane = new Pane();
 		advPane.getChildren().addAll(topLab, topScale, botLab, bottomScale, intrpLab, intrp, dpiLab, custDPI, portLab, port,
-				logModeLab, logMode, logLevelLab, logLevel, logFileLab, logFile, apply);
+				logModeLab, logMode, logLevelLab, logLevel, logFileLab, logFile, cpuCapLab, cpuCap, apply);
 		Scene advScene = new Scene(advPane, 526, 181);
 		advStage = new Stage();
 		advStage.setScene(advScene);
