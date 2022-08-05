@@ -23,6 +23,8 @@ public class HZModClient implements StreamingInterface {
 	private InputStream in = null;
 	private OutputStream out = null;
 	private ColorMode colorMode;
+	
+	private static final Logger logger = Logger.INSTANCE;
 
 	/**
 	 * Create an HZModClient.
@@ -47,6 +49,7 @@ public class HZModClient implements StreamingInterface {
 			limitCPUPacket[1] = 0x05;
 			limitCPUPacket[4] = (byte) 0xFF;
 			limitCPUPacket[8] = (byte) capCPU;
+			logger.log("Sending CPU cap packet");
 			out.write(limitCPUPacket);
 		}
 		
@@ -56,6 +59,7 @@ public class HZModClient implements StreamingInterface {
 		qualityPacket[1] = 0x05;
 		qualityPacket[4] = 0x03;
 		qualityPacket[8] = (byte) quality;
+		logger.log("Sending quality packet");
 		out.write(qualityPacket);
 		
 		// Creates the initialization packet to the 3DS
@@ -64,6 +68,7 @@ public class HZModClient implements StreamingInterface {
 		initializationPacket[1] = 0x05;
 		initializationPacket[8] = 0x01;
 		
+		logger.log("Sending initialization packet");
 		out.write(initializationPacket);
 		
 	}
@@ -87,6 +92,20 @@ public class HZModClient implements StreamingInterface {
 		returnPacket.length = in.read() + (in.read() << 8) + (in.read() << 16);
 		returnPacket.data = in.readNBytes(returnPacket.length);
 		
+		logger.log("Got packet of length "+returnPacket.length+" and type "+String.format("%02X", returnPacket.type)+":");
+		String out = "";
+		for(int i = 0; i < returnPacket.length; i++) {
+			out += String.format("%02X", returnPacket.data[i])+" ";
+			if(i%4 == 3) {
+				out += "\n";
+			}
+		}
+		if(returnPacket.type != jpegPacket && returnPacket.type != targaPacket) {
+			logger.log(out);
+		} else {
+			logger.log("Image packet, not dumping binary data");
+		}
+		
 		return returnPacket;
 	}
 	
@@ -96,6 +115,7 @@ public class HZModClient implements StreamingInterface {
 		Packet packet = new Packet();
 		
 		while (packet.type != jpegPacket && packet.type != targaPacket) {
+			logger.log("Getting packet");
 			packet = getPacket();
 		}
 		
@@ -103,14 +123,17 @@ public class HZModClient implements StreamingInterface {
 		 * No clue why, but HzMod includes an extra 8 bytes at the front of the image.
 		 * We need to trim it off.
 		 */
+		logger.log("Trimming packet");
 		byte[] data = Arrays.copyOfRange(packet.data, 8, packet.data.length);
 		
 		Image image = null;
 		
 		if (packet.type == jpegPacket) {
+			logger.log("JPEG packet found, processing to frame");
 			WritableInputStream imageData = new WritableInputStream(data, true);
 			image = new Image(imageData.getInputStream());
 		} else if (packet.type == targaPacket) {
+			logger.log("TGA packet found, ignoring");
 			// TODO implement TARGA support
 		}
 		
@@ -122,6 +145,7 @@ public class HZModClient implements StreamingInterface {
 		
 		returnFrame = new Frame(image);
 		
+		logger.log("Frame has been processed");
 		return returnFrame;
 	}
 	
