@@ -122,6 +122,7 @@ public class App extends Application {
 					scene.displayError(e);
 				}
 				break;
+    		case CHOKIMOD:
     		case HZMOD:
     			try {
     				int quality = scene.getQuality();

@@ -33,6 +33,7 @@ public class INIParser {
 			
 			String[] components = line.split("=");
 			if(components.length != 2) {
+				s.close();
 				throw new IniParseException(line, lineNum);
 			}
 			String key = components[0].trim();
@@ -42,6 +43,7 @@ public class INIParser {
 			}
 			params.put(key, new ParamData(lineNum, value));
 		}
+		s.close();
 		totalLines = lineNum;
 	}
 	

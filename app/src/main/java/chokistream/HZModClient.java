@@ -1,13 +1,11 @@
 package chokistream;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
 
 import javafx.scene.image.Image;
 

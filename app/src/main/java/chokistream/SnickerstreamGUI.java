@@ -15,7 +15,6 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
@@ -39,7 +38,6 @@ public class SnickerstreamGUI extends SettingsGUI {
 	private Button adv;
 	private Button patch;
 	private Button connect;
-	private Pane pane;
 	
 	// Advanced Settings
 	
@@ -280,7 +278,7 @@ public class SnickerstreamGUI extends SettingsGUI {
     	
     	loadSettings();
     	
-    	pane = new Pane();
+    	Pane pane = new Pane();
     	pane.getChildren().addAll(ipLab, ip, spLab, scrPri, pfLab, priFac, iqLab, imgQual, qsvLab, qosVal, psLab, preset,
     			saLab, strApp, clrLab, clrMod, slLab, layout, about, adv, patch, connect);
     	this.setRoot(pane);

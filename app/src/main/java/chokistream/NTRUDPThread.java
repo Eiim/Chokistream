@@ -10,7 +10,6 @@ import java.util.Arrays;
 import java.util.concurrent.BlockingQueue;
 
 import javafx.scene.image.Image;
-import javafx.scene.image.WritableImage; // For hotfixColors method
 
 /**
  * 

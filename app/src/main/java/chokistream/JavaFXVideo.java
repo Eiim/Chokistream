@@ -38,7 +38,6 @@ public class JavaFXVideo extends VideoOutputInterface {
 	private int bottomFrames = 0;
 	private int topFPS = 0;
 	private int bottomFPS = 0;
-	private boolean newFPS;
 	private Timer fpsTimer;
 		
 	/**
