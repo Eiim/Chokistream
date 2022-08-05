@@ -175,10 +175,10 @@ public class JavaFXVideo extends VideoOutputInterface {
 				Platform.runLater(new Runnable() {
 					public void run() {
 						if(stages.size() == 2) {
-							stages.get(0).setTitle("Snickerstream - Top Screen ("+topFPS+" FPS)");
-							stages.get(1).setTitle("Snickerstream - Bottom Screen ("+bottomFPS+" FPS)");
+							stages.get(0).setTitle("Chokistream - Top Screen ("+topFPS+" FPS)");
+							stages.get(1).setTitle("Chokistream - Bottom Screen ("+bottomFPS+" FPS)");
 						} else {
-							stages.get(0).setTitle("Snickerstream ("+(int)Math.max(topFPS, bottomFPS)+" FPS)");
+							stages.get(0).setTitle("Chokistream ("+(int)Math.max(topFPS, bottomFPS)+" FPS)");
 						}
 					}
 				});
