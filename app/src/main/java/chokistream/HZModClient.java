@@ -93,14 +93,14 @@ public class HZModClient implements StreamingInterface {
 		returnPacket.data = in.readNBytes(returnPacket.length);
 		
 		logger.log("Got packet of length "+returnPacket.length+" and type "+String.format("%02X", returnPacket.type)+":");
-		String out = "";
-		for(int i = 0; i < returnPacket.length; i++) {
-			out += String.format("%02X", returnPacket.data[i])+" ";
-			if(i%4 == 3) {
-				out += "\n";
-			}
-		}
 		if(returnPacket.type != jpegPacket && returnPacket.type != targaPacket) {
+			String out = "";
+			for(int i = 0; i < returnPacket.length; i++) {
+				out += String.format("%02X", returnPacket.data[i])+" ";
+				if(i%4 == 3) {
+					out += "\n";
+				}
+			}
 			logger.log(out);
 		} else {
 			logger.log("Image packet, not dumping binary data");
