@@ -6,12 +6,13 @@ public class NetworkThread extends Thread {
 	
 	private VideoOutputInterface output;
 	private StreamingInterface input;
+	private boolean active = true;
 	
 	/**
 	 * Start processing frames indefinitely
 	 */
 	public void run() {
-		while(true) {
+		while(active) {
 			try {
 				output.renderFrame(input.getFrame());
 			} catch(InterruptedException e) {
@@ -34,5 +35,9 @@ public class NetworkThread extends Thread {
 	 */
 	public void setInput(StreamingInterface in) {
 		input = in;
+	}
+	
+	public void stopRunning() {
+		active = false;
 	}
 }

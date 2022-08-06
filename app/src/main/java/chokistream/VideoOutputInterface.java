@@ -1,5 +1,7 @@
 package chokistream;
 
+import java.io.IOException;
+
 /**
  * A class to extend to provide an output location for a video.
  * Intended to be very agnostic of format, so you could for example write to a file.
@@ -37,5 +39,17 @@ public class VideoOutputInterface {
 	 */
 	public void displayError(Exception e) {
 		Logger.INSTANCE.log(e.getClass().getSimpleName()+": "+e.getMessage());
+	}
+	
+	/**
+	 * Kills the output. Sub-classes may want to override.
+	 */
+	public void kill() {
+		networkThread.interrupt();
+		try {
+			client.close();
+		} catch (IOException e) {
+			displayError(e);
+		}
 	}
 }
