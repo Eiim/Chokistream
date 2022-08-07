@@ -1,13 +1,12 @@
 package chokistream;
 
-public enum ColorMode implements EnumProp {
+public enum LogLevel implements EnumProp {
 	REGULAR("Regular"),
-	VC_BLUE_SHIFT("VC Blue Shift (Test)"),
-	GRAYSCALE("Grayscale");
+	VERBOSE("verbose");
 	
 	private final String longName;
 	
-	private ColorMode(String name) {
+	private LogLevel(String name) {
 		longName = name;
 	}
 

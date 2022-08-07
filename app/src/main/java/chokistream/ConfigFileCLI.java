@@ -5,8 +5,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import chokistream.INIParser.IniParseException;
-import chokistream.Logger.LogLevel;
-import chokistream.Logger.LogMode;
 
 public class ConfigFileCLI extends SettingsUI {
 	INIParser parser;

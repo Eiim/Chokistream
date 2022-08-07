@@ -2,8 +2,6 @@ package chokistream;
 
 import java.awt.Toolkit;
 
-import chokistream.Logger.LogLevel;
-import chokistream.Logger.LogMode;
 import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.Scene;

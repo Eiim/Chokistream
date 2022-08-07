@@ -4,8 +4,6 @@ import java.awt.Toolkit;
 import java.io.File;
 import java.io.IOException;
 
-import chokistream.Logger.LogLevel;
-import chokistream.Logger.LogMode;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;

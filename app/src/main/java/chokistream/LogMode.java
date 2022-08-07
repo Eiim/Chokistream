@@ -1,12 +1,13 @@
 package chokistream;
 
-public enum NTRScreen implements EnumProp {
-	TOP("Top"),
-	BOTTOM("Bottom");
+public enum LogMode implements EnumProp {
+	CONSOLE("Console"),
+	FILE("File"),
+	BOTH("Both");
 	
 	private final String longName;
 	
-	private NTRScreen(String name) {
+	private LogMode(String name) {
 		longName = name;
 	}
 

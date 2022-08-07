@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 
 import chokistream.INIParser.IniParseException;
-import chokistream.Logger.LogLevel;
-import chokistream.Logger.LogMode;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;

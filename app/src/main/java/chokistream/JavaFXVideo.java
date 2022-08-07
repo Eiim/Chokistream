@@ -8,7 +8,6 @@ import java.util.TimerTask;
 
 import javax.imageio.ImageIO;
 
-import chokistream.Logger.LogLevel;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Insets;

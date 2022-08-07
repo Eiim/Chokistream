@@ -115,12 +115,4 @@ public enum Logger {
 	public void logOnce(String message) {
 		logOnce(message, LogLevel.REGULAR);
 	}
-	
-	public enum LogMode {
-		CONSOLE, FILE, BOTH
-	}
-	
-	public enum LogLevel {
-		REGULAR, VERBOSE
-	}
 }
