@@ -43,9 +43,9 @@ public class NTRUDPThread extends Thread {
 	private byte priorityExpectedFrame = 0;
 	private byte secondaryExpectedFrame = 0;
 	private byte priorityExpectedPacket = 0;
-    private byte secondaryExpectedPacket = 0;
-    private NTRScreen activeScreen = NTRScreen.TOP;
-    private ColorMode colorMode;
+	private byte secondaryExpectedPacket = 0;
+	private NTRScreen activeScreen = NTRScreen.TOP;
+	private ColorMode colorMode;
 	
 	/**
 	 * Create an NTRUDPThread.
