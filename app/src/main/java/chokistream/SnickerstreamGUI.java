@@ -24,7 +24,7 @@ import javafx.stage.Stage;
 import javafx.util.converter.DoubleStringConverter;
 import javafx.util.converter.IntegerStringConverter;
 
-public class SnickerstreamGUI extends SettingsGUI {
+public class SnickerstreamGUI extends SettingsUI {
 	private ChoiceBox<String> preset;
 	private TextField qosVal;
 	private TextField imgQual;
@@ -55,9 +55,7 @@ public class SnickerstreamGUI extends SettingsGUI {
 	
 	private static final Logger logger = Logger.INSTANCE;
 	
-	public SnickerstreamGUI(App app) {
-		super(new Pane(), 600, 226);
-		
+	public Scene setup(App app) {
 		// Left Half
 		
 		Label ipLab = new Label("3DS IP");
@@ -281,7 +279,7 @@ public class SnickerstreamGUI extends SettingsGUI {
     	Pane pane = new Pane();
     	pane.getChildren().addAll(ipLab, ip, spLab, scrPri, pfLab, priFac, iqLab, imgQual, qsvLab, qosVal, psLab, preset,
     			saLab, strApp, clrLab, clrMod, slLab, layout, about, adv, patch, connect);
-    	this.setRoot(pane);
+    	return new Scene(pane, 600, 225);
 	}
 	
 	public String getIp() {

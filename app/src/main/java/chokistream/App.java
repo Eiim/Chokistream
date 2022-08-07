@@ -13,7 +13,7 @@ import javafx.stage.Stage;
 
 public class App extends Application {
 	
-	private SettingsGUI scene;
+	private SettingsUI ui;
 	private StreamingInterface client;
 	private VideoOutputInterface output;
 	private Stage stage;
@@ -26,8 +26,8 @@ public class App extends Application {
      */
     @Override
     public void start(Stage stage) throws Exception {
-    	scene = new SnickerstreamGUI(this);
-        stage.setScene(scene);
+    	ui = new SnickerstreamGUI();
+        stage.setScene(((SnickerstreamGUI)ui).setup(this));
         stage.setTitle("Chokistream");
         stage.setResizable(false);
         IconLoader.applyFavicon(stage);
@@ -92,49 +92,49 @@ public class App extends Application {
     	double bottomScale;
     	InterpolationMode intrp;
     	try {
-			mod = scene.getMod();
-			ip = scene.getIp();
-			layout = scene.getLayout();
-			port = scene.getPort();
-			dpi = scene.getDPI();
-			topScale = scene.getTopScale();
-			bottomScale = scene.getBottomScale();
-			intrp = scene.getIntrpMode();
+			mod = ui.getMod();
+			ip = ui.getIp();
+			layout = ui.getLayout();
+			port = ui.getPort();
+			dpi = ui.getDPI();
+			topScale = ui.getTopScale();
+			bottomScale = ui.getBottomScale();
+			intrp = ui.getIntrpMode();
 		} catch (InvalidOptionException e) {
-			scene.displayError(e);
+			ui.displayError(e);
 			return;
 		}
     	
     	switch(mod) {
     		case NTR:
 				try {
-					int quality = scene.getQuality();
-	    			NTRScreen screen = scene.getScreen();
-	    			int priority = scene.getPriority();
-	    			int qos = scene.getQos();
-	    			ColorMode colorMode = scene.getColorMode();
+					int quality = ui.getQuality();
+	    			NTRScreen screen = ui.getScreen();
+	    			int priority = ui.getPriority();
+	    			int qos = ui.getQos();
+	    			ColorMode colorMode = ui.getColorMode();
 	    			
 	    			// Initializes connection
 	    			client = new NTRClient(ip, quality, screen, priority, qos, colorMode, port);
 	    			output = new JavaFXVideo(client, layout, dpi, topScale, bottomScale, intrp);
 	    			stage.close();
 				} catch (Exception e) {
-					scene.displayError(e);
+					ui.displayError(e);
 				}
 				break;
     		case CHOKIMOD:
     		case HZMOD:
     			try {
-    				int quality = scene.getQuality();
-    				int capCpu = scene.getCapCPU();
-    				ColorMode colorMode = scene.getColorMode();
+    				int quality = ui.getQuality();
+    				int capCpu = ui.getCapCPU();
+    				ColorMode colorMode = ui.getColorMode();
     				
     				// Initializes connection
     				client = new HZModClient(ip, quality, capCpu, colorMode, port);
     				output = new JavaFXVideo(client, layout, dpi, topScale, bottomScale, intrp);
     				stage.close();
     			} catch (Exception e) {
-    				scene.displayError(e);
+    				ui.displayError(e);
     			}
     	}
     }

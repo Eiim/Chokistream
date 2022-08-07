@@ -11,11 +11,7 @@ import javafx.scene.control.Label;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-public class SettingsGUI extends Scene {
-	
-	public SettingsGUI(Parent p, double width, double height) {
-		super(p, width, height);
-	}
+public class SettingsUI {
 	
 	// Use defaults from Snickerstream if the GUI doesn't implement them, could change in the future.
 	protected String ip = "0.0.0.0";
