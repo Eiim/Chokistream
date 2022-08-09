@@ -1,40 +1,41 @@
 package chokistream;
 
-import org.jcodec.common.Codec;
+import java.awt.Toolkit;
 
 /*
  * An enum for all the different user-specifiable properties we use.
  * Hopefully maintainable than previous, more intuitive solution, which duplicated a lot of code.
  */
 
-public enum Prop {
-	IP("ip", "3DS IP", int.class),
-	MOD("mod", "Streaming Mod", Mod.class),
-	QUALITY("quality", "Quality", int.class),
-	PRIORITYSCREEN("priorityScreen", "Priority Screen", NTRScreen.class),
-	PRIORITYFACTOR("priority", "Priority Factor", int.class),
-	QOS("qos", "QoS", int.class),
-	CPUCAP("cpuCap", "CPU Cap", int.class),
-	LAYOUT("layout", "Layout", Layout.class),
-	COLORMODE("colorMode", "Color Mode", ColorMode.class),
-	PORT("port", "3DS Port", int.class),
-	TOPSCALE("topScale", "Top Screen Scale", double.class),
-	BOTTOMSCALE("bottomScale", "Bottom Screen Scale", double.class),
-	LOGMODE("logMode", "Log Mode", LogMode.class),
-	LOGLEVEL("logLevel", "Log Level", LogLevel.class),
-	LOGFILE("logFile", "Log File", String.class),
-	INTRPMODE("interpolationMode", "Interpolation Mode", InterpolationMode.class),
-	DPI("dpi", "DPI", int.class),
-	VIDEOCODEC("codec", "Video Codec", Codec.class),
-	VIDEOFILE("videoFile", "Video File", String.class);
+public class Prop<T> {
+	public static final Prop<String> IP = new Prop<>("ip", "3DS IP", "0.0.0.0");
+	public static final Prop<Mod> MOD = new Prop<>("mod", "Streaming Mod", Mod.NTR);
+	public static final Prop<Integer> QUALITY = new Prop<>("quality", "Quality", 70);
+	public static final Prop<NTRScreen> PRIORITYSCREEN = new Prop<>("priorityScreen", "Priority Screen", NTRScreen.TOP);
+	public static final Prop<Integer> PRIORITYFACTOR = new Prop<>("priority", "Priority Factor", 8);
+	public static final Prop<Integer> QOS = new Prop<>("qos", "QoS", 26);
+	public static final Prop<Integer> CPUCAP = new Prop<>("cpuCap", "CPU Cap", 0);
+	public static final Prop<Layout> LAYOUT = new Prop<>("layout", "Layout", Layout.SEPARATE);
+	public static final Prop<ColorMode> COLORMODE = new Prop<>("colorMode", "Color Mode", ColorMode.REGULAR);
+	public static final Prop<Integer> PORT = new Prop<>("port", "3DS Port", 8000);
+	public static final Prop<Double> TOPSCALE = new Prop<>("topScale", "Top Scale", 1.0);
+	public static final Prop<Double> BOTTOMSCALE = new Prop<>("bottomScale", "Bottom Scale", 1.0);
+	public static final Prop<LogMode> LOGMODE = new Prop<>("logMode", "Log Mode", LogMode.CONSOLE);
+	public static final Prop<LogLevel> LOGLEVEL = new Prop<>("logLevel", "Log Level", LogLevel.REGULAR);
+	public static final Prop<String> LOGFILE = new Prop<>("logFile", "Log File", "chokistream.log");
+	public static final Prop<InterpolationMode> INTRPMODE = new Prop<>("interpolationMode", "Interpolation Mode", InterpolationMode.NONE);
+	public static final Prop<Integer> DPI = new Prop<>("dpi", "DPI", Toolkit.getDefaultToolkit().getScreenResolution());
+	public static final Prop<VideoFormat> VIDEOCODEC = new Prop<>("codec", "Video Codec", VideoFormat.PRORES);
+	public static final Prop<String> VIDEOFILE = new Prop<>("videoFile", "Video File", "out");
+
+	private final String shortName; // short, camel-case name used in .ini
+	private final String longName; // longer, human-friendly name used in GUI
+	private final T defaultVal;
 	
-	private String shortName; // short, camel-case name used in .ini
-	private String longName; // longer, human-friendly name used in GUI
-	private Class<?> type;
-	
-	private Prop(String sname, String lname, Class<?> t) {
+	private Prop(String sname, String lname, T def) {
 		shortName = sname;
 		longName = lname;
+		defaultVal = def;
 	}
 	
 	public String getShortName() {
@@ -45,11 +46,20 @@ public enum Prop {
 		return longName;
 	}
 	
-	public Class<?> getType() {
-		return type;
+	public T getDefault() {
+		return defaultVal;
 	}
-	
-	public boolean isEnumProp() {
-		return type.isAssignableFrom(EnumProp.class);
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Prop<?> other = (Prop<?>) obj;
+		// If we have the same long and short names, we're referring to the same property. No need to check defaults.
+		return shortName.equals(other.shortName) && longName.equals(other.longName);
 	}
 }

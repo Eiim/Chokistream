@@ -74,6 +74,22 @@ public class INIParser {
 		setProperty(prop, Integer.toString(value));
 	}
 	
+	public void setProp(Prop<?> prop, String value) throws IOException {
+		setProperty(prop.getShortName(), value);
+	}
+	
+	public void setProp(Prop<?> prop, EnumProp value) throws IOException {
+		setProperty(prop.getShortName(), value.getLongName());
+	}
+	
+	public void setProp(Prop<?> prop, int value) throws IOException {
+		setProperty(prop.getShortName(), Integer.toString(value));
+	}
+	
+	public void setProp(Prop<?> prop, double value) throws IOException {
+		setProperty(prop.getShortName(), Double.toString(value));
+	}
+	
 	private class ParamData {
 		int line;
 		String value;

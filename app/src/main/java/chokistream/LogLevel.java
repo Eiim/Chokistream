@@ -2,7 +2,7 @@ package chokistream;
 
 public enum LogLevel implements EnumProp {
 	REGULAR("Regular"),
-	VERBOSE("verbose");
+	VERBOSE("Verbose");
 	
 	private final String longName;
 	

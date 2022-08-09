@@ -90,15 +90,15 @@ public class App extends Application {
     	double bottomScale;
     	InterpolationMode intrp;
     	try {
-			mod = ui.getMod();
-			ip = ui.getIp();
-			layout = ui.getLayout();
-			port = ui.getPort();
-			dpi = ui.getDPI();
-			topScale = ui.getTopScale();
-			bottomScale = ui.getBottomScale();
-			intrp = ui.getIntrpMode();
-		} catch (InvalidOptionException e) {
+			mod = ui.getPropEnum(Prop.MOD, Mod.class);
+			ip = ui.getPropString(Prop.IP);
+			layout = ui.getPropEnum(Prop.LAYOUT, Layout.class);
+			port = ui.getPropInt(Prop.PORT);
+			dpi = ui.getPropInt(Prop.DPI);
+			topScale = ui.getPropDouble(Prop.TOPSCALE);
+			bottomScale = ui.getPropDouble(Prop.BOTTOMSCALE);
+			intrp = ui.getPropEnum(Prop.INTRPMODE, InterpolationMode.class);
+		} catch (RuntimeException e) {
 			ui.displayError(e);
 			return;
 		}
@@ -106,11 +106,11 @@ public class App extends Application {
     	switch(mod) {
     		case NTR:
 				try {
-					int quality = ui.getQuality();
-	    			NTRScreen screen = ui.getScreen();
-	    			int priority = ui.getPriority();
-	    			int qos = ui.getQos();
-	    			ColorMode colorMode = ui.getColorMode();
+					int quality = ui.getPropInt(Prop.QUALITY);
+	    			NTRScreen screen = ui.getPropEnum(Prop.PRIORITYSCREEN, NTRScreen.class);
+	    			int priority = ui.getPropInt(Prop.PRIORITYFACTOR);
+	    			int qos = ui.getPropInt(Prop.QOS);
+	    			ColorMode colorMode = ui.getPropEnum(Prop.COLORMODE, ColorMode.class);
 	    			
 	    			// Initializes connection
 	    			client = new NTRClient(ip, quality, screen, priority, qos, colorMode, port);
@@ -123,9 +123,9 @@ public class App extends Application {
     		case CHOKIMOD:
     		case HZMOD:
     			try {
-    				int quality = ui.getQuality();
-    				int capCpu = ui.getCapCPU();
-    				ColorMode colorMode = ui.getColorMode();
+    				int quality = ui.getPropInt(Prop.QUALITY);
+    				int capCpu = ui.getPropInt(Prop.CPUCAP);
+    				ColorMode colorMode = ui.getPropEnum(Prop.COLORMODE, ColorMode.class);
     				
     				// Initializes connection
     				client = new HZModClient(ip, quality, capCpu, colorMode, port);

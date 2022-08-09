@@ -4,6 +4,7 @@ import java.awt.Toolkit;
 import java.io.File;
 import java.io.IOException;
 
+import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -18,6 +19,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.converter.DoubleStringConverter;
 import javafx.util.converter.IntegerStringConverter;
@@ -219,16 +221,16 @@ public class SnickerstreamGUI extends SettingsUI {
     		n3ds.setOnAction((e2) -> {
     			try {
     				selectStage.close();
-					NTRClient.sendNFCPatch(getIp(), getPort(), null, ConsoleModel.N3DS);
-				} catch (IOException | InvalidOptionException ex) {
+					NTRClient.sendNFCPatch(getIp(), getPropInt(Prop.PORT), null, ConsoleModel.N3DS);
+				} catch (IOException | RuntimeException ex) {
 					displayError(ex);
 				}
     		});
     		o3ds.setOnAction((e2) -> {
     			try {
     				selectStage.close();
-					NTRClient.sendNFCPatch(getIp(), getPort(), null, ConsoleModel.O3DS);
-				} catch (IOException | InvalidOptionException ex) {
+					NTRClient.sendNFCPatch(getIp(), getPropInt(Prop.PORT), null, ConsoleModel.O3DS);
+				} catch (IOException | RuntimeException ex) {
 					displayError(ex);
 				}
     		});
@@ -280,190 +282,102 @@ public class SnickerstreamGUI extends SettingsUI {
     	return new Scene(pane, 600, 225);
 	}
 	
+	public int getPropInt(Prop<Integer> p) {
+		if(p.equals(Prop.QUALITY)) {
+			int quality = Integer.parseInt(imgQual.getText());
+			if(quality < 0 || quality > 100)
+				displayPropWarn(p, quality);
+			return quality;
+		} else if(p.equals(Prop.PRIORITYFACTOR)) {
+			int priority = Integer.parseInt(priFac.getText());
+			if(priority < 0 || priority > 100)
+				displayPropWarn(p, priority);
+			return priority;
+		} else if(p.equals(Prop.QOS)) {
+			int qos = Integer.parseInt(qosVal.getText());
+			if(qos < 0 || qos > 100)
+				displayPropWarn(p, qos);
+			return qos;
+		} else if(p.equals(Prop.PORT)) {
+			int portVal = Integer.parseInt(port.getText());
+			if(portVal != 8000 && portVal != 6464)
+				displayPropWarn(p, portVal);
+			return portVal;
+		} else if(p.equals(Prop.DPI)) {
+			int dpi = Integer.parseInt(custDPI.getText());
+			if(dpi < 48 || dpi > 480)
+				displayPropWarn(p, dpi);
+			return dpi;
+		} else if(p.equals(Prop.CPUCAP)) {
+			int capCPU = Integer.parseInt(cpuCap.getText());
+			if(capCPU < 0 || capCPU > 100)
+				displayPropWarn(p, capCPU);
+			return capCPU;
+		} else {
+			return p.getDefault();
+		}
+	}
+	
+	public String getPropString(Prop<String> p) {
+		if(p.equals(Prop.IP)) {
+			return ip.getText();
+		} else if(p.equals(Prop.LOGFILE)) {
+			return logFile.getText();
+		} else {
+			return p.getDefault();
+		}
+	}
+	
+	public double getPropDouble(Prop<Double> p) {
+		if(p.equals(Prop.TOPSCALE)) {
+			double scale = Double.parseDouble(topScale.getText());
+			if(scale <= 0 || scale > 10)
+				displayPropWarn(p, scale);
+			return scale;
+		} else if (p.equals(Prop.BOTTOMSCALE)) {
+			double scale = Double.parseDouble(bottomScale.getText());
+			if(scale <= 0 || scale > 10)
+				displayPropWarn(p, scale);
+			return scale;
+		} else {
+			return p.getDefault();
+		}
+	}
+	
+	public <T extends Enum<T> & EnumProp> T getPropEnum(Prop<T> p, Class<T> c) {
+		if(p.equals(Prop.MOD)) {
+			String mod = strApp.getValue();
+			return EnumProp.fromLongName(c, mod);
+		} else if(p.equals(Prop.PRIORITYSCREEN)) {
+			String scr = scrPri.getValue();
+			return EnumProp.fromLongName(c, scr);
+		} else if(p.equals(Prop.LOGMODE)) {
+			String mode = logMode.getValue();
+			return EnumProp.fromLongName(c, mode);
+		} else if(p.equals(Prop.LOGLEVEL)) {
+			String level = logLevel.getValue();
+			return EnumProp.fromLongName(c, level);
+		} else if(p.equals(Prop.INTRPMODE)) {
+			String imode = intrp.getValue();
+			return EnumProp.fromLongName(c, imode);
+		} else if(p.equals(Prop.LAYOUT)) {
+			String lay = layout.getValue();
+			return EnumProp.fromLongName(c, lay);
+		} else if(p.equals(Prop.COLORMODE)) {
+			String cm = clrMod.getValue();
+			return EnumProp.fromLongName(c, cm);
+		} else {
+			return p.getDefault();
+		}
+	}
+	
 	public String getIp() {
 		return ip.getText();
 	}
 	
-	public Mod getMod() throws InvalidOptionException {
-		String mod = strApp.getValue();
-		switch(mod) {
-			case "NTR":
-				return Mod.NTR;
-			case "HzMod":
-				return Mod.HZMOD;
-			default:
-				throw new InvalidOptionException("Streamping App", mod);
-		}
-	}
-	
-	public int getQuality() throws InvalidOptionException {
-		int quality = Integer.parseInt(imgQual.getText());
-		if(quality < 0 || quality > 100) {
-			throw new InvalidOptionException("Image Quality", imgQual.getText());
-		}
-		return quality;
-	}
-	
-	public NTRScreen getScreen() throws InvalidOptionException {
-		String scr = scrPri.getValue();
-		switch(scr) {
-			case "Top":
-				return NTRScreen.TOP;
-			case "Bottom":
-				return NTRScreen.BOTTOM;
-			default:
-				throw new InvalidOptionException("Preferred Screen", scr);
-		}
-	}
-	
-	public int getPriority() throws InvalidOptionException {
-		int priority = Integer.parseInt(priFac.getText());
-		if(priority < 0 || priority > 100) {
-			throw new InvalidOptionException("Priority Factor", priFac.getText());
-		}
-		return priority;
-	}
-	
-	public int getQos() throws InvalidOptionException {
-		int qos = Integer.parseInt(qosVal.getText());
-		if(qos < 0 || qos > 100) {
-			throw new InvalidOptionException("QoS Value", qosVal.getText());
-		}
-		return qos;
-	}
-	
-	public int getPort() throws InvalidOptionException {
-		int portVal = Integer.parseInt(port.getText());
-		if(portVal != 8000 && portVal != 6464) {
-			logger.log("Warning: 3DS port is not one of the expected ports!", LogLevel.REGULAR);
-		}
-		return portVal;
-	}
-	
-	public double getTopScale() throws InvalidOptionException {
-		double scale = Double.parseDouble(topScale.getText());
-		if(scale <= 0) {
-			throw new InvalidOptionException("Top Scale", ""+scale);
-		}
-		if(scale > 10) {
-			logger.log("Warning: top scale seems really big", LogLevel.VERBOSE);
-		}
-		return scale;
-	}
-	
-	public double getBottomScale() throws InvalidOptionException {
-		double scale = Double.parseDouble(bottomScale.getText());
-		if(scale <= 0) {
-			throw new InvalidOptionException("Bottom Scale", ""+scale);
-		}
-		if(scale > 10) {
-			logger.log("Warning: bottom scale seems really big", LogLevel.VERBOSE);
-		}
-		return scale;
-	}
-	
-	public LogMode getLogMode() throws InvalidOptionException {
-		String mode = logMode.getValue();
-		switch(mode) {
-			case "Console":
-				return LogMode.CONSOLE;
-			case "File":
-				return LogMode.FILE;
-			case "Both":
-				return LogMode.BOTH;
-			default:
-				throw new InvalidOptionException("Log Mode", mode);
-		}
-	}
-	
-	public LogLevel getLogLevel() throws InvalidOptionException {
-		String level = logLevel.getValue();
-		switch(level) {
-			case "Regular":
-				return LogLevel.REGULAR;
-			case "Verbose":
-				return LogLevel.VERBOSE;
-			default:
-				throw new InvalidOptionException("Log Level", level);
-		}
-	}
-	
-	public String getLogFile() throws InvalidOptionException {
-		return logFile.getText();
-	}
-	
-	public InterpolationMode getIntrpMode() throws InvalidOptionException {
-		String mode = intrp.getValue();
-		switch(mode) {
-			case "None":
-				return InterpolationMode.NONE;
-			case "Smooth":
-				return InterpolationMode.SMOOTH;
-			default:
-				throw new InvalidOptionException("Interpolation", mode);
-		}
-	}
-	
-	public int getDPI() throws InvalidOptionException {
-		int dpi = Integer.parseInt(custDPI.getText());
-		if(dpi < 1) {
-			throw new InvalidOptionException("DPI", ""+dpi);
-		} else if(dpi < 48) {
-			logger.log("DPI seems really low", LogLevel.VERBOSE);
-		} else if(dpi > 480) {
-			logger.log("DPI seems really high", LogLevel.VERBOSE);
-		}
-		return dpi;
-	}
-	
-	public Layout getLayout() throws InvalidOptionException {
-		String lay = layout.getValue();
-		switch(lay) {
-			case "Separate":
-				return Layout.SEPARATE;
-			case "Vertical":
-				return Layout.VERTICAL;
-			case "Horizontal":
-				return Layout.HORIZONTAL;
-			case "Vertical (Inv)":
-				return Layout.VERTICAL_INV;
-			case "Horizontal (Inv)":
-				return Layout.HORIZONTAL_INV;
-			case "Top Only":
-				return Layout.TOP_ONLY;
-			case "Bottom Only":
-				return Layout.BOTTOM_ONLY;
-			default:
-				throw new InvalidOptionException("Layout", lay);
-		}
-	}
-	
-	public ColorMode getColorMode() throws InvalidOptionException {
-		String cm = clrMod.getValue();
-		switch(cm) {
-			case "Regular":
-				return ColorMode.REGULAR;
-			case "VC Blue Shift":
-				return ColorMode.VC_BLUE_SHIFT;
-			case "VC Blue Shift (Test)":
-				return ColorMode.VC_BLUE_SHIFT;
-			case "Grayscale":
-				return ColorMode.GRAYSCALE;
-			default:
-				throw new InvalidOptionException("Color Mode", cm);
-		}
-	}
-	
-	public int getCapCPU() throws InvalidOptionException {
-		int capCPU = Integer.parseInt(cpuCap.getText());
-		if(capCPU < 0) {
-			throw new InvalidOptionException("CPU Cap", ""+capCPU);
-		} else if(capCPU > 255) {
-			throw new InvalidOptionException("CPU Cap", ""+capCPU);
-		} else if(capCPU > 100) {
-			logger.log("CPU Cap seems high, but I don't actually know what it does, so :shrug:");
-		}
-		return capCPU;
+	public void displayPropWarn(Prop<?> p, Object val) {
+		// TODO: maybe improve in future?
+		logger.log("Warning: "+p.getLongName()+" has bad value "+val.toString());
 	}
 	
 	public void saveSettings() {
@@ -478,24 +392,24 @@ public class SnickerstreamGUI extends SettingsUI {
 		try {
 			INIParser parser = new INIParser(f);
 			
-			parser.setProperty("ip", getIp());
-			parser.setProperty("qos", getQos());
-			parser.setProperty("quality", getQuality());
-			parser.setProperty("priority", getPriority());
-			parser.setProperty("priorityScreen", scrPri.getValue());
-			parser.setProperty("mod", strApp.getValue());
-			parser.setProperty("layout", layout.getValue());
-			parser.setProperty("colorMode", clrMod.getValue());
+			parser.setProp(Prop.IP, getPropString(Prop.IP));
+			parser.setProp(Prop.QOS, getPropInt(Prop.QOS));
+			parser.setProp(Prop.QUALITY, getPropInt(Prop.QUALITY));
+			parser.setProp(Prop.PRIORITYFACTOR, getPropInt(Prop.PRIORITYFACTOR));
+			parser.setProp(Prop.PRIORITYSCREEN, getPropEnum(Prop.PRIORITYSCREEN, NTRScreen.class));
+			parser.setProp(Prop.MOD, getPropEnum(Prop.MOD, Mod.class));
+			parser.setProp(Prop.LAYOUT, getPropEnum(Prop.LAYOUT, Layout.class));
+			parser.setProp(Prop.COLORMODE, getPropEnum(Prop.COLORMODE, ColorMode.class));
 			
-			parser.setProperty("port", getPort());
-			parser.setProperty("topScale", Double.toString(getTopScale()));
-			parser.setProperty("bottomScale", Double.toString(getBottomScale()));
-			parser.setProperty("logMode", logMode.getValue());
-			parser.setProperty("logLevel", logLevel.getValue());
-			parser.setProperty("logFile", getLogFile());
-			parser.setProperty("interpolationMode", intrp.getValue());
-			parser.setProperty("dpi", getDPI());
-			parser.setProperty("cpuCap", getCapCPU());
+			parser.setProp(Prop.PORT, getPropInt(Prop.PORT));
+			parser.setProp(Prop.TOPSCALE, getPropDouble(Prop.TOPSCALE));
+			parser.setProp(Prop.BOTTOMSCALE, getPropDouble(Prop.BOTTOMSCALE));
+			parser.setProp(Prop.LOGMODE, getPropEnum(Prop.LOGMODE, LogMode.class));
+			parser.setProp(Prop.LOGLEVEL, getPropEnum(Prop.LOGLEVEL, LogLevel.class));
+			parser.setProp(Prop.LOGFILE, getPropString(Prop.LOGFILE));
+			parser.setProp(Prop.INTRPMODE, getPropEnum(Prop.INTRPMODE, InterpolationMode.class));
+			parser.setProp(Prop.DPI, getPropInt(Prop.DPI));
+			parser.setProp(Prop.CPUCAP, getPropInt(Prop.CPUCAP));
 		} catch (Exception e) {
 			displayError(e);
 		}
@@ -632,10 +546,10 @@ public class SnickerstreamGUI extends SettingsUI {
 		apply.setPrefSize(242, 25);
 		apply.setOnAction((e) -> {
 			try {
-				logger.setLevel(getLogLevel());
-				logger.setMode(getLogMode());
-				logger.setFile(getLogFile());
-			} catch(InvalidOptionException ioe) {
+				logger.setLevel(getPropEnum(Prop.LOGLEVEL, LogLevel.class));
+				logger.setMode(getPropEnum(Prop.LOGMODE, LogMode.class));
+				logger.setFile(getPropString(Prop.LOGFILE));
+			} catch(RuntimeException ioe) {
 				displayError(ioe);
 			}
 			advStage.close();
@@ -649,5 +563,18 @@ public class SnickerstreamGUI extends SettingsUI {
 		advStage.setScene(advScene);
 		IconLoader.applyFavicon(advStage);
 		advStage.show();
+	}
+	
+	// Generic popup
+	public void displayError(Exception e) {
+		Stage popup = new Stage();
+		popup.initModality(Modality.APPLICATION_MODAL);
+		Label message = new Label(e.getClass().getSimpleName()+": "+e.getMessage());
+		message.setPadding(new Insets(7));
+		Scene scene = new Scene(message);
+		popup.setScene(scene);
+		popup.setTitle("Error");
+		IconLoader.applyFavicon(popup);
+		popup.show();
 	}
 }

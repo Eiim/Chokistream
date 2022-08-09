@@ -23,11 +23,11 @@ public class Main {
 	    	Layout layout;
 	    	int port;
 	    	try {
-				mod = ui.getMod();
-				ip = ui.getIp();
-				layout = ui.getLayout();
-				port = ui.getPort();
-			} catch (InvalidOptionException e) {
+				mod = ui.getPropEnum(Prop.MOD, Mod.class);
+				ip = ui.getPropString(Prop.IP);
+				layout = ui.getPropEnum(Prop.LAYOUT, Layout.class);
+				port = ui.getPropInt(Prop.PORT);
+			} catch (RuntimeException e) {
 				ui.displayError(e);
 				return;
 			}
@@ -35,11 +35,11 @@ public class Main {
 	    	switch(mod) {
 	    		case NTR:
 					try {
-						int quality = ui.getQuality();
-		    			NTRScreen screen = ui.getScreen();
-		    			int priority = ui.getPriority();
-		    			int qos = ui.getQos();
-		    			ColorMode colorMode = ui.getColorMode();
+						int quality = ui.getPropInt(Prop.QUALITY);
+		    			NTRScreen screen = ui.getPropEnum(Prop.PRIORITYSCREEN, NTRScreen.class);
+		    			int priority = ui.getPropInt(Prop.PRIORITYFACTOR);
+		    			int qos = ui.getPropInt(Prop.QOS);
+		    			ColorMode colorMode = ui.getPropEnum(Prop.COLORMODE, ColorMode.class);
 		    			
 		    			// Initializes connection
 		    			StreamingInterface client = new NTRClient(ip, quality, screen, priority, qos, colorMode, port);
@@ -51,9 +51,9 @@ public class Main {
 	    		case CHOKIMOD:
 	    		case HZMOD:
 	    			try {
-	    				int quality = ui.getQuality();
-	    				int capCpu = ui.getCapCPU();
-	    				ColorMode colorMode = ui.getColorMode();
+	    				int quality = ui.getPropInt(Prop.QUALITY);
+	    				int capCpu = ui.getPropInt(Prop.CPUCAP);
+	    				ColorMode colorMode = ui.getPropEnum(Prop.COLORMODE, ColorMode.class);
 	    				
 	    				// Initializes connection
 	    				StreamingInterface client = new HZModClient(ip, quality, capCpu, colorMode, port);
