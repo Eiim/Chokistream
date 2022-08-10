@@ -6,13 +6,20 @@ import java.io.IOException;
 
 import chokistream.INIParser.IniParseException;
 import javafx.geometry.Insets;
+import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
+import javafx.scene.control.ScrollPane.ScrollBarPolicy;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.converter.DoubleStringConverter;
@@ -152,12 +159,52 @@ public class ModFocusedGUI extends SettingsUI {
 			videoFile.setDisable(isVisual);
 		});
 		
+		about.setOnAction((e) -> {
+			displayAbout();
+		});
+		
 		populateFields();
 		
 		Pane pane = new Pane(modLab, mod, modButton, ipLab, ip, layoutLab, layout, topScaleLab, topScale, bottomScaleLab, bottomScale,
 				intrpModeLab, intrpMode, connect, about, colorModeLab, colorMode, portLab, port, logModeLab, logMode, logLevelLab, logLevel,
 				logFileLab, logFile, outputFormatLab, outputFormat, videoCodecLab, videoCodec, videoFileLab, videoFile);
 		return new Scene(pane, 620, 256);
+	}
+	
+	private void displayAbout() {
+		ImageView logo = new ImageView();
+		logo.setImage(IconLoader.get64x());
+		logo.relocate(10, 10);
+		Text name = new Text(84, 64, "Chokistream");
+		name.setFont(Font.font("System", FontWeight.BOLD, 60));
+		
+		ScrollPane textScroll = new ScrollPane();
+		textScroll.setHbarPolicy(ScrollBarPolicy.NEVER);
+		textScroll.setVbarPolicy(ScrollBarPolicy.ALWAYS);
+		Text t = new Text("Made by Eiim, herronjo, and ChainSwordCS.\r\n"
+				+ "\r\n"
+				+ "This software and its source code are provided under the GPL-3.0 License.  See LICENSE for the full license.\r\n"
+				+ "\r\n"
+				+ "Chokistream was made possible by the use and reference of several projects. Special thanks to:\r\n"
+				+ " * RattletraPM for Snickerstream\r\n"
+				+ " * Sono for HzMod\r\n"
+				+ " * Cell9/44670 for BootNTR\r\n"
+				+ " * Nanquitas for BootNTRSelector\r\n"
+				+ " * All other open-source contributors");
+		t.setWrappingWidth(400);
+		textScroll.setContent(t);
+		t.relocate(7, 7); // Relative to textScroll
+		textScroll.relocate(10, 84);
+		textScroll.setPrefWidth(425);
+		textScroll.setPrefHeight(300);
+		
+		Group g = new Group(logo, name, textScroll);
+		Scene scene = new Scene(g, 500, 400);
+		Stage stage = new Stage();
+		stage.setScene(scene);
+		stage.setResizable(false);
+		IconLoader.applyFavicon(stage);
+		stage.show();
 	}
 	
 	private static <T extends Enum<T> & EnumProp> String[] getEnumNames(Class<T> c) {
