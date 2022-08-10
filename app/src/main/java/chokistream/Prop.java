@@ -25,6 +25,7 @@ public class Prop<T> {
 	public static final Prop<String> LOGFILE = new Prop<>("logFile", "Log File", "chokistream.log");
 	public static final Prop<InterpolationMode> INTRPMODE = new Prop<>("interpolationMode", "Interpolation Mode", InterpolationMode.NONE);
 	public static final Prop<Integer> DPI = new Prop<>("dpi", "DPI", Toolkit.getDefaultToolkit().getScreenResolution());
+	public static final Prop<OutputFormat> OUTPUTFORMAT = new Prop<>("outputFormat", "Output Format", OutputFormat.VISUAL);
 	public static final Prop<VideoFormat> VIDEOCODEC = new Prop<>("codec", "Video Codec", VideoFormat.PRORES);
 	public static final Prop<String> VIDEOFILE = new Prop<>("videoFile", "Video File", "out");
 

@@ -90,6 +90,10 @@ public class INIParser {
 		setProperty(prop.getShortName(), Double.toString(value));
 	}
 	
+	public String getProp(Prop<?> prop) {
+		return getProperty(prop.getShortName());
+	}
+	
 	private class ParamData {
 		int line;
 		String value;
