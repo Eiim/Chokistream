@@ -6,6 +6,7 @@ import java.io.IOException;
 
 import chokistream.INIParser.IniParseException;
 import chokistream.props.ColorMode;
+import chokistream.props.ConsoleModel;
 import chokistream.props.DSScreen;
 import chokistream.props.EnumProp;
 import chokistream.props.InterpolationMode;
@@ -28,6 +29,11 @@ import javafx.scene.control.TextFormatter;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.CycleMethod;
+import javafx.scene.paint.LinearGradient;
+import javafx.scene.paint.Stop;
+import javafx.scene.shape.Line;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
@@ -174,6 +180,13 @@ public class ModFocusedGUI extends SettingsUI {
 		about.relocate(220, 220);
 		about.setPrefWidth(80);
 		
+		// Pretty line
+		Line line = new Line(0, 0, 0, 230);
+		line.setLayoutX(310);
+		line.setLayoutY(14);
+		line.setStroke(new LinearGradient(0, 0, 1, 1, true, CycleMethod.NO_CYCLE,
+				new Stop(0, Color.gray(.8)), new Stop(.5, Color.gray(.65)), new Stop(1, Color.gray(.8))));
+		
 		// Add handlers
 		mod.setOnAction((e) -> {
 			port.setText(
@@ -192,6 +205,20 @@ public class ModFocusedGUI extends SettingsUI {
 			displayAbout();
 		});
 		
+		modButton.setOnAction((e) -> {
+			switch(EnumProp.fromLongName(Mod.class, mod.getValue())) {
+				case NTR:
+					displayNTR();
+					break;
+				case HZMOD:
+					displayHzMod();
+					break;
+				case CHOKIMOD:
+					displayCHokiMod();
+					break;
+			}
+		});
+		
 		// Set up minimal HzMod
 		qualityHz = new TextField();
 		qualityHz.setTextFormatter(new TextFormatter<>(new IntegerStringConverter()));
@@ -200,6 +227,12 @@ public class ModFocusedGUI extends SettingsUI {
 		reqScreenHz = new ChoiceBox<>();
 		reqScreenHz.getItems().addAll(getEnumNames(DSScreen.class));
 		tgaHz = new CheckBox();
+		tgaHz.setOnAction((e) -> {
+			qualityHz.setText(tgaHz.isSelected() ? "0" : ""+Prop.QUALITY.getDefault());
+		});
+		qualityHz.setOnKeyTyped((e) -> {
+			tgaHz.setSelected(qualityHz.getText().equals("0"));
+		});
 		
 		// Set up minimal CHokiMod
 		qualityCHM = new TextField();
@@ -209,6 +242,12 @@ public class ModFocusedGUI extends SettingsUI {
 		reqScreenCHM = new ChoiceBox<>();
 		reqScreenCHM.getItems().addAll(getEnumNames(DSScreen.class));
 		tgaCHM = new CheckBox();
+		tgaCHM.setOnAction((e) -> {
+			qualityCHM.setText(tgaCHM.isSelected() ? "0" : ""+Prop.QUALITY.getDefault());
+		});
+		qualityCHM.setOnKeyTyped((e) -> {
+			tgaCHM.setSelected(qualityCHM.getText().equals("0"));
+		});
 		
 		// Set up minimal NTR
 		qualityNTR = new TextField();
@@ -224,7 +263,7 @@ public class ModFocusedGUI extends SettingsUI {
 		
 		Pane pane = new Pane(modLab, mod, modButton, ipLab, ip, layoutLab, layout, topScaleLab, topScale, bottomScaleLab, bottomScale,
 				intrpModeLab, intrpMode, connect, about, colorModeLab, colorMode, portLab, port, logModeLab, logMode, logLevelLab, logLevel,
-				logFileLab, logFile, outputFormatLab, outputFormat, videoCodecLab, videoCodec, videoFileLab, videoFile);
+				logFileLab, logFile, outputFormatLab, outputFormat, videoCodecLab, videoCodec, videoFileLab, videoFile, line);
 		return new Scene(pane, 620, 256);
 	}
 	
@@ -262,6 +301,135 @@ public class ModFocusedGUI extends SettingsUI {
 		stage.setResizable(false);
 		IconLoader.applyFavicon(stage);
 		stage.show();
+	}
+	
+	private void displayNTR() {
+		Label qualityNTRLab = new Label(Prop.QUALITY.getLongName());
+		qualityNTRLab.relocate(14, 39);
+		qualityNTR.relocate(150, 35);
+		Label priScreenLab = new Label(Prop.PRIORITYSCREEN.getLongName());
+		priScreenLab.relocate(14, 69);
+		priScreen.relocate(150, 65);
+		priScreen.setPrefWidth(150);
+		Label priFacLab = new Label(Prop.PRIORITYFACTOR.getLongName());
+		priFacLab.relocate(14, 99);
+		priFac.relocate(150, 95);
+		Label qosLab = new Label(Prop.QOS.getLongName());
+		qosLab.relocate(14, 129);
+		qos.relocate(150, 125);
+		ntrPatch = new Button("Patch NTR");
+		ntrPatch.relocate(82, 155);
+		ntrPatch.setPrefWidth(150);
+		applyNTR = new Button("Apply");
+		applyNTR.relocate(14, 185);
+		applyNTR.setPrefWidth(285);
+		
+		ntrPatch.setOnAction((e) -> {
+    		Button n3ds = new Button(ConsoleModel.N3DS.getLongName());
+    		Button o3ds = new Button(ConsoleModel.O3DS.getLongName());
+    		n3ds.relocate(7, 7);
+    		n3ds.setPrefSize(100, 25);
+    		o3ds.relocate(114, 7);
+    		o3ds.setPrefSize(100, 25);
+    		
+    		Group g = new Group(n3ds, o3ds);
+    		Scene selectScene = new Scene(g, 221, 39);
+    		Stage selectStage = new Stage();
+    		selectStage.setScene(selectScene);
+    		selectStage.setResizable(false);
+    		IconLoader.applyFavicon(selectStage);
+    		
+    		n3ds.setOnAction((e2) -> {
+    			try {
+    				selectStage.close();
+					NTRClient.sendNFCPatch(getPropString(Prop.IP), getPropInt(Prop.PORT), null, ConsoleModel.N3DS);
+				} catch (IOException | RuntimeException ex) {
+					displayError(ex);
+				}
+    		});
+    		o3ds.setOnAction((e2) -> {
+    			try {
+    				selectStage.close();
+					NTRClient.sendNFCPatch(getPropString(Prop.IP), getPropInt(Prop.PORT), null, ConsoleModel.O3DS);
+				} catch (IOException | RuntimeException ex) {
+					displayError(ex);
+				}
+    		});
+    		
+    		selectStage.show();
+    	});
+		
+		Text t = new Text("NTR Settings");
+		t.relocate(14, 14);
+		t.setFont(new Font(16));
+		
+		Pane pane = new Pane(t, qualityNTRLab, qualityNTR, priScreenLab, priScreen, priFacLab, priFac, qosLab, qos, ntrPatch, applyNTR);
+		Scene sc = new Scene(pane, 312, 220);
+		Stage st = new Stage();
+		st.setScene(sc);
+		st.setResizable(false);
+		IconLoader.applyFavicon(st);
+		st.show();
+	}
+	
+	private void displayHzMod() {
+		Label qualityHzLab = new Label(Prop.QUALITY.getLongName());
+		qualityHzLab.relocate(14, 39);
+		qualityHz.relocate(150, 35);
+		Label tgaHzLab = new Label("Request TGA?");
+		tgaHzLab.relocate(14, 69);
+		tgaHz.relocate(150, 69);
+		Label cpuCapHzLab = new Label(Prop.CPUCAP.getLongName());
+		cpuCapHzLab.relocate(14, 99);
+		cpuCapHz.relocate(150, 95);
+		Label reqScreenHzLab = new Label(Prop.REQSCREEN.getLongName());
+		reqScreenHzLab.relocate(14, 129);
+		reqScreenHz.relocate(149, 125);
+		reqScreenHz.setPrefWidth(150);
+		applyHz = new Button("Apply");
+		applyHz.relocate(14, 155);
+		applyHz.setPrefWidth(285);
+		Text t = new Text("HzMod Settings");
+		t.relocate(14, 14);
+		t.setFont(new Font(16));
+		
+		Pane pane = new Pane(t, qualityHzLab, qualityHz, tgaHzLab, tgaHz, cpuCapHzLab, cpuCapHz, reqScreenHzLab, reqScreenHz, applyHz);
+		Scene sc = new Scene(pane, 312, 220);
+		Stage st = new Stage();
+		st.setScene(sc);
+		st.setResizable(false);
+		IconLoader.applyFavicon(st);
+		st.show();
+	}
+	
+	private void displayCHokiMod() {
+		Label qualityCHMLab = new Label(Prop.QUALITY.getLongName());
+		qualityCHMLab.relocate(14, 39);
+		qualityCHM.relocate(150, 35);
+		Label tgaCHMLab = new Label("Request TGA?");
+		tgaCHMLab.relocate(14, 69);
+		tgaCHM.relocate(150, 69);
+		Label cpuCapCHMLab = new Label(Prop.CPUCAP.getLongName());
+		cpuCapCHMLab.relocate(14, 99);
+		cpuCapCHM.relocate(150, 95);
+		Label reqScreenCHMLab = new Label(Prop.REQSCREEN.getLongName());
+		reqScreenCHMLab.relocate(14, 129);
+		reqScreenCHM.relocate(149, 125);
+		reqScreenCHM.setPrefWidth(150);
+		applyCHM = new Button("Apply");
+		applyCHM.relocate(14, 155);
+		applyCHM.setPrefWidth(285);
+		Text t = new Text("CHokiMod Settings");
+		t.relocate(14, 14);
+		t.setFont(new Font(16));
+		
+		Pane pane = new Pane(t, qualityCHMLab, qualityCHM, tgaCHMLab, tgaCHM, cpuCapCHMLab, cpuCapCHM, reqScreenCHMLab, reqScreenCHM, applyCHM);
+		Scene sc = new Scene(pane, 312, 220);
+		Stage st = new Stage();
+		st.setScene(sc);
+		st.setResizable(false);
+		IconLoader.applyFavicon(st);
+		st.show();
 	}
 	
 	private static <T extends Enum<T> & EnumProp> String[] getEnumNames(Class<T> c) {
