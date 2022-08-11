@@ -8,6 +8,7 @@ import chokistream.props.DSScreen;
 import chokistream.props.Layout;
 import chokistream.props.Mod;
 import chokistream.props.Prop;
+import chokistream.props.VideoFormat;
 
 /**
  * This is a wrapper class for App.
@@ -49,7 +50,9 @@ public class Main {
 		    			
 		    			// Initializes connection
 		    			StreamingInterface client = new NTRClient(ip, quality, screen, priority, qos, colorMode, port);
-		    			new OutputFileVideo(client, layout, "out.mov");
+		    			String fileName = ui.getPropString(Prop.VIDEOFILE);
+		    			VideoFormat vf = ui.getPropEnum(Prop.VIDEOCODEC, VideoFormat.class);
+		    			new OutputFileVideo(client, layout, fileName+"."+vf.getExtension(), vf);
 					} catch (Exception e) {
 						ui.displayError(e);
 					}
@@ -63,7 +66,9 @@ public class Main {
 	    				
 	    				// Initializes connection
 	    				StreamingInterface client = new HZModClient(ip, quality, capCpu, colorMode, port);
-	    				new OutputFileVideo(client, layout, "out.mov");
+	    				String fileName = ui.getPropString(Prop.VIDEOFILE);
+	        			VideoFormat vf = ui.getPropEnum(Prop.VIDEOCODEC, VideoFormat.class);
+	        			new OutputFileVideo(client, layout, fileName+"."+vf.getExtension(), vf);
 	    			} catch (Exception e) {
 	    				ui.displayError(e);
 	    			}

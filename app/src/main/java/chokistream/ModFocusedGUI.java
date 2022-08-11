@@ -411,13 +411,13 @@ public class ModFocusedGUI extends SettingsUI {
 		t.setFont(new Font(16));
 		
 		Pane pane = new Pane(t, qualityHzLab, qualityHz, tgaHzLab, tgaHz, cpuCapHzLab, cpuCapHz, reqScreenHzLab, reqScreenHz, applyHz);
-		Scene sc = new Scene(pane, 312, 220);
+		Scene sc = new Scene(pane, 312, 190);
 		Stage st = new Stage();
 		st.setScene(sc);
 		st.setResizable(false);
 		IconLoader.applyFavicon(st);
 		
-		applyNTR.setOnAction((e) -> {
+		applyHz.setOnAction((e) -> {
     		saveSettings();
     		st.close();
     	});
@@ -447,13 +447,13 @@ public class ModFocusedGUI extends SettingsUI {
 		t.setFont(new Font(16));
 		
 		Pane pane = new Pane(t, qualityCHMLab, qualityCHM, tgaCHMLab, tgaCHM, cpuCapCHMLab, cpuCapCHM, reqScreenCHMLab, reqScreenCHM, applyCHM);
-		Scene sc = new Scene(pane, 312, 220);
+		Scene sc = new Scene(pane, 312, 190);
 		Stage st = new Stage();
 		st.setScene(sc);
 		st.setResizable(false);
 		IconLoader.applyFavicon(st);
 		
-		applyNTR.setOnAction((e) -> {
+		applyCHM.setOnAction((e) -> {
     		saveSettings();
     		st.close();
     	});
@@ -629,7 +629,9 @@ public class ModFocusedGUI extends SettingsUI {
 	}
 	
 	public <T extends Enum<T> & EnumProp> T getPropEnum(Prop<T> p, Class<T> c) {
-		if(p.equals(Prop.PRIORITYFACTOR)) {
+		if(p.equals(Prop.MOD)) {
+			return EnumProp.fromLongName(c, mod.getValue());
+		}else if(p.equals(Prop.PRIORITYFACTOR)) {
 			return EnumProp.fromLongName(c, priScreen.getValue());
 		} else if(p.equals(Prop.REQSCREEN)) {
 			return switch(EnumProp.fromLongName(Mod.class, mod.getValue())) {

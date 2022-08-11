@@ -6,14 +6,13 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import org.jcodec.api.SequenceEncoder;
-import org.jcodec.common.Codec;
-import org.jcodec.common.Format;
 import org.jcodec.common.io.NIOUtils;
 import org.jcodec.common.model.Rational;
 import org.jcodec.scale.AWTUtil;
 
 import chokistream.props.DSScreen;
 import chokistream.props.Layout;
+import chokistream.props.VideoFormat;
 import javafx.embed.swing.SwingFXUtils;
 
 public class OutputFileVideo extends VideoOutputInterface {
@@ -23,12 +22,11 @@ public class OutputFileVideo extends VideoOutputInterface {
 	private long prevNanos;
 	private static final Logger logger = Logger.INSTANCE;
 	
-	public OutputFileVideo(StreamingInterface client, Layout layout, String file) {
+	public OutputFileVideo(StreamingInterface client, Layout layout, String file, VideoFormat vf) {
 		super(client);
 		try {
 			enc = new SequenceEncoder(NIOUtils.writableChannel(new File(file)), 
-					Rational.R1(60), Format.MOV, Codec.PRORES, null);
-			
+					Rational.R1(60), vf.getFormat(), vf.getCodec(), null);
 		} catch (IOException e) {
 			displayError(e);
 		}
@@ -58,6 +56,7 @@ public class OutputFileVideo extends VideoOutputInterface {
 			BufferedImage bi = null;
 			bi = SwingFXUtils.fromFXImage(f.image, bi);
 			try {
+				System.out.println("Encoding image");
 				enc.encodeNativeFrame(AWTUtil.fromBufferedImageRGB(bi));
 			} catch (IOException e) {
 				displayError(e);

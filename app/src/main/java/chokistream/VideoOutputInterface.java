@@ -20,9 +20,7 @@ public class VideoOutputInterface {
 	public VideoOutputInterface(StreamingInterface client) {
 		this.client = client;
 		
-		networkThread = new NetworkThread();
-		networkThread.setInput(this.client);
-		networkThread.setOutput(this);
+		networkThread = new NetworkThread(this.client, this);
 	}
 	
 	/**

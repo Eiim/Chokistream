@@ -5,7 +5,7 @@ import org.jcodec.common.Format;
 
 public enum VideoFormat implements EnumProp {
 	PRORES("ProRes", Codec.PRORES, Format.MOV, "mov"),
-	VP8("VP8", Codec.VP8, Format.MKV, "mkv");
+	;//VP8("VP8", Codec.VP8, Format.MKV, "mkv"); VP8 doesn't seem to be working right now for some reason
 	
 	private final String longName;
 	private final Codec codec;

@@ -23,6 +23,11 @@ public class NetworkThread extends Thread {
 		}
 	}
 	
+	public NetworkThread(StreamingInterface input, VideoOutputInterface output) {
+		this.input = input;
+		this.output = output;
+	}
+	
 	/**
 	 * @param out the output object (e.g. a JavaFXVideo)
 	 */

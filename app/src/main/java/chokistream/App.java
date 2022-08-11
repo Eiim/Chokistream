@@ -11,7 +11,9 @@ import chokistream.props.Layout;
 import chokistream.props.LogLevel;
 import chokistream.props.LogMode;
 import chokistream.props.Mod;
+import chokistream.props.OutputFormat;
 import chokistream.props.Prop;
+import chokistream.props.VideoFormat;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;
@@ -99,6 +101,7 @@ public class App extends Application {
     	double topScale;
     	double bottomScale;
     	InterpolationMode intrp;
+    	OutputFormat outForm;
     	try {
 			mod = ui.getPropEnum(Prop.MOD, Mod.class);
 			ip = ui.getPropString(Prop.IP);
@@ -108,6 +111,7 @@ public class App extends Application {
 			topScale = ui.getPropDouble(Prop.TOPSCALE);
 			bottomScale = ui.getPropDouble(Prop.BOTTOMSCALE);
 			intrp = ui.getPropEnum(Prop.INTRPMODE, InterpolationMode.class);
+			outForm = ui.getPropEnum(Prop.OUTPUTFORMAT, OutputFormat.class);
 		} catch (RuntimeException e) {
 			ui.displayError(e);
 			return;
@@ -124,8 +128,6 @@ public class App extends Application {
 	    			
 	    			// Initializes connection
 	    			client = new NTRClient(ip, quality, screen, priority, qos, colorMode, port);
-	    			output = new JavaFXVideo(client, layout, dpi, topScale, bottomScale, intrp);
-	    			stage.close();
 				} catch (Exception e) {
 					ui.displayError(e);
 				}
@@ -139,12 +141,22 @@ public class App extends Application {
     				
     				// Initializes connection
     				client = new HZModClient(ip, quality, capCpu, colorMode, port);
-    				output = new JavaFXVideo(client, layout, dpi, topScale, bottomScale, intrp);
-    				stage.close();
     			} catch (Exception e) {
     				ui.displayError(e);
     			}
     	}
+    	
+    	switch(outForm) {
+    		case VISUAL:
+    			output = new JavaFXVideo(client, layout, dpi, topScale, bottomScale, intrp);
+    			break;
+    		case FILE:
+    			String fileName = ui.getPropString(Prop.VIDEOFILE);
+    			VideoFormat vf = ui.getPropEnum(Prop.VIDEOCODEC, VideoFormat.class);
+    			output = new OutputFileVideo(client, layout, fileName+"."+vf.getExtension(), vf);
+    	}
+    	
+    	stage.close();
     }
 
 }
