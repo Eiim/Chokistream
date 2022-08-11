@@ -14,7 +14,6 @@ import org.jcodec.scale.AWTUtil;
 
 import chokistream.props.DSScreen;
 import chokistream.props.Layout;
-import chokistream.props.VideoOutputInterface;
 import javafx.embed.swing.SwingFXUtils;
 
 public class OutputFileVideo extends VideoOutputInterface {

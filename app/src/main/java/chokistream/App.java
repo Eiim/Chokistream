@@ -12,7 +12,6 @@ import chokistream.props.LogLevel;
 import chokistream.props.LogMode;
 import chokistream.props.Mod;
 import chokistream.props.Prop;
-import chokistream.props.VideoOutputInterface;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;

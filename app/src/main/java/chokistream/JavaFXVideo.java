@@ -12,7 +12,6 @@ import chokistream.props.DSScreen;
 import chokistream.props.InterpolationMode;
 import chokistream.props.Layout;
 import chokistream.props.LogLevel;
-import chokistream.props.VideoOutputInterface;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Insets;

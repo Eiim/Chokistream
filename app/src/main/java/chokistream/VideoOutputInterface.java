@@ -1,11 +1,6 @@
-package chokistream.props;
+package chokistream;
 
 import java.io.IOException;
-
-import chokistream.Frame;
-import chokistream.Logger;
-import chokistream.NetworkThread;
-import chokistream.StreamingInterface;
 
 /**
  * A class to extend to provide an output location for a video.

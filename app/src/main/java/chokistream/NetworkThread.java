@@ -2,8 +2,6 @@ package chokistream;
 
 import java.io.IOException;
 
-import chokistream.props.VideoOutputInterface;
-
 public class NetworkThread extends Thread {
 	
 	private VideoOutputInterface output;
