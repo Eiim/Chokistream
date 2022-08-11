@@ -11,6 +11,7 @@ import chokistream.props.DSScreen;
 import chokistream.props.EnumProp;
 import chokistream.props.InterpolationMode;
 import chokistream.props.Layout;
+import chokistream.props.LogLevel;
 import chokistream.props.LogMode;
 import chokistream.props.Mod;
 import chokistream.props.OutputFormat;
@@ -184,7 +185,7 @@ public class ModFocusedGUI extends SettingsUI {
 		connect.setPrefWidth(286);
 		about = new Button("About");
 		about.relocate(320, 250);
-		about.setPrefWidth(300);
+		about.setPrefWidth(286);
 		
 		// Pretty line
 		Line line = new Line(0, 0, 0, 260);
@@ -210,6 +211,10 @@ public class ModFocusedGUI extends SettingsUI {
 		about.setOnAction((e) -> {
 			displayAbout();
 		});
+		connect.setOnAction((e) -> {
+    		saveSettings();
+    		app.connect();
+    	});
 		
 		modButton.setOnAction((e) -> {
 			switch(EnumProp.fromLongName(Mod.class, mod.getValue())) {
@@ -375,6 +380,12 @@ public class ModFocusedGUI extends SettingsUI {
 		st.setScene(sc);
 		st.setResizable(false);
 		IconLoader.applyFavicon(st);
+		
+		applyNTR.setOnAction((e) -> {
+    		saveSettings();
+    		st.close();
+    	});
+		
 		st.show();
 	}
 	
@@ -405,6 +416,12 @@ public class ModFocusedGUI extends SettingsUI {
 		st.setScene(sc);
 		st.setResizable(false);
 		IconLoader.applyFavicon(st);
+		
+		applyNTR.setOnAction((e) -> {
+    		saveSettings();
+    		st.close();
+    	});
+		
 		st.show();
 	}
 	
@@ -435,6 +452,12 @@ public class ModFocusedGUI extends SettingsUI {
 		st.setScene(sc);
 		st.setResizable(false);
 		IconLoader.applyFavicon(st);
+		
+		applyNTR.setOnAction((e) -> {
+    		saveSettings();
+    		st.close();
+    	});
+		
 		st.show();
 	}
 	
@@ -447,6 +470,47 @@ public class ModFocusedGUI extends SettingsUI {
 		return names;
 	}
 	
+	public void saveSettings() {
+		try {
+			INIParser parser = new INIParser(new File("chokistream.ini"));
+			parser.setProp(Prop.IP, getPropString(Prop.IP));
+			parser.setProp(Prop.MOD, getPropEnum(Prop.MOD, Mod.class));
+			parser.setProp(Prop.PRIORITYSCREEN, getPropEnum(Prop.PRIORITYSCREEN, DSScreen.class));
+			parser.setProp(Prop.PRIORITYFACTOR, getPropInt(Prop.PRIORITYFACTOR));
+			parser.setProp(Prop.LAYOUT, getPropEnum(Prop.LAYOUT, Layout.class));
+			parser.setProp(Prop.COLORMODE, getPropEnum(Prop.COLORMODE, ColorMode.class));
+			parser.setProp(Prop.PORT, getPropInt(Prop.PORT));
+			parser.setProp(Prop.TOPSCALE, getPropDouble(Prop.TOPSCALE));
+			parser.setProp(Prop.BOTTOMSCALE, getPropDouble(Prop.BOTTOMSCALE));
+			parser.setProp(Prop.LOGMODE, getPropEnum(Prop.LOGMODE, LogMode.class));
+			parser.setProp(Prop.LOGLEVEL, getPropEnum(Prop.LOGLEVEL, LogLevel.class));
+			parser.setProp(Prop.LOGFILE, getPropString(Prop.LOGFILE));
+			parser.setProp(Prop.INTRPMODE, getPropEnum(Prop.INTRPMODE, InterpolationMode.class));
+			parser.setProp(Prop.DPI, getPropInt(Prop.DPI));
+			parser.setProp(Prop.OUTPUTFORMAT, getPropEnum(Prop.OUTPUTFORMAT, OutputFormat.class));
+			parser.setProp(Prop.VIDEOCODEC, getPropEnum(Prop.VIDEOCODEC, VideoFormat.class));
+			parser.setProp(Prop.VIDEOFILE, getPropString(Prop.VIDEOFILE));
+			
+			switch(getPropEnum(Prop.MOD, Mod.class)) {
+				case NTR:
+					parser.setProp(Prop.QUALITY, getPropInt(Prop.QUALITY));
+					break;
+				case HZMOD:
+					parser.setProp(Prop.QUALITY, getPropInt(Prop.QUALITY));
+					parser.setProp(Prop.CPUCAP, getPropInt(Prop.CPUCAP));
+					parser.setProp(Prop.REQSCREEN, getPropEnum(Prop.REQSCREEN, DSScreen.class));
+					break;
+				case CHOKIMOD:
+					parser.setProp(Prop.QUALITY, getPropInt(Prop.QUALITY));
+					parser.setProp(Prop.CPUCAP, getPropInt(Prop.CPUCAP));
+					parser.setProp(Prop.REQSCREEN, getPropEnum(Prop.REQSCREEN, DSScreen.class));
+					break;
+			}
+		} catch (IOException | IniParseException e) {
+			displayError(e);
+		}
+	}
+	
 	private void populateFields() {
 		try {
 			INIParser parser = new INIParser(new File("chokistream.ini"));
@@ -457,6 +521,7 @@ public class ModFocusedGUI extends SettingsUI {
 			setTextDefault(parser, Prop.PORT, port);
 			setTextDefault(parser, Prop.LOGFILE, logFile);
 			setTextDefault(parser, Prop.VIDEOFILE, videoFile);
+			setTextDefault(parser, Prop.DPI, dpi);
 			
 			setValueDefault(parser, Prop.MOD, mod);
 			setValueDefault(parser, Prop.LAYOUT, layout);

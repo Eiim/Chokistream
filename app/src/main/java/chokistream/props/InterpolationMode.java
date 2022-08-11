@@ -1,8 +1,8 @@
 package chokistream.props;
 
 public enum InterpolationMode implements EnumProp {
-	SMOOTH("Smooth"),
-	NONE("None");
+	NONE("None"),
+	SMOOTH("Smooth");
 	
 	private final String longName;
 	

@@ -33,10 +33,10 @@ public class App extends Application {
      */
     @Override
     public void start(Stage stage) throws Exception {
-    	//ui = new ModFocusedGUI();
-    	//stage.setScene(((ModFocusedGUI)ui).setup(this));
-    	ui = new SnickerstreamGUI();
-        stage.setScene(((SnickerstreamGUI)ui).setup(this));
+    	ui = new ModFocusedGUI();
+    	stage.setScene(((ModFocusedGUI)ui).setup(this));
+    	//ui = new SnickerstreamGUI();
+    	//stage.setScene(((SnickerstreamGUI)ui).setup(this));
         stage.setTitle("Chokistream");
         stage.setResizable(false);
         IconLoader.applyFavicon(stage);
