@@ -50,6 +50,7 @@ public class ModFocusedGUI extends SettingsUI {
 	private TextField topScale;
 	private TextField bottomScale;
 	private ChoiceBox<String> intrpMode;
+	private TextField dpi;
 	private ChoiceBox<String> colorMode;
 	private TextField port;
 	private ChoiceBox<String> logMode;
@@ -100,6 +101,8 @@ public class ModFocusedGUI extends SettingsUI {
 		bottomScaleLab.relocate(14, 164);
 		Label intrpModeLab = new Label(Prop.INTRPMODE.getLongName());
 		intrpModeLab.relocate(14, 194);
+		Label dpiLab = new Label(Prop.DPI.getLongName());
+		dpiLab.relocate(12, 224);
 		
 		Label colorModeLab = new Label(Prop.COLORMODE.getLongName());
 		colorModeLab.relocate(320, 14);
@@ -161,6 +164,9 @@ public class ModFocusedGUI extends SettingsUI {
 		bottomScale = new TextField();
 		bottomScale.relocate(150, 160);
 		bottomScale.setTextFormatter(new TextFormatter<>(new DoubleStringConverter()));
+		dpi = new TextField();
+		dpi.relocate(150, 220);
+		dpi.setTextFormatter(new TextFormatter<>(new IntegerStringConverter()));
 		port = new TextField();
 		port.relocate(456, 40);
 		port.setTextFormatter(new TextFormatter<>(new IntegerStringConverter()));
@@ -174,14 +180,14 @@ public class ModFocusedGUI extends SettingsUI {
 		modButton.relocate(75, 40);
 		modButton.setPrefWidth(150);
 		connect = new Button("Connect!");
-		connect.relocate(14, 220);
-		connect.setPrefWidth(200);
+		connect.relocate(14, 250);
+		connect.setPrefWidth(286);
 		about = new Button("About");
-		about.relocate(220, 220);
-		about.setPrefWidth(80);
+		about.relocate(320, 250);
+		about.setPrefWidth(300);
 		
 		// Pretty line
-		Line line = new Line(0, 0, 0, 230);
+		Line line = new Line(0, 0, 0, 260);
 		line.setLayoutX(310);
 		line.setLayoutY(14);
 		line.setStroke(new LinearGradient(0, 0, 1, 1, true, CycleMethod.NO_CYCLE,
@@ -261,10 +267,10 @@ public class ModFocusedGUI extends SettingsUI {
 		
 		populateFields();
 		
-		Pane pane = new Pane(modLab, mod, modButton, ipLab, ip, layoutLab, layout, topScaleLab, topScale, bottomScaleLab, bottomScale,
+		Pane pane = new Pane(modLab, mod, modButton, ipLab, ip, layoutLab, layout, topScaleLab, topScale, bottomScaleLab, bottomScale, dpiLab, dpi,
 				intrpModeLab, intrpMode, connect, about, colorModeLab, colorMode, portLab, port, logModeLab, logMode, logLevelLab, logLevel,
 				logFileLab, logFile, outputFormatLab, outputFormat, videoCodecLab, videoCodec, videoFileLab, videoFile, line);
-		return new Scene(pane, 620, 256);
+		return new Scene(pane, 620, 286);
 	}
 	
 	private void displayAbout() {
@@ -507,5 +513,79 @@ public class ModFocusedGUI extends SettingsUI {
 		popup.setTitle("Error");
 		IconLoader.applyFavicon(popup);
 		popup.show();
+	}
+	
+	public int getPropInt(Prop<Integer> p) {
+		if(p.equals(Prop.QUALITY)) {
+			return switch(EnumProp.fromLongName(Mod.class, mod.getValue())) {
+				case NTR -> Integer.parseInt(qualityNTR.getText());
+				case HZMOD -> Integer.parseInt(qualityHz.getText());
+				case CHOKIMOD -> Integer.parseInt(qualityCHM.getText());
+			};
+		} else if(p.equals(Prop.PRIORITYFACTOR)) {
+			return Integer.parseInt(priFac.getText());
+		} else if(p.equals(Prop.QOS)) {
+			return Integer.parseInt(qos.getText());
+		} else if(p.equals(Prop.CPUCAP)) {
+			return switch(EnumProp.fromLongName(Mod.class, mod.getValue())) {
+				case NTR -> p.getDefault(); // Hopefully never happens
+				case HZMOD -> Integer.parseInt(cpuCapHz.getText());
+				case CHOKIMOD -> Integer.parseInt(cpuCapCHM.getText());
+			};
+		} else if(p.equals(Prop.PORT)) {
+			return Integer.parseInt(port.getText());
+		} else if(p.equals(Prop.DPI)) {
+			return Integer.parseInt(dpi.getText());
+		} else {
+			return p.getDefault();
+		}
+	}
+	
+	public String getPropString(Prop<String> p) {
+		if(p.equals(Prop.IP)) {
+			return ip.getText();
+		} else if(p.equals(Prop.LOGFILE)) {
+			return logFile.getText();
+		} else if(p.equals(Prop.VIDEOFILE)) {
+			return videoFile.getText();
+		} else {
+			return p.getDefault();
+		}
+	}
+	
+	public double getPropDouble(Prop<Double> p) {
+		if(p.equals(Prop.TOPSCALE)) {
+			return Double.parseDouble(topScale.getText());
+		} else if(p.equals(Prop.BOTTOMSCALE)) {
+			return Double.parseDouble(bottomScale.getText());
+		} else {
+			return p.getDefault();
+		}
+	}
+	
+	public <T extends Enum<T> & EnumProp> T getPropEnum(Prop<T> p, Class<T> c) {
+		if(p.equals(Prop.PRIORITYFACTOR)) {
+			return EnumProp.fromLongName(c, priScreen.getValue());
+		} else if(p.equals(Prop.REQSCREEN)) {
+			return switch(EnumProp.fromLongName(Mod.class, mod.getValue())) {
+				case NTR -> p.getDefault(); // Hopefully never happens
+				case HZMOD -> EnumProp.fromLongName(c, reqScreenHz.getValue());
+				case CHOKIMOD -> EnumProp.fromLongName(c, reqScreenCHM.getValue());
+			};
+		} else if(p.equals(Prop.COLORMODE)) {
+			return EnumProp.fromLongName(c, colorMode.getValue());
+		} else if(p.equals(Prop.LOGMODE)) {
+			return EnumProp.fromLongName(c, logMode.getValue());
+		} else if(p.equals(Prop.LOGLEVEL)) {
+			return EnumProp.fromLongName(c, logLevel.getValue());
+		} else if(p.equals(Prop.INTRPMODE)) {
+			return EnumProp.fromLongName(c, intrpMode.getValue());
+		} else if(p.equals(Prop.OUTPUTFORMAT)) {
+			return EnumProp.fromLongName(c, outputFormat.getValue());
+		} else if(p.equals(Prop.VIDEOCODEC)) {
+			return EnumProp.fromLongName(c, videoCodec.getValue());
+		} else {
+			return p.getDefault();
+		}
 	}
 }
