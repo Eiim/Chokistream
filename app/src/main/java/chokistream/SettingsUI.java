@@ -1,5 +1,8 @@
 package chokistream;
 
+import chokistream.props.EnumProp;
+import chokistream.props.Prop;
+
 public class SettingsUI {
 	
 	public int getPropInt(Prop<Integer> p) {

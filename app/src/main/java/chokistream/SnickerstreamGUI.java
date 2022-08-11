@@ -4,6 +4,16 @@ import java.awt.Toolkit;
 import java.io.File;
 import java.io.IOException;
 
+import chokistream.props.ColorMode;
+import chokistream.props.ConsoleModel;
+import chokistream.props.DSScreen;
+import chokistream.props.EnumProp;
+import chokistream.props.InterpolationMode;
+import chokistream.props.Layout;
+import chokistream.props.LogLevel;
+import chokistream.props.LogMode;
+import chokistream.props.Mod;
+import chokistream.props.Prop;
 import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Scene;

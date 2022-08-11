@@ -4,6 +4,15 @@ import java.io.File;
 import java.io.FileNotFoundException;
 
 import chokistream.INIParser.IniParseException;
+import chokistream.props.ColorMode;
+import chokistream.props.DSScreen;
+import chokistream.props.InterpolationMode;
+import chokistream.props.Layout;
+import chokistream.props.LogLevel;
+import chokistream.props.LogMode;
+import chokistream.props.Mod;
+import chokistream.props.Prop;
+import chokistream.props.VideoOutputInterface;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;

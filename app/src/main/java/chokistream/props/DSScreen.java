@@ -1,4 +1,4 @@
-package chokistream;
+package chokistream.props;
 
 public enum DSScreen implements EnumProp {
 	TOP("Top"),

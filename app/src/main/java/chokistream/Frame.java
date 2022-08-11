@@ -1,5 +1,6 @@
 package chokistream;
 
+import chokistream.props.DSScreen;
 import javafx.scene.image.Image;
 
 /**

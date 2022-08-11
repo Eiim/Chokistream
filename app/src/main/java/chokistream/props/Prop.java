@@ -1,4 +1,4 @@
-package chokistream;
+package chokistream.props;
 
 import java.awt.Toolkit;
 

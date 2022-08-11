@@ -6,6 +6,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.TreeSet;
 
+import chokistream.props.LogLevel;
+import chokistream.props.LogMode;
+
 public enum Logger {
 	INSTANCE;
 	

@@ -6,6 +6,10 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.concurrent.TimeUnit;
 
+import chokistream.props.ColorMode;
+import chokistream.props.ConsoleModel;
+import chokistream.props.DSScreen;
+
 /**
  * 
  */

@@ -3,6 +3,12 @@ package chokistream;
 import java.util.Arrays;
 import java.util.List;
 
+import chokistream.props.ColorMode;
+import chokistream.props.DSScreen;
+import chokistream.props.Layout;
+import chokistream.props.Mod;
+import chokistream.props.Prop;
+
 /**
  * This is a wrapper class for App.
  * JavaFX normally runs as a module and hooks into the main class, but this configuration

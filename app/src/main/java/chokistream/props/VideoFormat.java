@@ -1,4 +1,4 @@
-package chokistream;
+package chokistream.props;
 
 import org.jcodec.common.Codec;
 import org.jcodec.common.Format;

@@ -8,6 +8,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 
+import chokistream.props.EnumProp;
+import chokistream.props.Prop;
+
 // Very very simple INI handler
 public class INIParser {
 	

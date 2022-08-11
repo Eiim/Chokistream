@@ -7,6 +7,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 
+import chokistream.props.ColorMode;
 import javafx.scene.image.Image;
 
 /**

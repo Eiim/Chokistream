@@ -1,4 +1,4 @@
-package chokistream;
+package chokistream.props;
 
 public enum ColorMode implements EnumProp {
 	REGULAR("Regular"),

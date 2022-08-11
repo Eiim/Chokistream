@@ -1,5 +1,6 @@
 package chokistream;
 
+import chokistream.props.ColorMode;
 import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
 

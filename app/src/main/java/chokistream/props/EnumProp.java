@@ -1,4 +1,4 @@
-package chokistream;
+package chokistream.props;
 
 public interface EnumProp {
 	public String getLongName();

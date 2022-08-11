@@ -6,6 +6,10 @@ import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import chokistream.props.ColorMode;
+import chokistream.props.DSScreen;
+
 import java.util.Arrays;
 import java.util.concurrent.BlockingQueue;
 
