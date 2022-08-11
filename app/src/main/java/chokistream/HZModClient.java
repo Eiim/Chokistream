@@ -11,6 +11,7 @@ import java.util.Arrays;
 import javax.imageio.ImageIO;
 
 import chokistream.props.ColorMode;
+import chokistream.props.DSScreenBoth;
 
 /**
  * 
@@ -32,7 +33,7 @@ public class HZModClient implements StreamingInterface {
 	 * @param capCPU Cap CPU cycles.
 	 * @param colorMode The color filter (option to enable hotfixColors).
 	 */
-	public HZModClient(String host, int quality, int capCPU, ColorMode receivedColorMode, int port) throws UnknownHostException, IOException {
+	public HZModClient(String host, int quality, int capCPU, ColorMode receivedColorMode, int port, DSScreenBoth reqScreen) throws UnknownHostException, IOException {
 		// Connect to TCP port and set up client
 		client = new Socket(host, 6464);
 		client.setTcpNoDelay(true);
@@ -40,6 +41,13 @@ public class HZModClient implements StreamingInterface {
 		out = client.getOutputStream();
 		
 		colorMode = receivedColorMode;
+		
+		// I believe these values are correct based on the HorizonScreen source code
+		byte screenByte = switch(reqScreen) {
+			case TOP -> 0x01;
+			case BOTTOM -> 0x02;
+			case BOTH -> 0x03;
+		};
 		
 		if (capCPU > 0) {
 			// Creates the limit CPU packet to the 3DS
@@ -63,7 +71,7 @@ public class HZModClient implements StreamingInterface {
 		byte[] initializationPacket = new byte[9];
 		initializationPacket[0] = 0x7E;
 		initializationPacket[1] = 0x05;
-		initializationPacket[8] = 0x01;
+		initializationPacket[8] = screenByte;
 		
 		out.write(initializationPacket);
 		

@@ -5,6 +5,7 @@ import java.util.List;
 
 import chokistream.props.ColorMode;
 import chokistream.props.DSScreen;
+import chokistream.props.DSScreenBoth;
 import chokistream.props.Layout;
 import chokistream.props.Mod;
 import chokistream.props.Prop;
@@ -63,9 +64,10 @@ public class Main {
 	    				int quality = ui.getPropInt(Prop.QUALITY);
 	    				int capCpu = ui.getPropInt(Prop.CPUCAP);
 	    				ColorMode colorMode = ui.getPropEnum(Prop.COLORMODE, ColorMode.class);
+	    				DSScreenBoth reqScreen = ui.getPropEnum(Prop.REQSCREEN, DSScreenBoth.class);
 	    				
 	    				// Initializes connection
-	    				StreamingInterface client = new HZModClient(ip, quality, capCpu, colorMode, port);
+	    				StreamingInterface client = new HZModClient(ip, quality, capCpu, colorMode, port, reqScreen);
 	    				String fileName = ui.getPropString(Prop.VIDEOFILE);
 	        			VideoFormat vf = ui.getPropEnum(Prop.VIDEOCODEC, VideoFormat.class);
 	        			new OutputFileVideo(client, layout, fileName+"."+vf.getExtension(), vf);

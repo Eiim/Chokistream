@@ -8,6 +8,7 @@ import chokistream.INIParser.IniParseException;
 import chokistream.props.ColorMode;
 import chokistream.props.ConsoleModel;
 import chokistream.props.DSScreen;
+import chokistream.props.DSScreenBoth;
 import chokistream.props.EnumProp;
 import chokistream.props.InterpolationMode;
 import chokistream.props.Layout;
@@ -236,7 +237,7 @@ public class ModFocusedGUI extends SettingsUI {
 		cpuCapHz = new TextField();
 		cpuCapHz.setTextFormatter(new TextFormatter<>(new IntegerStringConverter()));
 		reqScreenHz = new ChoiceBox<>();
-		reqScreenHz.getItems().addAll(getEnumNames(DSScreen.class));
+		reqScreenHz.getItems().addAll(getEnumNames(DSScreenBoth.class));
 		tgaHz = new CheckBox();
 		tgaHz.setOnAction((e) -> {
 			qualityHz.setText(tgaHz.isSelected() ? "0" : ""+Prop.QUALITY.getDefault());
@@ -251,7 +252,7 @@ public class ModFocusedGUI extends SettingsUI {
 		cpuCapCHM = new TextField();
 		cpuCapCHM.setTextFormatter(new TextFormatter<>(new IntegerStringConverter()));
 		reqScreenCHM = new ChoiceBox<>();
-		reqScreenCHM.getItems().addAll(getEnumNames(DSScreen.class));
+		reqScreenCHM.getItems().addAll(getEnumNames(DSScreenBoth.class));
 		tgaCHM = new CheckBox();
 		tgaCHM.setOnAction((e) -> {
 			qualityCHM.setText(tgaCHM.isSelected() ? "0" : ""+Prop.QUALITY.getDefault());
@@ -498,12 +499,12 @@ public class ModFocusedGUI extends SettingsUI {
 				case HZMOD:
 					parser.setProp(Prop.QUALITY, getPropInt(Prop.QUALITY));
 					parser.setProp(Prop.CPUCAP, getPropInt(Prop.CPUCAP));
-					parser.setProp(Prop.REQSCREEN, getPropEnum(Prop.REQSCREEN, DSScreen.class));
+					parser.setProp(Prop.REQSCREEN, getPropEnum(Prop.REQSCREEN, DSScreenBoth.class));
 					break;
 				case CHOKIMOD:
 					parser.setProp(Prop.QUALITY, getPropInt(Prop.QUALITY));
 					parser.setProp(Prop.CPUCAP, getPropInt(Prop.CPUCAP));
-					parser.setProp(Prop.REQSCREEN, getPropEnum(Prop.REQSCREEN, DSScreen.class));
+					parser.setProp(Prop.REQSCREEN, getPropEnum(Prop.REQSCREEN, DSScreenBoth.class));
 					break;
 			}
 		} catch (IOException | IniParseException e) {
@@ -534,11 +535,11 @@ public class ModFocusedGUI extends SettingsUI {
 			
 			setTextDefault(parser, Prop.QUALITY, qualityHz);
 			setTextDefault(parser, Prop.CPUCAP, cpuCapHz);
-			setValueDefault(parser, Prop.PRIORITYSCREEN, reqScreenHz);
+			setValueDefault(parser, Prop.REQSCREEN, reqScreenHz);
 			
 			setTextDefault(parser, Prop.QUALITY, qualityCHM);
 			setTextDefault(parser, Prop.CPUCAP, cpuCapCHM);
-			setValueDefault(parser, Prop.PRIORITYSCREEN, reqScreenCHM);
+			setValueDefault(parser, Prop.REQSCREEN, reqScreenCHM);
 			
 			setTextDefault(parser, Prop.QUALITY, qualityNTR);
 			setValueDefault(parser, Prop.PRIORITYSCREEN, priScreen);
@@ -631,7 +632,7 @@ public class ModFocusedGUI extends SettingsUI {
 	public <T extends Enum<T> & EnumProp> T getPropEnum(Prop<T> p, Class<T> c) {
 		if(p.equals(Prop.MOD)) {
 			return EnumProp.fromLongName(c, mod.getValue());
-		}else if(p.equals(Prop.PRIORITYFACTOR)) {
+		} else if(p.equals(Prop.PRIORITYSCREEN)) {
 			return EnumProp.fromLongName(c, priScreen.getValue());
 		} else if(p.equals(Prop.REQSCREEN)) {
 			return switch(EnumProp.fromLongName(Mod.class, mod.getValue())) {

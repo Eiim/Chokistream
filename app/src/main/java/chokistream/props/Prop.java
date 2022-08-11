@@ -15,7 +15,7 @@ public class Prop<T> {
 	public static final Prop<Integer> PRIORITYFACTOR = new Prop<>("priority", "Priority Factor", 8);
 	public static final Prop<Integer> QOS = new Prop<>("qos", "QoS", 26);
 	public static final Prop<Integer> CPUCAP = new Prop<>("cpuCap", "CPU Cap", 0);
-	public static final Prop<DSScreen> REQSCREEN = new Prop<>("requestedScreen", "Requested Screen", DSScreen.TOP);
+	public static final Prop<DSScreenBoth> REQSCREEN = new Prop<>("requestedScreen", "Requested Screen", DSScreenBoth.TOP);
 	public static final Prop<Layout> LAYOUT = new Prop<>("layout", "Layout", Layout.SEPARATE);
 	public static final Prop<ColorMode> COLORMODE = new Prop<>("colorMode", "Color Mode", ColorMode.REGULAR);
 	public static final Prop<Integer> PORT = new Prop<>("port", "3DS Port", 8000);

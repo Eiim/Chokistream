@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import chokistream.INIParser.IniParseException;
 import chokistream.props.ColorMode;
 import chokistream.props.DSScreen;
+import chokistream.props.DSScreenBoth;
 import chokistream.props.InterpolationMode;
 import chokistream.props.Layout;
 import chokistream.props.LogLevel;
@@ -138,9 +139,10 @@ public class App extends Application {
     				int quality = ui.getPropInt(Prop.QUALITY);
     				int capCpu = ui.getPropInt(Prop.CPUCAP);
     				ColorMode colorMode = ui.getPropEnum(Prop.COLORMODE, ColorMode.class);
+    				DSScreenBoth reqScreen = ui.getPropEnum(Prop.REQSCREEN, DSScreenBoth.class);
     				
     				// Initializes connection
-    				client = new HZModClient(ip, quality, capCpu, colorMode, port);
+    				client = new HZModClient(ip, quality, capCpu, colorMode, port, reqScreen);
     			} catch (Exception e) {
     				ui.displayError(e);
     			}
