@@ -44,7 +44,7 @@ public class NTRUDPThread extends Thread {
 	private byte secondaryExpectedFrame = 0;
 	private byte priorityExpectedPacket = 0;
 	private byte secondaryExpectedPacket = 0;
-	private NTRScreen activeScreen = NTRScreen.TOP;
+	private DSScreen activeScreen = DSScreen.TOP;
 	private ColorMode colorMode;
 	
 	/**
@@ -52,7 +52,7 @@ public class NTRUDPThread extends Thread {
 	 * @param host The host or IP to connect to.
 	 * @throws SocketException
 	 */
-	NTRUDPThread(String host, NTRScreen screen, ColorMode colorMode) throws SocketException {
+	NTRUDPThread(String host, DSScreen screen, ColorMode colorMode) throws SocketException {
 		activeScreen = screen;
 		socket = new DatagramSocket(8001);
 		this.colorMode = colorMode;
@@ -73,7 +73,7 @@ public class NTRUDPThread extends Thread {
 				socket.receive(packet);
 				byte[] data = packet.getData();
 				byte currentFrame = data[0];
-				NTRScreen currentScreen = ((data[1] & 0x0F) == 1) ? NTRScreen.TOP : NTRScreen.BOTTOM;
+				DSScreen currentScreen = ((data[1] & 0x0F) == 1) ? DSScreen.TOP : DSScreen.BOTTOM;
 				boolean isLastPacket = (((data[1] & 0xF0) >> 4) == 1);
 				int currentPacket = data[3];
 				

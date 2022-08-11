@@ -396,7 +396,7 @@ public class SnickerstreamGUI extends SettingsUI {
 			parser.setProp(Prop.QOS, getPropInt(Prop.QOS));
 			parser.setProp(Prop.QUALITY, getPropInt(Prop.QUALITY));
 			parser.setProp(Prop.PRIORITYFACTOR, getPropInt(Prop.PRIORITYFACTOR));
-			parser.setProp(Prop.PRIORITYSCREEN, getPropEnum(Prop.PRIORITYSCREEN, NTRScreen.class));
+			parser.setProp(Prop.PRIORITYSCREEN, getPropEnum(Prop.PRIORITYSCREEN, DSScreen.class));
 			parser.setProp(Prop.MOD, getPropEnum(Prop.MOD, Mod.class));
 			parser.setProp(Prop.LAYOUT, getPropEnum(Prop.LAYOUT, Layout.class));
 			parser.setProp(Prop.COLORMODE, getPropEnum(Prop.COLORMODE, ColorMode.class));

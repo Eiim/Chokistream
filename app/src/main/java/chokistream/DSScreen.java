@@ -1,12 +1,12 @@
 package chokistream;
 
-public enum NTRScreen implements EnumProp {
+public enum DSScreen implements EnumProp {
 	TOP("Top"),
 	BOTTOM("Bottom");
 	
 	private final String longName;
 	
-	private NTRScreen(String name) {
+	private DSScreen(String name) {
 		longName = name;
 	}
 

@@ -9,6 +9,7 @@ import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
@@ -45,6 +46,26 @@ public class ModFocusedGUI extends SettingsUI {
 	private Button modButton;
 	private Button connect;
 	private Button about;
+	
+	// Mod settings
+	private TextField qualityHz;
+	private TextField cpuCapHz;
+	private ChoiceBox<String> reqScreenHz;
+	private CheckBox tgaHz;
+	private Button applyHz;
+	
+	private TextField qualityCHM;
+	private TextField cpuCapCHM;
+	private ChoiceBox<String> reqScreenCHM;
+	private CheckBox tgaCHM;
+	private Button applyCHM;
+	
+	private TextField qualityNTR;
+	private ChoiceBox<String> priScreen;
+	private TextField priFac;
+	private TextField qos;
+	private Button ntrPatch;
+	private Button applyNTR;
 	
 	private static final Logger logger = Logger.INSTANCE;
 	
@@ -152,16 +173,42 @@ public class ModFocusedGUI extends SettingsUI {
 				}
 			);
 		});
-		
 		outputFormat.setOnAction((e) -> {
 			boolean isVisual = outputFormat.getValue().equals(OutputFormat.VISUAL.getLongName());
 			videoCodec.setDisable(isVisual);
 			videoFile.setDisable(isVisual);
 		});
-		
 		about.setOnAction((e) -> {
 			displayAbout();
 		});
+		
+		// Set up minimal HzMod
+		qualityHz = new TextField();
+		qualityHz.setTextFormatter(new TextFormatter<>(new IntegerStringConverter()));
+		cpuCapHz = new TextField();
+		cpuCapHz.setTextFormatter(new TextFormatter<>(new IntegerStringConverter()));
+		reqScreenHz = new ChoiceBox<>();
+		reqScreenHz.getItems().addAll(getEnumNames(DSScreen.class));
+		tgaHz = new CheckBox();
+		
+		// Set up minimal CHokiMod
+		qualityCHM = new TextField();
+		qualityCHM.setTextFormatter(new TextFormatter<>(new IntegerStringConverter()));
+		cpuCapCHM = new TextField();
+		cpuCapCHM.setTextFormatter(new TextFormatter<>(new IntegerStringConverter()));
+		reqScreenCHM = new ChoiceBox<>();
+		reqScreenCHM.getItems().addAll(getEnumNames(DSScreen.class));
+		tgaCHM = new CheckBox();
+		
+		// Set up minimal NTR
+		qualityNTR = new TextField();
+		qualityNTR.setTextFormatter(new TextFormatter<>(new IntegerStringConverter()));
+		priScreen = new ChoiceBox<>();
+		priScreen.getItems().addAll(getEnumNames(DSScreen.class));
+		priFac = new TextField();
+		priFac.setTextFormatter(new TextFormatter<>(new IntegerStringConverter()));
+		qos = new TextField();
+		qos.setTextFormatter(new TextFormatter<>(new IntegerStringConverter()));
 		
 		populateFields();
 		
@@ -235,6 +282,19 @@ public class ModFocusedGUI extends SettingsUI {
 			setValueDefault(parser, Prop.LOGLEVEL, logLevel);
 			setValueDefault(parser, Prop.OUTPUTFORMAT, outputFormat);
 			setValueDefault(parser, Prop.VIDEOCODEC, videoCodec);
+			
+			setTextDefault(parser, Prop.QUALITY, qualityHz);
+			setTextDefault(parser, Prop.CPUCAP, cpuCapHz);
+			setValueDefault(parser, Prop.PRIORITYSCREEN, reqScreenHz);
+			
+			setTextDefault(parser, Prop.QUALITY, qualityCHM);
+			setTextDefault(parser, Prop.CPUCAP, cpuCapCHM);
+			setValueDefault(parser, Prop.PRIORITYSCREEN, reqScreenCHM);
+			
+			setTextDefault(parser, Prop.QUALITY, qualityNTR);
+			setValueDefault(parser, Prop.PRIORITYSCREEN, priScreen);
+			setTextDefault(parser, Prop.PRIORITYFACTOR, priFac);
+			setTextDefault(parser, Prop.QOS, qos);
 		} catch (FileNotFoundException | IniParseException e) {
 			displayError(e);
 		}

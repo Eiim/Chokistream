@@ -47,7 +47,7 @@ public class OutputFileVideo extends VideoOutputInterface {
 	}
 	
 	public void renderFrame(Frame f) {
-		if(f.screen == NTRScreen.TOP) {
+		if(f.screen == DSScreen.TOP) {
 			long newNanos = System.nanoTime();
 			int frames = (int) (Math.round(newNanos-prevNanos)/16666667f);
 			//logger.log(""+frames);

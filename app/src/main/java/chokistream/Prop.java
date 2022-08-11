@@ -11,7 +11,7 @@ public class Prop<T> {
 	public static final Prop<String> IP = new Prop<>("ip", "3DS IP", "0.0.0.0");
 	public static final Prop<Mod> MOD = new Prop<>("mod", "Streaming Mod", Mod.NTR);
 	public static final Prop<Integer> QUALITY = new Prop<>("quality", "Quality", 70);
-	public static final Prop<NTRScreen> PRIORITYSCREEN = new Prop<>("priorityScreen", "Priority Screen", NTRScreen.TOP);
+	public static final Prop<DSScreen> PRIORITYSCREEN = new Prop<>("priorityScreen", "Priority Screen", DSScreen.TOP);
 	public static final Prop<Integer> PRIORITYFACTOR = new Prop<>("priority", "Priority Factor", 8);
 	public static final Prop<Integer> QOS = new Prop<>("qos", "QoS", 26);
 	public static final Prop<Integer> CPUCAP = new Prop<>("cpuCap", "CPU Cap", 0);

@@ -193,7 +193,7 @@ public class JavaFXVideo extends VideoOutputInterface {
 	 */
 	@Override
 	public void renderFrame(Frame fr) {
-		if(fr.screen == NTRScreen.BOTTOM) {
+		if(fr.screen == DSScreen.BOTTOM) {
 			bottomImageView.setImage(fr.image);
 			bottomFrames++;
 		} else {

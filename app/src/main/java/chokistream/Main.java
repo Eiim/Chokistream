@@ -36,7 +36,7 @@ public class Main {
 	    		case NTR:
 					try {
 						int quality = ui.getPropInt(Prop.QUALITY);
-		    			NTRScreen screen = ui.getPropEnum(Prop.PRIORITYSCREEN, NTRScreen.class);
+		    			DSScreen screen = ui.getPropEnum(Prop.PRIORITYSCREEN, DSScreen.class);
 		    			int priority = ui.getPropInt(Prop.PRIORITYFACTOR);
 		    			int qos = ui.getPropInt(Prop.QOS);
 		    			ColorMode colorMode = ui.getPropEnum(Prop.COLORMODE, ColorMode.class);

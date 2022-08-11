@@ -28,7 +28,7 @@ public class NTRClient implements StreamingInterface {
 	 * @throws UnknownHostException 
 	 * @throws InterruptedException 
 	 */
-	public NTRClient(String host, int quality, NTRScreen screen, int priority, int qos, ColorMode colorMode, int port) throws UnknownHostException, IOException, InterruptedException {
+	public NTRClient(String host, int quality, DSScreen screen, int priority, int qos, ColorMode colorMode, int port) throws UnknownHostException, IOException, InterruptedException {
 		// Connect to TCP port and set up client
 		Socket client = new Socket(host, port);
 		client.setTcpNoDelay(true);
@@ -47,7 +47,7 @@ public class NTRClient implements StreamingInterface {
 		initializationPacket[12] = (byte) 0x85;
 		initializationPacket[13] = 0x03;
 		initializationPacket[16] = (byte) priority;
-		initializationPacket[17] = (byte) ((screen == NTRScreen.TOP) ? 0x01 : 0x00);
+		initializationPacket[17] = (byte) ((screen == DSScreen.TOP) ? 0x01 : 0x00);
 		initializationPacket[20] = (byte) quality;
 		// Nobody has any clue why, but NTR expects double the QoS value
 		initializationPacket[26] = (byte) (qos*2);
