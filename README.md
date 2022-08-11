@@ -7,7 +7,7 @@ A from-scratch re-implementation of [Snickerstream](https://github.com/Rattletra
 Notable features:
  * Portable: it's just a standalone jar file!
  * Various display output options to get it looking just right on your monitor
- * No monitor? No problem! Chokistream can run entirely headless and stream straight to a video file.
+ * No monitor? No problem! Chokistream can run entirely headless and stream straight to a video file. (currently very buggy)
  * Color correction modes to fix whatever weirdness HzMod may throw your way
 
 Plus even more planned:
