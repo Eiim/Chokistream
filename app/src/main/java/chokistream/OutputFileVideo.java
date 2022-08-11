@@ -1,6 +1,5 @@
 package chokistream;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -13,7 +12,6 @@ import org.jcodec.scale.AWTUtil;
 import chokistream.props.DSScreen;
 import chokistream.props.Layout;
 import chokistream.props.VideoFormat;
-import javafx.embed.swing.SwingFXUtils;
 
 public class OutputFileVideo extends VideoOutputInterface {
 	
@@ -52,12 +50,8 @@ public class OutputFileVideo extends VideoOutputInterface {
 			int frames = (int) (Math.round(newNanos-prevNanos)/16666667f);
 			//logger.log(""+frames);
 			prevNanos += ((long)frames * 16666667l); // Nanos of the frame boundary
-			
-			BufferedImage bi = null;
-			bi = SwingFXUtils.fromFXImage(f.image, bi);
 			try {
-				System.out.println("Encoding image");
-				enc.encodeNativeFrame(AWTUtil.fromBufferedImageRGB(bi));
+				enc.encodeNativeFrame(AWTUtil.fromBufferedImageRGB(f.image));
 			} catch (IOException e) {
 				displayError(e);
 			}

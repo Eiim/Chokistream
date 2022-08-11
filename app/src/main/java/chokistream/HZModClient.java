@@ -1,5 +1,6 @@
 package chokistream;
 
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -7,8 +8,9 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 
+import javax.imageio.ImageIO;
+
 import chokistream.props.ColorMode;
-import javafx.scene.image.Image;
 
 /**
  * 
@@ -104,11 +106,11 @@ public class HZModClient implements StreamingInterface {
 		 */
 		byte[] data = Arrays.copyOfRange(packet.data, 8, packet.data.length);
 		
-		Image image = null;
+		BufferedImage image = null;
 		
 		if (packet.type == jpegPacket) {
 			WritableInputStream imageData = new WritableInputStream(data, true);
-			image = new Image(imageData.getInputStream());
+			image = ImageIO.read(imageData.getInputStream());
 		} else if (packet.type == targaPacket) {
 			// TODO implement TARGA support
 		}

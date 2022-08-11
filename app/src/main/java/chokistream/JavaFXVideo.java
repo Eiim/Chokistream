@@ -18,6 +18,7 @@ import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyCode;
@@ -198,10 +199,10 @@ public class JavaFXVideo extends VideoOutputInterface {
 	@Override
 	public void renderFrame(Frame fr) {
 		if(fr.screen == DSScreen.BOTTOM) {
-			bottomImageView.setImage(fr.image);
+			bottomImageView.setImage(SwingFXUtils.toFXImage(fr.image, null));
 			bottomFrames++;
 		} else {
-			topImageView.setImage(fr.image);
+			topImageView.setImage(SwingFXUtils.toFXImage(fr.image, null));
 			topFrames++;
 		}
 	}

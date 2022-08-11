@@ -1,7 +1,8 @@
 package chokistream;
 
+import java.awt.image.BufferedImage;
+
 import chokistream.props.DSScreen;
-import javafx.scene.image.Image;
 
 /**
  * Represents a frame received from a client.
@@ -16,14 +17,14 @@ public class Frame {
 	/**
 	 * The Image received from a client.
 	 */
-	public Image image;
+	public BufferedImage image;
 	
 	/**
 	 * HZMod version:
 	 * Create a new Frame object.
 	 * @param _image The Image to load into the Frame.
 	 */
-	public Frame(Image _image) {
+	public Frame(BufferedImage _image) {
 		image = _image;
 	}
 	
@@ -33,7 +34,7 @@ public class Frame {
 	 * @param _screen Which NTRScreen this Frame holds.
 	 * @param _image The Image to load into the Frame.
 	 */
-	public Frame(DSScreen _screen, Image _image) {
+	public Frame(DSScreen _screen, BufferedImage _image) {
 		screen = _screen;
 		image = _image;
 	}

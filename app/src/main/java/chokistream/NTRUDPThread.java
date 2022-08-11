@@ -1,5 +1,6 @@
 package chokistream;
 
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -7,13 +8,13 @@ import java.net.SocketException;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import javax.imageio.ImageIO;
+
 import chokistream.props.ColorMode;
 import chokistream.props.DSScreen;
 
 import java.util.Arrays;
 import java.util.concurrent.BlockingQueue;
-
-import javafx.scene.image.Image;
 
 /**
  * 
@@ -42,8 +43,8 @@ public class NTRUDPThread extends Thread {
 	
 	WritableInputStream priorityInputStream = new WritableInputStream();
 	WritableInputStream secondaryInputStream = new WritableInputStream();
-	private Image priorityImage;
-	private Image secondaryImage;
+	private BufferedImage priorityImage;
+	private BufferedImage secondaryImage;
 	private byte priorityExpectedFrame = 0;
 	private byte secondaryExpectedFrame = 0;
 	private byte priorityExpectedPacket = 0;
@@ -95,7 +96,7 @@ public class NTRUDPThread extends Thread {
 					
 					if (isLastPacket) {
 						priorityInputStream.markFinishedWriting();
-						priorityImage = new Image(priorityInputStream.getInputStream());
+						priorityImage = ImageIO.read(priorityInputStream.getInputStream());
 						priorityInputStream = new WritableInputStream();
 						if (colorMode != ColorMode.REGULAR) {
 							priorityImage = ColorHotfix.doColorHotfix(priorityImage, colorMode, false);
@@ -119,7 +120,7 @@ public class NTRUDPThread extends Thread {
 					
 					if (isLastPacket) {
 						secondaryInputStream.markFinishedWriting();
-						secondaryImage = new Image(secondaryInputStream.getInputStream());
+						secondaryImage = ImageIO.read(secondaryInputStream.getInputStream());
 						secondaryInputStream = new WritableInputStream();
 						if (colorMode != ColorMode.REGULAR) {
 							secondaryImage = ColorHotfix.doColorHotfix(secondaryImage, colorMode, false);

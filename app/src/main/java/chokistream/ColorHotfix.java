@@ -1,8 +1,8 @@
 package chokistream;
 
+import java.awt.image.BufferedImage;
+
 import chokistream.props.ColorMode;
-import javafx.scene.image.Image;
-import javafx.scene.image.WritableImage;
 
 public class ColorHotfix {
 	
@@ -99,15 +99,15 @@ public class ColorHotfix {
 	/*
 	 * Possible clients: "NTR","HzMod"... (Case Insensitive)
 	 */
-	public static Image doColorHotfix(Image hotfixImageInput, ColorMode colorMode, boolean swapRB) {
+	public static BufferedImage doColorHotfix(BufferedImage hotfixImage, ColorMode colorMode, boolean swapRB) {
 		try {
-			WritableImage hotfixImageWritable = new WritableImage( (int)hotfixImageInput.getWidth() , (int)hotfixImageInput.getHeight() );
 			int currentPixelColor = 0;
 			int currentW = 0;
 			int currentH = 0;
-			while (currentH < hotfixImageInput.getHeight()) {
-				while (currentW < hotfixImageInput.getWidth()) {
-					currentPixelColor = hotfixImageInput.getPixelReader().getArgb(currentW, currentH);
+			while (currentH < hotfixImage.getHeight()) {
+				while (currentW < hotfixImage.getWidth()) {
+					currentPixelColor = hotfixImage.getRGB(currentW, currentH);
+					//currentPixelColor = hotfixImageInput.getPixelReader().getArgb(currentW, currentH);
 					
 					// If the client is HzMod, then always swap Red and Blue first. Then proceed to extra processing.
 					if (swapRB) {
@@ -119,18 +119,16 @@ public class ColorHotfix {
 					} else if (colorMode == ColorMode.GRAYSCALE) {
 						currentPixelColor = makeGrayscale(currentPixelColor);
 					}
-					
-					hotfixImageWritable.getPixelWriter().setArgb(currentW,currentH,currentPixelColor);
+					hotfixImage.setRGB(currentW, currentH, currentPixelColor);
 					currentW++;
 				}
 				currentW = 0;
 				currentH++;
 			}
-			Image hotfixImageOutput = hotfixImageWritable;
-			return hotfixImageOutput; // This shouldn't error...
+			return hotfixImage;
 		} catch (NullPointerException e) {
 			e.printStackTrace();
-			return new WritableImage(1,1);
+			return new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
 		}
 	}
 	
