@@ -6,11 +6,14 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 import javax.imageio.ImageIO;
 
 import chokistream.props.ColorMode;
+import chokistream.props.DSScreen;
 import chokistream.props.DSScreenBoth;
 
 /**
@@ -35,7 +38,7 @@ public class HZModClient implements StreamingInterface {
 	 */
 	public HZModClient(String host, int quality, int capCPU, ColorMode receivedColorMode, int port, DSScreenBoth reqScreen) throws UnknownHostException, IOException {
 		// Connect to TCP port and set up client
-		client = new Socket(host, 6464);
+		client = new Socket(host, port);
 		client.setTcpNoDelay(true);
 		in = client.getInputStream();
 		out = client.getOutputStream();
@@ -108,6 +111,8 @@ public class HZModClient implements StreamingInterface {
 			packet = getPacket();
 		}
 		
+		// Bottom packets start with 90 01
+		DSScreen screen = packet.data[1] > 0 ? DSScreen.BOTTOM : DSScreen.TOP;
 		/*
 		 * No clue why, but HzMod includes an extra 8 bytes at the front of the image.
 		 * We need to trim it off.
@@ -129,7 +134,7 @@ public class HZModClient implements StreamingInterface {
 		 */
 		image = ColorHotfix.doColorHotfix(image, colorMode, true);
 		
-		returnFrame = new Frame(image);
+		returnFrame = new Frame(screen, image);
 		
 		return returnFrame;
 	}
