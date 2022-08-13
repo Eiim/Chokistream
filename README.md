@@ -9,12 +9,12 @@ Notable features:
  * Various display output options to get it looking just right on your monitor
  * No monitor? No problem! Chokistream can run entirely headless and stream straight to a video file. (currently very buggy)
  * Color correction modes to fix whatever weirdness HzMod may throw your way
+ * Dual-Screen HzMod support for version 2017-05-05 (one of two dual-screen versions)
 
 Plus even more planned:
  * TGA (lossless compression) support for HzMod, which will be the only application other than HorizonScreen to do so!
  * Update HzMod settings mid-stream
  * NFC patching for NTR using various patch types (a single patch is currently implemented)
- * Support for top and bottom screen for HzMod versions that support it
  * Various other minor improvements coming nearly daily during active development
 
 Currently under active development by [Eiim](https://github.com/Eiim), [herronjo](https://github.com/herronjo), and [ChainSwordCS](https://github.com/ChainSwordCS).
