@@ -632,6 +632,8 @@ public class ModFocusedGUI extends SettingsUI {
 	public <T extends Enum<T> & EnumProp> T getPropEnum(Prop<T> p, Class<T> c) {
 		if(p.equals(Prop.MOD)) {
 			return EnumProp.fromLongName(c, mod.getValue());
+		} else if(p.equals(Prop.LAYOUT)) {
+			return EnumProp.fromLongName(c, layout.getValue());
 		} else if(p.equals(Prop.PRIORITYSCREEN)) {
 			return EnumProp.fromLongName(c, priScreen.getValue());
 		} else if(p.equals(Prop.REQSCREEN)) {
