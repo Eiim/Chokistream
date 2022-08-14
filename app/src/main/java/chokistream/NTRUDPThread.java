@@ -12,6 +12,7 @@ import javax.imageio.ImageIO;
 
 import chokistream.props.ColorMode;
 import chokistream.props.DSScreen;
+import chokistream.props.InterpolationMode;
 
 import java.util.Arrays;
 import java.util.concurrent.BlockingQueue;
@@ -51,16 +52,22 @@ public class NTRUDPThread extends Thread {
 	private byte secondaryExpectedPacket = 0;
 	private DSScreen activeScreen = DSScreen.TOP;
 	private ColorMode colorMode;
+	private double topScale;
+	private double bottomScale;
+	private InterpolationMode intrp;
 	
 	/**
 	 * Create an NTRUDPThread.
 	 * @param host The host or IP to connect to.
 	 * @throws SocketException
 	 */
-	NTRUDPThread(String host, DSScreen screen, ColorMode colorMode) throws SocketException {
+	NTRUDPThread(String host, DSScreen screen, ColorMode colorMode, double topScale, double bottomScale, InterpolationMode intrp) throws SocketException {
 		activeScreen = screen;
 		socket = new DatagramSocket(8001);
 		this.colorMode = colorMode;
+		this.topScale = topScale;
+		this.bottomScale = bottomScale;
+		this.intrp = intrp;
 	}
 	
 	public Frame getFrame() throws InterruptedException {
@@ -101,6 +108,11 @@ public class NTRUDPThread extends Thread {
 						if (colorMode != ColorMode.REGULAR) {
 							priorityImage = ColorHotfix.doColorHotfix(priorityImage, colorMode, false);
 						}
+						if(currentScreen == DSScreen.TOP) {
+							priorityImage = Interpolator.scale(priorityImage, intrp, topScale);
+						} else {
+							priorityImage = Interpolator.scale(priorityImage, intrp, bottomScale);
+						}
 						frameBuffer.add(new Frame(currentScreen, priorityImage));
 						priorityImage = null;
 						priorityExpectedFrame = 0;
@@ -124,6 +136,11 @@ public class NTRUDPThread extends Thread {
 						secondaryInputStream = new WritableInputStream();
 						if (colorMode != ColorMode.REGULAR) {
 							secondaryImage = ColorHotfix.doColorHotfix(secondaryImage, colorMode, false);
+						}
+						if(currentScreen == DSScreen.TOP) {
+							secondaryImage = Interpolator.scale(secondaryImage, intrp, topScale);
+						} else {
+							secondaryImage = Interpolator.scale(secondaryImage, intrp, bottomScale);
 						}
 						frameBuffer.add(new Frame(currentScreen, secondaryImage));
 						secondaryImage = null;

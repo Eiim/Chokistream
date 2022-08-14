@@ -6,8 +6,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 import javax.imageio.ImageIO;
@@ -15,6 +13,7 @@ import javax.imageio.ImageIO;
 import chokistream.props.ColorMode;
 import chokistream.props.DSScreen;
 import chokistream.props.DSScreenBoth;
+import chokistream.props.InterpolationMode;
 
 /**
  * 
@@ -28,6 +27,9 @@ public class HZModClient implements StreamingInterface {
 	private InputStream in = null;
 	private OutputStream out = null;
 	private ColorMode colorMode;
+	private double topScale;
+	private double bottomScale;
+	private InterpolationMode intrp;
 
 	/**
 	 * Create an HZModClient.
@@ -36,7 +38,8 @@ public class HZModClient implements StreamingInterface {
 	 * @param capCPU Cap CPU cycles.
 	 * @param colorMode The color filter (option to enable hotfixColors).
 	 */
-	public HZModClient(String host, int quality, int capCPU, ColorMode receivedColorMode, int port, DSScreenBoth reqScreen) throws UnknownHostException, IOException {
+	public HZModClient(String host, int quality, int capCPU, ColorMode receivedColorMode, int port, DSScreenBoth reqScreen,
+			double topScale, double bottomScale, InterpolationMode intrp) throws UnknownHostException, IOException {
 		// Connect to TCP port and set up client
 		client = new Socket(host, port);
 		client.setTcpNoDelay(true);
@@ -44,6 +47,9 @@ public class HZModClient implements StreamingInterface {
 		out = client.getOutputStream();
 		
 		colorMode = receivedColorMode;
+		this.topScale = topScale;
+		this.bottomScale = bottomScale;
+		this.intrp = intrp;
 		
 		// I believe these values are correct based on the HorizonScreen source code
 		byte screenByte = switch(reqScreen) {
@@ -124,6 +130,7 @@ public class HZModClient implements StreamingInterface {
 		if (packet.type == jpegPacket) {
 			WritableInputStream imageData = new WritableInputStream(data, true);
 			image = ImageIO.read(imageData.getInputStream());
+			image = Interpolator.scale(image, intrp, screen == DSScreen.BOTTOM ? bottomScale : topScale);
 		} else if (packet.type == targaPacket) {
 			// TODO implement TARGA support
 		}

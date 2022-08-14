@@ -6,6 +6,7 @@ import java.util.List;
 import chokistream.props.ColorMode;
 import chokistream.props.DSScreen;
 import chokistream.props.DSScreenBoth;
+import chokistream.props.InterpolationMode;
 import chokistream.props.Layout;
 import chokistream.props.Mod;
 import chokistream.props.Prop;
@@ -30,6 +31,9 @@ public class Main {
 	    	String ip;
 	    	Layout layout;
 	    	int port;
+	    	double topScale = ui.getPropDouble(Prop.TOPSCALE);
+			double bottomScale = ui.getPropDouble(Prop.BOTTOMSCALE);
+			InterpolationMode intrp = ui.getPropEnum(Prop.INTRPMODE, InterpolationMode.class);
 	    	try {
 				mod = ui.getPropEnum(Prop.MOD, Mod.class);
 				ip = ui.getPropString(Prop.IP);
@@ -50,7 +54,7 @@ public class Main {
 		    			ColorMode colorMode = ui.getPropEnum(Prop.COLORMODE, ColorMode.class);
 		    			
 		    			// Initializes connection
-		    			StreamingInterface client = new NTRClient(ip, quality, screen, priority, qos, colorMode, port);
+		    			StreamingInterface client = new NTRClient(ip, quality, screen, priority, qos, colorMode, port, topScale, bottomScale, intrp);
 		    			String fileName = ui.getPropString(Prop.VIDEOFILE);
 		    			VideoFormat vf = ui.getPropEnum(Prop.VIDEOCODEC, VideoFormat.class);
 		    			new OutputFileVideo(client, layout, fileName+"."+vf.getExtension(), vf);
@@ -67,7 +71,7 @@ public class Main {
 	    				DSScreenBoth reqScreen = ui.getPropEnum(Prop.REQSCREEN, DSScreenBoth.class);
 	    				
 	    				// Initializes connection
-	    				StreamingInterface client = new HZModClient(ip, quality, capCpu, colorMode, port, reqScreen);
+	    				StreamingInterface client = new HZModClient(ip, quality, capCpu, colorMode, port, reqScreen, topScale, bottomScale, intrp);
 	    				String fileName = ui.getPropString(Prop.VIDEOFILE);
 	        			VideoFormat vf = ui.getPropEnum(Prop.VIDEOCODEC, VideoFormat.class);
 	        			new OutputFileVideo(client, layout, fileName+"."+vf.getExtension(), vf);

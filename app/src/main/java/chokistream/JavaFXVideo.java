@@ -57,10 +57,6 @@ public class JavaFXVideo extends VideoOutputInterface {
 		
 		topImageView = new ImageView();
 		bottomImageView = new ImageView();
-		if(intrp == InterpolationMode.SMOOTH) {
-			topImageView.setSmooth(true);
-			bottomImageView.setSmooth(true);
-		}
 		topImageView.setCache(true);
 		bottomImageView.setCache(true);
 		
@@ -91,12 +87,12 @@ public class JavaFXVideo extends VideoOutputInterface {
 		bottomImageView.getTransforms().add(new Scale(uiScale, uiScale));
 		
 		// Temporary until we can get better algorithms in place
-		topImageView.getTransforms().add(new Scale(topScale, topScale));
-		bottomImageView.getTransforms().add(new Scale(bottomScale, bottomScale));
+		//topImageView.getTransforms().add(new Scale(topScale, topScale));
+		//bottomImageView.getTransforms().add(new Scale(bottomScale, bottomScale));
 		
 		// 240s come from the height of the screens
-		topImageView.getTransforms().add(new Translate(0,240));
-		bottomImageView.getTransforms().add(new Translate(0,240));
+		topImageView.getTransforms().add(new Translate(0,240*topScale));
+		bottomImageView.getTransforms().add(new Translate(0,240*bottomScale));
 		
 		switch(layout) {
 			case SEPARATE:

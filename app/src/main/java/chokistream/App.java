@@ -128,7 +128,7 @@ public class App extends Application {
 	    			ColorMode colorMode = ui.getPropEnum(Prop.COLORMODE, ColorMode.class);
 	    			
 	    			// Initializes connection
-	    			client = new NTRClient(ip, quality, screen, priority, qos, colorMode, port);
+	    			client = new NTRClient(ip, quality, screen, priority, qos, colorMode, port, topScale, bottomScale, intrp	);
 				} catch (Exception e) {
 					ui.displayError(e);
 				}
@@ -142,7 +142,7 @@ public class App extends Application {
     				DSScreenBoth reqScreen = ui.getPropEnum(Prop.REQSCREEN, DSScreenBoth.class);
     				
     				// Initializes connection
-    				client = new HZModClient(ip, quality, capCpu, colorMode, port, reqScreen);
+    				client = new HZModClient(ip, quality, capCpu, colorMode, port, reqScreen, topScale, bottomScale, intrp);
     			} catch (Exception e) {
     				ui.displayError(e);
     			}
