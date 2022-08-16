@@ -130,16 +130,14 @@ public class HZModClient implements StreamingInterface {
 		if (packet.type == jpegPacket) {
 			WritableInputStream imageData = new WritableInputStream(data, true);
 			image = ImageIO.read(imageData.getInputStream());
-			image = Interpolator.scale(image, intrp, screen == DSScreen.BOTTOM ? bottomScale : topScale);
+			// For some reason the red and blue channels are swapped. Fix it.
+			image = ColorHotfix.doColorHotfix(image, colorMode, true);
 		} else if (packet.type == targaPacket) {
-			// TODO implement TARGA support
+			image = TargaParser.parseBytes(data, screen);
+			image = ColorHotfix.doColorHotfix(image, colorMode, false);
 		}
 		
-		/*
-		 * For some reason the red and blue channels are swapped.
-		 * Fix it.
-		 */
-		image = ColorHotfix.doColorHotfix(image, colorMode, true);
+		image = Interpolator.scale(image, intrp, screen == DSScreen.BOTTOM ? bottomScale : topScale);
 		
 		returnFrame = new Frame(screen, image);
 		
