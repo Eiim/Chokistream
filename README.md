@@ -37,10 +37,10 @@ No other requirements. Run `gradlew build` in Windows Command Prompt or `./gradl
 | 2017-08-14 | ⚠️² | ⚠️ | ✔️ | ❌ | ❔ |
 | 2017-05-05 | ⚠️ | ❌ | ⚠️ | ❌ | ❔ |
 
-✔️: Fully functional
-🖼️: Partial TGA support
-⚠️: No TGA support
-❌: No support
-❔: Needs testing
-¹: PC-side crash on connection
-²: DS-side crash on connection when requesting TGA
+- ✔️: Fully functional
+- 🖼️: Partial TGA support
+- ⚠️: No TGA support
+- ❌: No support
+- ❔: Needs testing
+- ¹: PC-side crash on connection
+- ²: DS-side crash on connection when requesting TGA
