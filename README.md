@@ -31,11 +31,11 @@ No other requirements. Run `gradlew build` in Windows Command Prompt or `./gradl
 |---|---|---|---|---|---|
 | 2020-06-06 (no TGA) | ✔️ | ✔️ | ✔️ | ❌¹ | ❔ |
 | 2019-06-11 (no TGA) | ✔️ | ✔️ | ✔️ | ❌ | ❔ |
-| 2018-02-08 | 🖼️  | ⚠️ | ⚠️ | ❌ | ❔ |
-| 2018-02-04 | 🖼️  | ⚠️ | ⚠️ | ❌ | ❔ |
+| 2018-02-08 | 🖼️  | ⚠️ | ⚠️³ | ❌ | ❔ |
+| 2018-02-04 | 🖼️  | ⚠️ | ⚠️³ | ❌ | ❔ |
 | 2017-12-14 (very weird) | ❌ | ❌ | ❌ | ✔️ | ❔ |
-| 2017-08-14 | ⚠️² | ⚠️ | ✔️ | ❌ | ❔ |
-| 2017-05-05 | ⚠️ | ❌ | ⚠️ | ❌ | ❔ |
+| 2017-08-14 | ⚠️² | ⚠️ | ⚠️³ | ❌ | ❔ |
+| 2017-05-05 | ⚠️ | ❌ | ⚠️³ | ❌ | ❔ |
 
 - ✔️: Fully functional
 - 🖼️: Partial TGA support
@@ -44,3 +44,4 @@ No other requirements. Run `gradlew build` in Windows Command Prompt or `./gradl
 - ❔: Needs testing
 - ¹: PC-side crash on connection
 - ²: DS-side crash on connection when requesting TGA
+- ³: HorizonScreen 2017-05 cannot, to the best of my knowledge, request TGA
