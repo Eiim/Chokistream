@@ -24,3 +24,23 @@ Currently under active development by [Eiim](https://github.com/Eiim), [herronjo
 Written in Java 17 with Gradle 7.5, requires Java 17 to be installed :)
 
 No other requirements. Run `gradlew build` in Windows Command Prompt or `./gradlew build` in a Unix terminal.
+
+# HzMod Support Chart
+
+| HzMod Version | Chokistream | Snickerstream | HorizonScreen 2017-05 | HorizonScreen 2017-12 | HorizonScreen 2018 |
+|---|---|---|---|---|---|
+| 2020-06-06 (no TGA) | ✔️ | ✔️ | ✔️ | ❌¹ | ❔ |
+| 2019-06-11 (no TGA) | ✔️ | ✔️ | ✔️ | ❌ | ❔ |
+| 2018-02-08 | 🖼️  | ⚠️ | ⚠️ | ❌ | ❔ |
+| 2018-02-04 | 🖼️  | ⚠️ | ⚠️ | ❌ | ❔ |
+| 2017-12-14 (very weird) | ❌ | ❌ | ❌ | ✔️ | ❔ |
+| 2017-08-14 | ⚠️² | ⚠️ | ✔️ | ❌ | ❔ |
+| 2017-05-05 | ⚠️ | ❌ | ⚠️ | ❌ | ❔ |
+
+✔️: Fully functional
+🖼️: Partial TGA support
+⚠️: No TGA support
+❌: No support
+❔: Needs testing
+¹: PC-side crash on connection
+²: DS-side crash on connection when requesting TGA
