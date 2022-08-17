@@ -60,12 +60,12 @@ public class OutputFileVideo extends VideoOutputInterface {
 	
 	public void kill() {
 		try {
+			// Close connection to 3DS
+			client.close();
 			// Stop processing frames
 			networkThread.stopRunning();
 			// Finish up video output
 			enc.finish();
-			// Close connection to 3DS
-			client.close();
 		} catch (IOException e) {
 			displayError(e);
 		}	

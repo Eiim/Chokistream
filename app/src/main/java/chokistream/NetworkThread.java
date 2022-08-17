@@ -14,7 +14,11 @@ public class NetworkThread extends Thread {
 	public void run() {
 		while(active) {
 			try {
-				output.renderFrame(input.getFrame());
+				Frame f = input.getFrame();
+				// This isn't perfect, but it should drastically reduce the frequency of attempting to encode extra frames
+				if(active) {
+					output.renderFrame(f);
+				}
 			} catch(InterruptedException e) {
 				output.displayError(e);
 			} catch(IOException e) {
