@@ -68,6 +68,8 @@ public class HZModClient implements StreamingInterface {
 			limitCPUPacket[1] = 0x05;
 			limitCPUPacket[4] = (byte) 0xFF;
 			limitCPUPacket[8] = (byte) capCPU;
+			logger.log("Sending limit CPU packet", LogLevel.EXTREME);
+			logger.log(limitCPUPacket, LogLevel.EXTREME);
 			out.write(limitCPUPacket);
 		}
 		
@@ -77,6 +79,8 @@ public class HZModClient implements StreamingInterface {
 		qualityPacket[1] = 0x05;
 		qualityPacket[4] = 0x03;
 		qualityPacket[8] = (byte) quality;
+		logger.log("Sending quality packet", LogLevel.EXTREME);
+		logger.log(qualityPacket, LogLevel.EXTREME);
 		out.write(qualityPacket);
 		
 		// Creates the initialization packet to the 3DS
@@ -84,7 +88,8 @@ public class HZModClient implements StreamingInterface {
 		initializationPacket[0] = 0x7E;
 		initializationPacket[1] = 0x05;
 		initializationPacket[8] = screenByte;
-		
+		logger.log("Sending initialization packet", LogLevel.EXTREME);
+		logger.log(initializationPacket, LogLevel.EXTREME);
 		out.write(initializationPacket);
 		
 	}

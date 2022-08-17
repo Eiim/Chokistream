@@ -10,6 +10,7 @@ import chokistream.props.ColorMode;
 import chokistream.props.ConsoleModel;
 import chokistream.props.DSScreen;
 import chokistream.props.InterpolationMode;
+import chokistream.props.LogLevel;
 
 /**
  * 
@@ -20,6 +21,8 @@ public class NTRClient implements StreamingInterface {
 	 * Thread used by NTRClient to read and buffer Frames received from the 3DS.
 	 */
 	private NTRUDPThread thread;
+	
+	private static final Logger logger = Logger.INSTANCE;
 
 	/**
 	 * Create an NTRClient.
@@ -57,7 +60,8 @@ public class NTRClient implements StreamingInterface {
 		initializationPacket[20] = (byte) quality;
 		// Nobody has any clue why, but NTR expects double the QoS value
 		initializationPacket[26] = (byte) (qos*2);
-		
+		logger.log("Sending initialization packet", LogLevel.EXTREME);
+		logger.log(initializationPacket, LogLevel.EXTREME);
 		out.write(initializationPacket);
 		
 		// NTR expects us to disconnect
