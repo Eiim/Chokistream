@@ -126,8 +126,6 @@ public enum Logger {
 	public void log(byte[] bytes, LogLevel l) {
 		if(level.getLevelDouble() >= l.getLevelDouble()) {
 			log(bytesToHex(bytes), l);
-		} else {
-			System.out.println(level);
 		}
 	}
 	
