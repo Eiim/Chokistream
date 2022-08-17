@@ -14,6 +14,7 @@ import chokistream.props.ColorMode;
 import chokistream.props.DSScreen;
 import chokistream.props.DSScreenBoth;
 import chokistream.props.InterpolationMode;
+import chokistream.props.LogLevel;
 
 /**
  * 
@@ -30,6 +31,8 @@ public class HZModClient implements StreamingInterface {
 	private double topScale;
 	private double bottomScale;
 	private InterpolationMode intrp;
+	
+	private static final Logger logger = Logger.INSTANCE;
 
 	/**
 	 * Create an HZModClient.
@@ -115,6 +118,16 @@ public class HZModClient implements StreamingInterface {
 		
 		while (packet.type != jpegPacket && packet.type != targaPacket) {
 			packet = getPacket();
+			String pType = switch(packet.type) {
+				case jpegPacket -> "JPEG";
+				case targaPacket -> "TGA";
+				case 0x01 -> "Disconnect";
+				case 0x02 -> "Set mode";
+				case 0x7E -> "CFGBLK";
+				case (byte) 0xFF -> "Debug";
+				default -> "Unknown";
+			};
+			logger.log(String.format("Recieved packet of type 0x%02X (Type %s)", packet.type, pType), LogLevel.VERBOSE);
 		}
 		
 		// Bottom packets start with 90 01

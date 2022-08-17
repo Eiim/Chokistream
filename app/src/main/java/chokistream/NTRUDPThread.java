@@ -13,6 +13,7 @@ import javax.imageio.ImageIO;
 import chokistream.props.ColorMode;
 import chokistream.props.DSScreen;
 import chokistream.props.InterpolationMode;
+import chokistream.props.LogLevel;
 
 import java.util.Arrays;
 import java.util.concurrent.BlockingQueue;
@@ -56,6 +57,8 @@ public class NTRUDPThread extends Thread {
 	private double bottomScale;
 	private InterpolationMode intrp;
 	
+	private static final Logger logger = Logger.INSTANCE;
+	
 	/**
 	 * Create an NTRUDPThread.
 	 * @param host The host or IP to connect to.
@@ -88,6 +91,9 @@ public class NTRUDPThread extends Thread {
 				DSScreen currentScreen = ((data[1] & 0x0F) == 1) ? DSScreen.TOP : DSScreen.BOTTOM;
 				boolean isLastPacket = (((data[1] & 0xF0) >> 4) == 1);
 				int currentPacket = data[3];
+				
+				logger.log("Recieved packet for screen "+currentScreen.getLongName()+
+						", isLast="+isLastPacket+", curF="+currentFrame+", curP="+currentPacket, LogLevel.VERBOSE);
 				
 				if (priorityExpectedFrame == 0 && currentScreen == activeScreen) {
 					priorityExpectedFrame = currentFrame;
