@@ -29,19 +29,18 @@ No other requirements. Run `gradlew build` in Windows Command Prompt or `./gradl
 
 | HzMod Version | Chokistream | Snickerstream | HorizonScreen 2017-05 | HorizonScreen 2017-12 | HorizonScreen 2018 |
 |---|---|---|---|---|---|
-| 2020-06-06 (no TGA) | ✔️ | ✔️ | ✔️ | ❌¹ | ❔ |
-| 2019-06-11 (no TGA) | ✔️ | ✔️ | ✔️ | ❌ | ❔ |
-| 2018-02-08 | 🖼️  | ⚠️ | ⚠️³ | ❌ | ❔ |
-| 2018-02-04 | 🖼️  | ⚠️ | ⚠️³ | ❌ | ❔ |
-| 2017-12-14 (very weird) | ❌ | ❌ | ❌ | ✔️ | ❔ |
-| 2017-08-14 | ⚠️² | ⚠️ | ⚠️³ | ❌ | ❔ |
-| 2017-05-05 | ⚠️ | ❌ | ⚠️³ | ❌ | ❔ |
+| 2020-06-06 | 🖼️ | ⚠️ | ⚠️³ | ❌¹ | ✔️ |
+| 2019-06-11 | 🖼️ | ⚠️ | ⚠️³ | ❌ | ✔️ |
+| 2018-02-08 | 🖼️  | ⚠️ | ⚠️³ | ❌ | ✔️ |
+| 2018-02-04 | 🖼️  | ⚠️ | ⚠️³ | ❌ | ✔️ |
+| 2017-12-14 (very weird) | ❌ | ❌ | ❌ | ✔️ | ❌ |
+| 2017-08-14 (No TGA²) | ✔️ | ✔️ | ✔️ | ❌ | ✔️ |
+| 2017-05-05 | ⚠️ | ❌ | ⚠️³ | ❌ | ✔️ |
 
 - ✔️: Fully functional
 - 🖼️: Partial TGA support
 - ⚠️: No TGA support
 - ❌: No support
-- ❔: Needs testing
 - ¹: PC-side crash on connection
-- ²: DS-side crash on connection when requesting TGA
+- ²: This version causes a DS-side crash when requesting TGA
 - ³: HorizonScreen 2017-05 cannot, to the best of my knowledge, request TGA
