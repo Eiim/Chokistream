@@ -35,7 +35,7 @@ No other requirements. Run `gradlew build` in Windows Command Prompt or `./gradl
 | 2018-02-04 | 🖼️  | ⚠️ | ⚠️³ | ❌ | ✔️ |
 | 2017-12-14 (very weird) | ❌ | ❌ | ❌ | ✔️ | ❌ |
 | 2017-08-14 (No TGA²) | ✔️ | ✔️ | ✔️ | ❌ | ✔️ |
-| 2017-05-05 | ⚠️ | ❌ | ⚠️³ | ❌ | ✔️ |
+| 2017-05-05 (Dual-Screen) | ⚠️ | ❌ | ⚠️³ | ❌ | ✔️ |
 
 - ✔️: Fully functional
 - 🖼️: Partial TGA support
