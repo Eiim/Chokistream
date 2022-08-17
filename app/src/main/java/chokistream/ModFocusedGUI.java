@@ -144,10 +144,16 @@ public class ModFocusedGUI extends SettingsUI {
 		logMode.getItems().addAll(getEnumNames(LogMode.class));
 		logMode.relocate(456, 70);
 		logMode.setPrefWidth(150);
+		logMode.setOnAction((e) -> {
+			logger.setMode(getPropEnum(Prop.LOGMODE, LogMode.class));
+		});
 		logLevel = new ChoiceBox<>();
 		logLevel.getItems().addAll(getEnumNames(LogLevel.class));
 		logLevel.relocate(456, 100);
 		logLevel.setPrefWidth(150);
+		logLevel.setOnAction((e) -> {
+			logger.setLevel(getPropEnum(Prop.LOGLEVEL, LogLevel.class));
+		});
 		outputFormat = new ChoiceBox<>();
 		outputFormat.getItems().addAll(getEnumNames(OutputFormat.class));
 		outputFormat.relocate(456, 160);
