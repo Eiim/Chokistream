@@ -145,7 +145,7 @@ public class ModFocusedGUI extends SettingsUI {
 		logMode.relocate(456, 70);
 		logMode.setPrefWidth(150);
 		logLevel = new ChoiceBox<>();
-		logLevel.getItems().addAll(getEnumNames(ColorMode.class));
+		logLevel.getItems().addAll(getEnumNames(LogLevel.class));
 		logLevel.relocate(456, 100);
 		logLevel.setPrefWidth(150);
 		outputFormat = new ChoiceBox<>();
@@ -298,6 +298,7 @@ public class ModFocusedGUI extends SettingsUI {
 				+ " * Sono for HzMod\r\n"
 				+ " * Cell9/44670 for BootNTR\r\n"
 				+ " * Nanquitas for BootNTRSelector\r\n"
+				+ " * toolboc for UWPStreamer\r\n"
 				+ " * All other open-source contributors");
 		t.setWrappingWidth(400);
 		textScroll.setContent(t);
