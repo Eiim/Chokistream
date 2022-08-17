@@ -7,6 +7,7 @@ import chokistream.INIParser.IniParseException;
 import chokistream.props.ColorMode;
 import chokistream.props.DSScreen;
 import chokistream.props.DSScreenBoth;
+import chokistream.props.EnumProp;
 import chokistream.props.InterpolationMode;
 import chokistream.props.Layout;
 import chokistream.props.LogLevel;
@@ -65,20 +66,9 @@ public class App extends Application {
     	String logFile = "chokistream.log";
     	try {
 			INIParser parser = new INIParser(new File("chokistream.ini"));
-			String levelS = parser.getProperty("logLevel");
-			switch(levelS) {
-				case "Verbose":
-					level = LogLevel.VERBOSE;
-			}
-			String modeS = parser.getProperty("logMode");
-			switch(modeS) {
-				case "File":
-					mode = LogMode.FILE;
-					break;
-				case "Both":
-					mode = LogMode.BOTH;
-			}
-			logFile = parser.getProperty("logFile");
+			level = EnumProp.fromLongName(LogLevel.class, parser.getProperty(Prop.LOGLEVEL.getShortName()));
+			mode = EnumProp.fromLongName(LogMode.class, parser.getProperty(Prop.LOGMODE.getShortName()));
+			logFile = parser.getProperty(Prop.LOGFILE.getShortName());
 		} catch (FileNotFoundException | IniParseException e) {
 			System.out.println("No config found or config was unreadable");
 			System.out.println("This is expected on first launch");

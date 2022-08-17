@@ -94,6 +94,7 @@ public class NTRUDPThread extends Thread {
 				
 				logger.log("Recieved packet for screen "+currentScreen.getLongName()+
 						", isLast="+isLastPacket+", curF="+currentFrame+", curP="+currentPacket, LogLevel.VERBOSE);
+				logger.log(data, LogLevel.EXTREME);
 				
 				if (priorityExpectedFrame == 0 && currentScreen == activeScreen) {
 					priorityExpectedFrame = currentFrame;

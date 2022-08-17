@@ -128,6 +128,8 @@ public class HZModClient implements StreamingInterface {
 				default -> "Unknown";
 			};
 			logger.log(String.format("Recieved packet of type 0x%02X (Type %s)", packet.type, pType), LogLevel.VERBOSE);
+			logger.log(""+packet.length, LogLevel.EXTREME);
+			logger.log(packet.data, LogLevel.EXTREME);
 		}
 		
 		// Bottom packets start with 90 01

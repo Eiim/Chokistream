@@ -8,6 +8,8 @@ import chokistream.props.DSScreen;
 import chokistream.props.DSScreenBoth;
 import chokistream.props.InterpolationMode;
 import chokistream.props.Layout;
+import chokistream.props.LogLevel;
+import chokistream.props.LogMode;
 import chokistream.props.Mod;
 import chokistream.props.Prop;
 import chokistream.props.VideoFormat;
@@ -27,6 +29,12 @@ public class Main {
 		List<String> argsAL = Arrays.asList(args);
 		if(argsAL.contains("--console") || argsAL.contains("-c")) {
 			SettingsUI ui = new ConfigFileCLI();
+			
+			LogLevel level = ui.getPropEnum(Prop.LOGLEVEL, LogLevel.class);
+			LogMode mode = ui.getPropEnum(Prop.LOGMODE, LogMode.class);
+			String logFile = ui.getPropString(Prop.LOGFILE);
+	    	Logger.INSTANCE.init(mode, level, logFile);
+			
 			Mod mod;
 	    	String ip;
 	    	Layout layout;
