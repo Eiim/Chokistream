@@ -535,10 +535,12 @@ public class ModFocusedGUI extends SettingsUI {
 			setValueDefault(parser, Prop.VIDEOCODEC, videoCodec);
 			
 			setTextDefault(parser, Prop.QUALITY, qualityHz);
+			tgaHz.setSelected(qualityHz.getText().equals("0"));
 			setTextDefault(parser, Prop.CPUCAP, cpuCapHz);
 			setValueDefault(parser, Prop.REQSCREEN, reqScreenHz);
 			
 			setTextDefault(parser, Prop.QUALITY, qualityCHM);
+			tgaCHM.setSelected(qualityCHM.getText().equals("0"));
 			setTextDefault(parser, Prop.CPUCAP, cpuCapCHM);
 			setValueDefault(parser, Prop.REQSCREEN, reqScreenCHM);
 			
