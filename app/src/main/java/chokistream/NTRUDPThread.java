@@ -78,6 +78,7 @@ public class NTRUDPThread extends Thread {
 	}
 	
 	public void close() {
+		shouldDie.set(true);
 		socket.close();
 	}
 
@@ -162,8 +163,7 @@ public class NTRUDPThread extends Thread {
                     secondaryExpectedPacket = 0;
 				}
 			} catch (IOException e) {
-				shouldDie.set(true);
-				socket.close();
+				close();
 				e.printStackTrace();
 			}
 		}

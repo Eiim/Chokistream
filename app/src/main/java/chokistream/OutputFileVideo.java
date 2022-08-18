@@ -19,6 +19,7 @@ public class OutputFileVideo extends VideoOutputInterface {
 	private long startNanos;
 	private long prevNanos;
 	private static final Logger logger = Logger.INSTANCE;
+	private boolean done;
 	
 	public OutputFileVideo(StreamingInterface client, Layout layout, String file, VideoFormat vf) {
 		super(client);
@@ -37,6 +38,7 @@ public class OutputFileVideo extends VideoOutputInterface {
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			public void run() {
 				logger.log("Shutting down");
+				done = true;
 				kill();
 			}
 	    });
@@ -45,25 +47,28 @@ public class OutputFileVideo extends VideoOutputInterface {
 	}
 	
 	public void renderFrame(Frame f) {
-		if(f.screen == DSScreen.TOP) {
-			long newNanos = System.nanoTime();
-			int frames = (int) (Math.round(newNanos-prevNanos)/16666667f);
-			//logger.log(""+frames);
-			prevNanos += ((long)frames * 16666667l); // Nanos of the frame boundary
-			try {
-				enc.encodeNativeFrame(AWTUtil.fromBufferedImageRGB(f.image));
-			} catch (IOException e) {
-				displayError(e);
+		if(!done) {
+			if(f.screen == DSScreen.TOP) {
+				long newNanos = System.nanoTime();
+				int frames = (int) (Math.round(newNanos-prevNanos)/16666667f);
+				prevNanos += ((long)frames * 16666667l); // Nanos of the frame boundary
+				try {
+					for(int i = 0; i < frames; i++) {
+						enc.encodeNativeFrame(AWTUtil.fromBufferedImageRGB(f.image));
+					}
+				} catch (IOException e) {
+					displayError(e);
+				}
 			}
 		}
 	}
 	
 	public void kill() {
 		try {
-			// Close connection to 3DS
-			client.close();
 			// Stop processing frames
 			networkThread.stopRunning();
+			// Close connection to 3DS
+			client.close();
 			// Finish up video output
 			enc.finish();
 		} catch (IOException e) {
@@ -72,6 +77,6 @@ public class OutputFileVideo extends VideoOutputInterface {
 	}
 	
 	public void displayError(Exception e) {
-		logger.logOnce(e.getClass()+"\n"+Arrays.toString(e.getStackTrace()));
+		logger.logOnce(e.getClass()+": "+e.getMessage()+"\n"+Arrays.toString(e.getStackTrace()));
 	}
 }
