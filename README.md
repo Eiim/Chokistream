@@ -19,28 +19,12 @@ Plus even more planned:
 
 Currently under active development by [Eiim](https://github.com/Eiim), [herronjo](https://github.com/herronjo), and [ChainSwordCS](https://github.com/ChainSwordCS).
 
+# Getting Started
+
+See the [Using Chokistream](https://github.com/Eiim/Chokistream/wiki/Using-Chokistream) wiki page.
+
 # Build Instructions
 
 Written in Java 17 with Gradle 7.5, requires Java 17 to be installed :)
 
 No other requirements. Run `gradlew build` in Windows Command Prompt or `./gradlew build` in a Unix terminal.
-
-# HzMod Support Chart
-
-| HzMod Version | Chokistream | Snickerstream | HorizonScreen 2017-05 | HorizonScreen 2017-12 | HorizonScreen 2018 |
-|---|---|---|---|---|---|
-| 2020-06-06 | 🖼️ | ⚠️ | ⚠️³ | ❌¹ | ✔️ |
-| 2019-06-11 | 🖼️ | ⚠️ | ⚠️³ | ❌ | ✔️ |
-| 2018-02-08 | 🖼️  | ⚠️ | ⚠️³ | ❌ | ✔️ |
-| 2018-02-04 | 🖼️  | ⚠️ | ⚠️³ | ❌ | ✔️ |
-| 2017-12-14 (very weird) | ❌ | ❌ | ❌ | ✔️ | ❌ |
-| 2017-08-14 (No TGA²) | ✔️ | ✔️ | ✔️ | ❌ | ✔️ |
-| 2017-05-05 (Dual-Screen) | ⚠️ | ❌ | ⚠️³ | ❌ | ✔️ |
-
-- ✔️: Fully functional
-- 🖼️: Partial TGA support
-- ⚠️: No TGA support
-- ❌: No support
-- ¹: PC-side crash on connection
-- ²: This version causes a DS-side crash when requesting TGA
-- ³: HorizonScreen 2017-05 cannot, to the best of my knowledge, request TGA
