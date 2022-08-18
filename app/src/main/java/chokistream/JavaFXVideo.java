@@ -18,7 +18,6 @@ import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyCode;
@@ -151,6 +150,30 @@ public class JavaFXVideo extends VideoOutputInterface {
 						logger.log("Took a screenshot!");
 					} catch (IOException e1) {
 						displayError(e1);
+					}
+				} else if(e.getCode() == KeyCode.UP) {
+					if(client instanceof HZModClient) {
+						HZModClient c2 = HZModClient.class.cast(client);
+						if(c2.quality < 100) {
+							c2.quality++;
+							try {
+								c2.sendQuality(c2.quality);
+							} catch (IOException e1) {
+								displayError(e1);
+							}
+						}
+					}
+				} else if(e.getCode() == KeyCode.DOWN) {
+					if(client instanceof HZModClient) {
+						HZModClient c2 = HZModClient.class.cast(client);
+						if(c2.quality > 0) {
+							c2.quality--;
+							try {
+								c2.sendQuality(c2.quality);
+							} catch (IOException e1) {
+								displayError(e1);
+							}
+						}
 					}
 				}
 			});

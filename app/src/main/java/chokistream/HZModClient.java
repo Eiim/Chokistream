@@ -31,6 +31,7 @@ public class HZModClient implements StreamingInterface {
 	private double topScale;
 	private double bottomScale;
 	private InterpolationMode intrp;
+	public int quality;
 	
 	private static final Logger logger = Logger.INSTANCE;
 
@@ -53,6 +54,7 @@ public class HZModClient implements StreamingInterface {
 		this.topScale = topScale;
 		this.bottomScale = bottomScale;
 		this.intrp = intrp;
+		this.quality = quality;
 		
 		// I believe these values are correct based on the HorizonScreen source code
 		byte screenByte = switch(reqScreen) {
@@ -62,17 +64,27 @@ public class HZModClient implements StreamingInterface {
 		};
 		
 		if (capCPU > 0) {
-			// Creates the limit CPU packet to the 3DS
-			byte[] limitCPUPacket = new byte[9];
-			limitCPUPacket[0] = 0x7E;
-			limitCPUPacket[1] = 0x05;
-			limitCPUPacket[4] = (byte) 0xFF;
-			limitCPUPacket[8] = (byte) capCPU;
-			logger.log("Sending limit CPU packet", LogLevel.EXTREME);
-			logger.log(limitCPUPacket, LogLevel.EXTREME);
-			out.write(limitCPUPacket);
+			sendLimitCPU(capCPU);
 		}
 		
+		sendQuality(quality);
+		
+		sendInit(screenByte);
+	}
+	
+	public void sendLimitCPU(int limitCPU) throws IOException {
+		// Creates the limit CPU packet to the 3DS
+		byte[] limitCPUPacket = new byte[9];
+		limitCPUPacket[0] = 0x7E;
+		limitCPUPacket[1] = 0x05;
+		limitCPUPacket[4] = (byte) 0xFF;
+		limitCPUPacket[8] = (byte) limitCPU;
+		logger.log("Sending limit CPU packet", LogLevel.EXTREME);
+		logger.log(limitCPUPacket, LogLevel.EXTREME);
+		out.write(limitCPUPacket);
+	}
+	
+	public void sendQuality(int quality) throws IOException {
 		// Creates the quality packet to the 3DS
 		byte[] qualityPacket = new byte[9];
 		qualityPacket[0] = 0x7E;
@@ -82,16 +94,23 @@ public class HZModClient implements StreamingInterface {
 		logger.log("Sending quality packet", LogLevel.EXTREME);
 		logger.log(qualityPacket, LogLevel.EXTREME);
 		out.write(qualityPacket);
-		
+	}
+	
+	/**
+	 * You shouldn't really ever need to call this outside of the constructor, but
+	 * you can in case you really want to.
+	 * @param screen 0x01*top | 0x02*bottom (Really, just send 1, or maybe sometimes 3)
+	 * @throws IOException
+	 */
+	public void sendInit(byte screen) throws IOException {
 		// Creates the initialization packet to the 3DS
 		byte[] initializationPacket = new byte[9];
 		initializationPacket[0] = 0x7E;
 		initializationPacket[1] = 0x05;
-		initializationPacket[8] = screenByte;
+		initializationPacket[8] = screen;
 		logger.log("Sending initialization packet", LogLevel.EXTREME);
 		logger.log(initializationPacket, LogLevel.EXTREME);
 		out.write(initializationPacket);
-		
 	}
 
 	@Override
