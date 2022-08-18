@@ -20,7 +20,7 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
         
     runs-on:
-      matrix.os
+      ${{matrix.os}}
     
     permissions:
       contents: read
