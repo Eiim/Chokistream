@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 
@@ -128,7 +129,11 @@ public class HZModClient implements StreamingInterface {
 	private Packet getPacket() throws IOException {
 		Packet returnPacket = new Packet();
 		
-		returnPacket.type = (byte) in.read();
+		int type = in.read();
+		if(type == -1) {
+			throw new SocketException("HzMod socket closed");
+		}
+		returnPacket.type = (byte) type;
 		returnPacket.length = in.read() + (in.read() << 8) + (in.read() << 16);
 		returnPacket.data = in.readNBytes(returnPacket.length);
 		
