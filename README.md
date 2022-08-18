@@ -13,11 +13,12 @@ Notable features:
  * Dual-Screen HzMod support for version 2017-05-05 (one of two dual-screen versions)
 
 Plus even more planned:
- * Update HzMod settings mid-stream
  * NFC patching for NTR using various patch types (a single patch is currently implemented)
+ * Better controls and control options
+ * More HzMod TGA support
  * Various other minor improvements coming nearly daily during active development
 
-Currently under active development by [Eiim](https://github.com/Eiim), [herronjo](https://github.com/herronjo), and [ChainSwordCS](https://github.com/ChainSwordCS).
+Currently under active development by [Eiim](https://github.com/Eiim). Previously developed by [herronjo](https://github.com/herronjo) and [ChainSwordCS](https://github.com/ChainSwordCS).
 
 # Getting Started
 
@@ -27,4 +28,4 @@ See the [Using Chokistream](https://github.com/Eiim/Chokistream/wiki/Using-Choki
 
 Written in Java 17 with Gradle 7.5, requires Java 17 to be installed :)
 
-No other requirements. Run `gradlew build` in Windows Command Prompt or `./gradlew build` in a Unix terminal.
+No other requirements. Run `gradlew build` in Windows Command Prompt or `./gradlew build` in a Unix terminal. The jar is built to `app/build/libs/chokistream.jar`.
