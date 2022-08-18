@@ -1,7 +1,6 @@
 package chokistream;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import chokistream.INIParser.IniParseException;
@@ -554,7 +553,7 @@ public class ModFocusedGUI extends SettingsUI {
 			setValueDefault(parser, Prop.PRIORITYSCREEN, priScreen);
 			setTextDefault(parser, Prop.PRIORITYFACTOR, priFac);
 			setTextDefault(parser, Prop.QOS, qos);
-		} catch (FileNotFoundException | IniParseException e) {
+		} catch (IOException | IniParseException e) {
 			displayError(e);
 		}
 	}

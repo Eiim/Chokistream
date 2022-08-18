@@ -18,9 +18,15 @@ public class INIParser {
 	private File file;
 	private int totalLines;
 	
-	public INIParser(File f) throws FileNotFoundException, IniParseException {
+	public INIParser(File f) throws IOException, IniParseException {
 		file = f;
-		Scanner s = new Scanner(file);
+		Scanner s;
+		try {
+			s = new Scanner(file);
+		} catch(FileNotFoundException e) {
+			file.createNewFile();
+			s = new Scanner(file);
+		}
 		int lineNum = 0;
 		while(s.hasNextLine()) {
 			String line = s.nextLine().trim();

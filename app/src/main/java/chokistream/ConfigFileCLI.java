@@ -1,7 +1,6 @@
 package chokistream;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import chokistream.INIParser.IniParseException;
@@ -22,7 +21,7 @@ public class ConfigFileCLI extends SettingsUI {
 		}
 		try {
 			parser = new INIParser(f);
-		} catch (FileNotFoundException | IniParseException e) {
+		} catch (IOException | IniParseException e) {
 			System.out.println("Failed to set up INI parser");
 		}
 	}

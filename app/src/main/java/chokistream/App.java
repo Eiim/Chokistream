@@ -1,7 +1,7 @@
 package chokistream;
 
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 
 import chokistream.INIParser.IniParseException;
 import chokistream.props.ColorMode;
@@ -66,12 +66,13 @@ public class App extends Application {
     	String logFile = "chokistream.log";
     	try {
 			INIParser parser = new INIParser(new File("chokistream.ini"));
-			level = EnumProp.fromLongName(LogLevel.class, parser.getProperty(Prop.LOGLEVEL.getShortName()));
-			mode = EnumProp.fromLongName(LogMode.class, parser.getProperty(Prop.LOGMODE.getShortName()));
+			String ll = parser.getProp(Prop.LOGLEVEL);
+			level = EnumProp.fromLongName(LogLevel.class, ll.equals("") ? Prop.LOGLEVEL.getDefault().getLongName() : ll);
+			String lm = parser.getProp(Prop.LOGMODE);
+			mode = EnumProp.fromLongName(LogMode.class, lm.equals("") ? Prop.LOGMODE.getDefault().getLongName() : lm);
 			logFile = parser.getProperty(Prop.LOGFILE.getShortName());
-		} catch (FileNotFoundException | IniParseException e) {
+		} catch (IOException | IniParseException e) {
 			System.out.println("No config found or config was unreadable");
-			System.out.println("This is expected on first launch");
 		}
     	logger.init(mode, level, logFile);
     	
