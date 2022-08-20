@@ -68,7 +68,7 @@ publishing {
 			name = "GitHubPackages"
 			url = "https://maven.pkg.github.com/Eiim/Chokistream"
 			credentials {
-				username = ${{ secrets.GITHUB_ACTOR }}
+				username = System.getenv("GITHUB_ACTOR")
 				password = ${{ secrets.GITHUB_TOKEN }}
 			}
 		}
