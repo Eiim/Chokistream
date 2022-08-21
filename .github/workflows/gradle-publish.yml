@@ -45,8 +45,11 @@ jobs:
     # the publishing section of your build.gradle
     - name: Publish to GitHub Packages
       uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
+      uses: actions/upload-artifact@v2
       with:
         arguments: publish
       env:
         GITHUB_ACTOR: ${{ github.actor }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_OS: ${{ matrix.os }}
+        GITHUB_VER: ${{ github.ref_name }}
