@@ -61,7 +61,7 @@ publishing {
 	publications {
 		mavenJava(MavenPublication) {
 			groupId = 'chokistream'
-			artifactId = 'Chokistream'
+			artifactId = 'chokistream'
 			version = System.getenv("GITHUB_VER")+'-'+System.getenv("GITHUB_OS")
 			
 			from components.java
