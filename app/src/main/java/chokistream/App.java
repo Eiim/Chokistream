@@ -141,7 +141,7 @@ public class App extends Application {
     	
     	switch(outForm) {
     		case VISUAL:
-    			output = new JavaFXVideo(client, layout, dpi, topScale, bottomScale, intrp);
+    			output = new JavaFXVideo(this, client, layout, dpi, topScale, bottomScale, intrp);
     			break;
     		case FILE:
     			String fileName = ui.getPropString(Prop.VIDEOFILE);
@@ -150,6 +150,10 @@ public class App extends Application {
     	}
     	
     	stage.close();
+    }
+    
+    public void reopen() {
+    	stage.show();
     }
 
 }

@@ -49,7 +49,7 @@ public class JavaFXVideo extends VideoOutputInterface {
 	 * @param client	The HzModClient or NTRClient to get frames from
 	 * @param layout	The output layout configuration setting
 	 */
-	public JavaFXVideo(StreamingInterface client, Layout layout, int dpi, double topScale, double bottomScale, InterpolationMode intrp) {
+	public JavaFXVideo(App app, StreamingInterface client, Layout layout, int dpi, double topScale, double bottomScale, InterpolationMode intrp) {
 		super(client);
 		
 		logger.log("Starting JFX Video", LogLevel.VERBOSE);
@@ -175,6 +175,9 @@ public class JavaFXVideo extends VideoOutputInterface {
 							}
 						}
 					}
+				} else if(e.getCode() == KeyCode.BACK_SPACE) {
+					kill();
+					app.reopen();
 				}
 			});
 			// Set black background
@@ -231,7 +234,8 @@ public class JavaFXVideo extends VideoOutputInterface {
 	 * and the client itself.
 	 */
 	public void kill() {
-		networkThread.interrupt();
+		fpsTimer.cancel();
+		networkThread.stopRunning();
 		try {
 			client.close();
 		} catch (IOException e) {
@@ -249,14 +253,18 @@ public class JavaFXVideo extends VideoOutputInterface {
 	 */
 	@Override
 	public void displayError(Exception e) {
-		Stage popup = new Stage();
-		popup.initModality(Modality.APPLICATION_MODAL);
-		Label message = new Label(e.getClass().getSimpleName()+": "+e.getMessage());
-		message.setPadding(new Insets(7));
-		Scene scene = new Scene(message);
-		popup.setScene(scene);
-		popup.setTitle("Error");
-		popup.show();
+		e.printStackTrace();
+		// Ensure that we're on the right thread
+		Platform.runLater(() -> {
+			Stage popup = new Stage();
+			popup.initModality(Modality.APPLICATION_MODAL);
+			Label message = new Label(e.getClass().getSimpleName()+": "+e.getMessage());
+			message.setPadding(new Insets(7));
+			Scene scene = new Scene(message);
+			popup.setScene(scene);
+			popup.setTitle("Error");
+			popup.show();
+		});
 	}
 	
 	private void setupSeparate() {

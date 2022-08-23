@@ -1,6 +1,7 @@
 package chokistream;
 
 import java.io.IOException;
+import java.net.SocketException;
 
 public class NetworkThread extends Thread {
 	
@@ -19,10 +20,15 @@ public class NetworkThread extends Thread {
 				if(active) {
 					output.renderFrame(f);
 				}
+			} catch(IOException e) {
+				if(e instanceof SocketException && e.getMessage().equals("Socket closed")) {
+					// Expected, just return peacefully
+					return;
+				}
+				output.displayError(e);
 			} catch(InterruptedException e) {
 				output.displayError(e);
-			} catch(IOException e) {
-				output.displayError(e);
+				return;
 			}
 		}
 	}
