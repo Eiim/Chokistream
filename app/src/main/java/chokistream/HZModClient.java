@@ -33,6 +33,8 @@ public class HZModClient implements StreamingInterface {
 	private double bottomScale;
 	private InterpolationMode intrp;
 	public int quality;
+	private TGAPixelFormat topFormat = TGAPixelFormat.BITS_24;
+	private TGAPixelFormat bottomFormat = TGAPixelFormat.BITS_24;
 	
 	private static final Logger logger = Logger.INSTANCE;
 
@@ -159,6 +161,14 @@ public class HZModClient implements StreamingInterface {
 			logger.log(String.format("Recieved packet of type 0x%02X (Type %s)", packet.type, pType), LogLevel.VERBOSE);
 			logger.log(""+packet.length, LogLevel.EXTREME);
 			logger.log(packet.data, LogLevel.EXTREME);
+			
+			// If we get a Set Mode packet, we need to update our pixel format
+			if(packet.type == 0x02) {
+				topFormat = TGAPixelFormat.fromInt(packet.data[0] & 0x07);
+				bottomFormat = TGAPixelFormat.fromInt(packet.data[2] & 0x07);
+				logger.log("Set top TGA pixel format to "+topFormat, LogLevel.VERBOSE);
+				logger.log("Set bottom TGA pixel format to "+bottomFormat, LogLevel.VERBOSE);
+			}
 		}
 		
 		// Bottom packets start with 90 01
@@ -177,7 +187,7 @@ public class HZModClient implements StreamingInterface {
 			// For some reason the red and blue channels are swapped. Fix it.
 			image = ColorHotfix.doColorHotfix(image, colorMode, true);
 		} else if (packet.type == targaPacket) {
-			image = TargaParser.parseBytes(data, screen);
+			image = TargaParser.parseBytes(data, screen, screen == DSScreen.BOTTOM ? bottomFormat : topFormat);
 			image = ColorHotfix.doColorHotfix(image, colorMode, false);
 		}
 		
