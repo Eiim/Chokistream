@@ -16,9 +16,8 @@ Plus even more planned:
  * NFC patching for NTR using various patch types (a single patch is currently implemented)
  * Better controls and control options
  * More HzMod TGA support
- * Various other minor improvements coming nearly daily during active development
 
-Currently under active development by [Eiim](https://github.com/Eiim). Previously developed by [herronjo](https://github.com/herronjo) and [ChainSwordCS](https://github.com/ChainSwordCS).
+Currently under development by [Eiim](https://github.com/Eiim). Previously developed by [herronjo](https://github.com/herronjo) and [ChainSwordCS](https://github.com/ChainSwordCS).
 
 # Getting Started
 
