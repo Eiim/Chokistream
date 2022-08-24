@@ -133,7 +133,7 @@ public class HZModClient implements StreamingInterface {
 		
 		int type = in.read();
 		if(type == -1) {
-			throw new SocketException("HzMod socket closed");
+			throw new SocketException("Socket closed");
 		}
 		returnPacket.type = (byte) type;
 		returnPacket.length = in.read() + (in.read() << 8) + (in.read() << 16);
@@ -168,6 +168,10 @@ public class HZModClient implements StreamingInterface {
 				bottomFormat = TGAPixelFormat.fromInt(packet.data[2] & 0x07);
 				logger.log("Set top TGA pixel format to "+topFormat, LogLevel.VERBOSE);
 				logger.log("Set bottom TGA pixel format to "+bottomFormat, LogLevel.VERBOSE);
+			} else if(packet.type == 0x01) {
+				// Might at a well respect disconnect packets
+				logger.log("Recieved disconnect packet, closing");
+				close();
 			}
 		}
 		

@@ -22,7 +22,8 @@ public class NetworkThread extends Thread {
 				}
 			} catch(IOException e) {
 				if(e instanceof SocketException && e.getMessage().equals("Socket closed")) {
-					// Expected, just return peacefully
+					// Sometimes expected, make note of it but just return peacefully
+					Logger.INSTANCE.log("Socket closed, stopping");
 					return;
 				}
 				output.displayError(e);
