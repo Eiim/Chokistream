@@ -21,7 +21,7 @@ public class NetworkThread extends Thread {
 					output.renderFrame(f);
 				}
 			} catch(IOException e) {
-				if(e instanceof SocketException && e.getMessage().equals("Socket closed")) {
+				if(e instanceof SocketException) {
 					// Sometimes expected, make note of it but just return peacefully
 					Logger.INSTANCE.log("Socket closed, stopping");
 					return;
