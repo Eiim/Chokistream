@@ -20,7 +20,7 @@ import chokistream.props.LogLevel;
 /**
  * 
  */
-public class HZModClient implements StreamingInterface {
+public class CHokiModClient implements StreamingInterface {
 	
 	private final byte targaPacket = 0x03;
 	private final byte jpegPacket = 0x04;
@@ -45,7 +45,7 @@ public class HZModClient implements StreamingInterface {
 	 * @param capCPU Cap CPU cycles.
 	 * @param colorMode The color filter (option to enable hotfixColors).
 	 */
-	public HZModClient(String host, int quality, int capCPU, ColorMode receivedColorMode, int port, DSScreenBoth reqScreen,
+	public CHokiModClient(String host, int quality, int capCPU, ColorMode receivedColorMode, int port, DSScreenBoth reqScreen,
 			double topScale, double bottomScale, InterpolationMode intrp) throws UnknownHostException, IOException {
 		// Connect to TCP port and set up client
 		client = new Socket(host, port);
@@ -59,7 +59,7 @@ public class HZModClient implements StreamingInterface {
 		this.intrp = intrp;
 		this.quality = quality;
 		
-		// This is probably actually supported now but needs confirmation
+		// I believe these values are correct based on the HorizonScreen source code
 		byte screenByte = switch(reqScreen) {
 			case TOP -> 0x01;
 			case BOTTOM -> 0x02;

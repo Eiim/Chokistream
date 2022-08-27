@@ -119,12 +119,24 @@ public class App extends Application {
 	    			ColorMode colorMode = ui.getPropEnum(Prop.COLORMODE, ColorMode.class);
 	    			
 	    			// Initializes connection
-	    			client = new NTRClient(ip, quality, screen, priority, qos, colorMode, port, topScale, bottomScale, intrp	);
+	    			client = new NTRClient(ip, quality, screen, priority, qos, colorMode, port, topScale, bottomScale, intrp);
 				} catch (Exception e) {
 					ui.displayError(e);
 				}
 				break;
     		case CHOKIMOD:
+    			try {
+    				int quality = ui.getPropInt(Prop.QUALITY);
+    				int capCpu = ui.getPropInt(Prop.CPUCAP);
+    				ColorMode colorMode = ui.getPropEnum(Prop.COLORMODE, ColorMode.class);
+    				DSScreenBoth reqScreen = ui.getPropEnum(Prop.REQSCREEN, DSScreenBoth.class);
+    				
+    				// Initializes connection
+    				client = new CHokiModClient(ip, quality, capCpu, colorMode, port, reqScreen, topScale, bottomScale, intrp);
+    			} catch (Exception e) {
+    				ui.displayError(e);
+    			}
+    			break;
     		case HZMOD:
     			try {
     				int quality = ui.getPropInt(Prop.QUALITY);

@@ -128,7 +128,7 @@ public class ColorHotfix {
 			return hotfixImage;
 		} catch (NullPointerException e) {
 			e.printStackTrace();
-			return new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
+			return new BufferedImage(400, 240, BufferedImage.TYPE_INT_RGB);
 		}
 	}
 	
