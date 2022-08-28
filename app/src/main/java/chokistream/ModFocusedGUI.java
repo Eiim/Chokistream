@@ -2,6 +2,8 @@ package chokistream;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 import chokistream.INIParser.IniParseException;
 import chokistream.props.ColorMode;
@@ -580,7 +582,9 @@ public class ModFocusedGUI extends SettingsUI {
 	public void displayError(Exception e) {
 		Stage popup = new Stage();
 		popup.initModality(Modality.APPLICATION_MODAL);
-		Label message = new Label(e.getClass().getSimpleName()+": "+e.getMessage());
+		StringWriter sw = new StringWriter();
+		e.printStackTrace(new PrintWriter(sw));
+		Label message = new Label(sw.toString());
 		message.setPadding(new Insets(7));
 		Scene scene = new Scene(message);
 		popup.setScene(scene);

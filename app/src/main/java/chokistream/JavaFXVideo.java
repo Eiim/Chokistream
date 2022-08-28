@@ -263,7 +263,7 @@ public class JavaFXVideo extends VideoOutputInterface {
 			
 			StringWriter sw = new StringWriter();
 			e.printStackTrace(new PrintWriter(sw));
-			Label message = new Label(e.getClass().getSimpleName()+": "+sw.toString());
+			Label message = new Label(sw.toString());
 			message.setPadding(new Insets(7));
 			Scene scene = new Scene(message);
 			popup.setScene(scene);

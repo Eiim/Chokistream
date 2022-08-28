@@ -26,7 +26,7 @@ public class SettingsUI {
 		return p.getDefault();
 	}
 	
-	// Generic popup
+	// Sub-classes may or may not want to override
 	public void displayError(Exception e) {
 		Logger.INSTANCE.log(e.getClass().getSimpleName()+": "+e.getMessage());
 	}
