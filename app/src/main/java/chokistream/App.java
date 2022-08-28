@@ -142,10 +142,9 @@ public class App extends Application {
     				int quality = ui.getPropInt(Prop.QUALITY);
     				int capCpu = ui.getPropInt(Prop.CPUCAP);
     				ColorMode colorMode = ui.getPropEnum(Prop.COLORMODE, ColorMode.class);
-    				DSScreenBoth reqScreen = ui.getPropEnum(Prop.REQSCREEN, DSScreenBoth.class);
     				
     				// Initializes connection
-    				client = new HZModClient(ip, quality, capCpu, colorMode, port, reqScreen, topScale, bottomScale, intrp);
+    				client = new HZModClient(ip, quality, capCpu, colorMode, port, topScale, bottomScale, intrp);
     			} catch (Exception e) {
     				ui.displayError(e);
     			}

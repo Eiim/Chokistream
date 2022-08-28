@@ -91,10 +91,9 @@ public class Main {
 	    				int quality = ui.getPropInt(Prop.QUALITY);
 	    				int capCpu = ui.getPropInt(Prop.CPUCAP);
 	    				ColorMode colorMode = ui.getPropEnum(Prop.COLORMODE, ColorMode.class);
-	    				DSScreenBoth reqScreen = ui.getPropEnum(Prop.REQSCREEN, DSScreenBoth.class);
 	    				
 	    				// Initializes connection
-	    				StreamingInterface client = new HZModClient(ip, quality, capCpu, colorMode, port, reqScreen, topScale, bottomScale, intrp);
+	    				StreamingInterface client = new HZModClient(ip, quality, capCpu, colorMode, port, topScale, bottomScale, intrp);
 	    				String fileName = ui.getPropString(Prop.VIDEOFILE);
 	        			VideoFormat vf = ui.getPropEnum(Prop.VIDEOCODEC, VideoFormat.class);
 	        			new OutputFileVideo(client, layout, fileName+"."+vf.getExtension(), vf);

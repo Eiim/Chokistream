@@ -45,7 +45,7 @@ public class HZModClient implements StreamingInterface {
 	 * @param capCPU Cap CPU cycles.
 	 * @param colorMode The color filter (option to enable hotfixColors).
 	 */
-	public HZModClient(String host, int quality, int capCPU, ColorMode receivedColorMode, int port, DSScreenBoth reqScreen,
+	public HZModClient(String host, int quality, int capCPU, ColorMode receivedColorMode, int port,
 			double topScale, double bottomScale, InterpolationMode intrp) throws UnknownHostException, IOException {
 		// Connect to TCP port and set up client
 		client = new Socket(host, port);
@@ -59,20 +59,13 @@ public class HZModClient implements StreamingInterface {
 		this.intrp = intrp;
 		this.quality = quality;
 		
-		// This is probably actually supported now but needs confirmation
-		byte screenByte = switch(reqScreen) {
-			case TOP -> 0x01;
-			case BOTTOM -> 0x02;
-			case BOTH -> 0x03;
-		};
-		
 		if (capCPU > 0) {
 			sendLimitCPU(capCPU);
 		}
 		
 		sendQuality(quality);
 		
-		sendInit(screenByte);
+		sendInit((byte)0x01);
 	}
 	
 	public void sendLimitCPU(int limitCPU) throws IOException {

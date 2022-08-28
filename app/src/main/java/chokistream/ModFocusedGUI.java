@@ -70,7 +70,6 @@ public class ModFocusedGUI extends SettingsUI {
 	// Mod settings
 	private TextField qualityHz;
 	private TextField cpuCapHz;
-	private ChoiceBox<String> reqScreenHz;
 	private CheckBox tgaHz;
 	private Button applyHz;
 	
@@ -243,8 +242,6 @@ public class ModFocusedGUI extends SettingsUI {
 		qualityHz.setTextFormatter(new TextFormatter<>(new IntegerStringConverter()));
 		cpuCapHz = new TextField();
 		cpuCapHz.setTextFormatter(new TextFormatter<>(new IntegerStringConverter()));
-		reqScreenHz = new ChoiceBox<>();
-		reqScreenHz.getItems().addAll(getEnumNames(DSScreenBoth.class));
 		tgaHz = new CheckBox();
 		tgaHz.setOnAction((e) -> {
 			qualityHz.setText(tgaHz.isSelected() ? "0" : ""+Prop.QUALITY.getDefault());
@@ -408,19 +405,15 @@ public class ModFocusedGUI extends SettingsUI {
 		Label cpuCapHzLab = new Label(Prop.CPUCAP.getLongName());
 		cpuCapHzLab.relocate(14, 99);
 		cpuCapHz.relocate(150, 95);
-		Label reqScreenHzLab = new Label(Prop.REQSCREEN.getLongName());
-		reqScreenHzLab.relocate(14, 129);
-		reqScreenHz.relocate(149, 125);
-		reqScreenHz.setPrefWidth(150);
 		applyHz = new Button("Apply");
-		applyHz.relocate(14, 155);
+		applyHz.relocate(14, 125);
 		applyHz.setPrefWidth(285);
 		Text t = new Text("HzMod Settings");
 		t.relocate(14, 14);
 		t.setFont(new Font(16));
 		
-		Pane pane = new Pane(t, qualityHzLab, qualityHz, tgaHzLab, tgaHz, cpuCapHzLab, cpuCapHz, reqScreenHzLab, reqScreenHz, applyHz);
-		Scene sc = new Scene(pane, 312, 190);
+		Pane pane = new Pane(t, qualityHzLab, qualityHz, tgaHzLab, tgaHz, cpuCapHzLab, cpuCapHz, applyHz);
+		Scene sc = new Scene(pane, 312, 160);
 		Stage st = new Stage();
 		st.setScene(sc);
 		st.setResizable(false);
@@ -544,7 +537,6 @@ public class ModFocusedGUI extends SettingsUI {
 			setTextDefault(parser, Prop.QUALITY, qualityHz);
 			tgaHz.setSelected(qualityHz.getText().equals("0"));
 			setTextDefault(parser, Prop.CPUCAP, cpuCapHz);
-			setValueDefault(parser, Prop.REQSCREEN, reqScreenHz);
 			
 			setTextDefault(parser, Prop.QUALITY, qualityCHM);
 			tgaCHM.setSelected(qualityCHM.getText().equals("0"));
@@ -651,7 +643,7 @@ public class ModFocusedGUI extends SettingsUI {
 		} else if(p.equals(Prop.REQSCREEN)) {
 			return switch(EnumProp.fromLongName(Mod.class, mod.getValue())) {
 				case NTR -> p.getDefault(); // Hopefully never happens
-				case HZMOD -> EnumProp.fromLongName(c, reqScreenHz.getValue());
+				case HZMOD -> p.getDefault(); // Hopefully never happens
 				case CHOKIMOD -> EnumProp.fromLongName(c, reqScreenCHM.getValue());
 			};
 		} else if(p.equals(Prop.COLORMODE)) {
