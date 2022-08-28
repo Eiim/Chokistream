@@ -2,6 +2,8 @@ package chokistream;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -258,7 +260,10 @@ public class JavaFXVideo extends VideoOutputInterface {
 		Platform.runLater(() -> {
 			Stage popup = new Stage();
 			popup.initModality(Modality.APPLICATION_MODAL);
-			Label message = new Label(e.getClass().getSimpleName()+": "+e.getMessage());
+			
+			StringWriter sw = new StringWriter();
+			e.printStackTrace(new PrintWriter(sw));
+			Label message = new Label(e.getClass().getSimpleName()+": "+sw.toString());
 			message.setPadding(new Insets(7));
 			Scene scene = new Scene(message);
 			popup.setScene(scene);
