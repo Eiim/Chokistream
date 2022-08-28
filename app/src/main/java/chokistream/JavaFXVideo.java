@@ -30,8 +30,10 @@ import javafx.scene.transform.Translate;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-public class JavaFXVideo extends VideoOutputInterface {
+public class JavaFXVideo implements VideoOutputInterface {
 	
+	private StreamingInterface client;
+	private NetworkThread networkThread;
 	private ArrayList<Stage> stages = new ArrayList<>();	
 	private ImageView topImageView;
 	private ImageView bottomImageView;
@@ -52,7 +54,9 @@ public class JavaFXVideo extends VideoOutputInterface {
 	 * @param layout	The output layout configuration setting
 	 */
 	public JavaFXVideo(App app, StreamingInterface client, Layout layout, int dpi, double topScale, double bottomScale, InterpolationMode intrp) {
-		super(client);
+		this.client = client;
+		// Maybe move this down?
+		networkThread = new NetworkThread(this.client, this);
 		
 		logger.log("Starting JFX Video", LogLevel.VERBOSE);
 		
@@ -235,6 +239,7 @@ public class JavaFXVideo extends VideoOutputInterface {
 	 * Attempts to kill the output windows, the thread communicating to the client,
 	 * and the client itself.
 	 */
+	@Override
 	public void kill() {
 		fpsTimer.cancel();
 		networkThread.stopRunning();

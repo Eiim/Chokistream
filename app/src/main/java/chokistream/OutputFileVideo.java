@@ -13,8 +13,10 @@ import chokistream.props.DSScreen;
 import chokistream.props.Layout;
 import chokistream.props.VideoFormat;
 
-public class OutputFileVideo extends VideoOutputInterface {
+public class OutputFileVideo implements VideoOutputInterface {
 	
+	private StreamingInterface client;
+	private NetworkThread networkThread;
 	private SequenceEncoder enc;
 	private long startNanos;
 	private long prevNanos;
@@ -22,7 +24,10 @@ public class OutputFileVideo extends VideoOutputInterface {
 	private boolean done;
 	
 	public OutputFileVideo(StreamingInterface client, Layout layout, String file, VideoFormat vf) {
-		super(client);
+		this.client = client;
+		// Maybe move this down?
+		networkThread = new NetworkThread(this.client, this);
+		
 		try {
 			enc = new SequenceEncoder(NIOUtils.writableChannel(new File(file)), 
 					Rational.R1(60), vf.getFormat(), vf.getCodec(), null);
@@ -46,6 +51,7 @@ public class OutputFileVideo extends VideoOutputInterface {
 		logger.log("Starting file capture");
 	}
 	
+	@Override
 	public void renderFrame(Frame f) {
 		if(!done) {
 			if(f.screen == DSScreen.TOP) {
@@ -63,6 +69,7 @@ public class OutputFileVideo extends VideoOutputInterface {
 		}
 	}
 	
+	@Override
 	public void kill() {
 		try {
 			// Stop processing frames

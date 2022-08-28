@@ -30,6 +30,8 @@ public class CHokiModClient implements StreamingInterface {
 	private double bottomScale;
 	private InterpolationMode intrp;
 	public int quality;
+	private BufferedImage lastTopImage;
+	private BufferedImage lastBottomImage;
 	
 	private static final int FORMAT_MASK = 		0b00000111;
 	private static final int TGA_MASK = 		0b00001000;
@@ -59,6 +61,9 @@ public class CHokiModClient implements StreamingInterface {
 		this.bottomScale = bottomScale;
 		this.intrp = intrp;
 		this.quality = quality;
+		
+		lastTopImage = new BufferedImage(400, 240, BufferedImage.TYPE_INT_RGB);
+		lastBottomImage = new BufferedImage(320, 240, BufferedImage.TYPE_INT_RGB);
 		
 		if (capCPU > 0) {
 			sendLimitCPU(capCPU);
@@ -178,11 +183,35 @@ public class CHokiModClient implements StreamingInterface {
 			image = ColorHotfix.doColorHotfix(image, colorMode, false);
 		}
 		
+		// Interlace with last frame, if applicable.
+		if((packet.subtype & INTERLACE_MASK) > 0) {
+			if(screen == DSScreen.TOP) {
+				image = interlace(lastTopImage, image, (packet.subtype & PARITY_MASK)/PARITY_MASK);
+			}  else {
+				image = interlace(lastBottomImage, image, (packet.subtype & PARITY_MASK)/PARITY_MASK);
+			}
+		}
+		if(screen == DSScreen.TOP) {
+			lastTopImage = image;
+		}  else {
+			lastBottomImage = image;
+		}
+		
 		image = Interpolator.scale(image, intrp, screen == DSScreen.BOTTOM ? bottomScale : topScale);
 		
 		returnFrame = new Frame(screen, image);
 		
 		return returnFrame;
+	}
+	
+	private BufferedImage interlace(BufferedImage oldIm, BufferedImage newIm, int parity) {
+		int width = oldIm.getWidth();
+		for(int row = 1; row <= 120; row++) {
+			for(int col = 0; col < width; col++) {
+				oldIm.setRGB(row*2-parity, col, newIm.getRGB(row-1, col));
+			}
+		}
+		return oldIm;
 	}
 	
 	/**

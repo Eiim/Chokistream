@@ -1,53 +1,27 @@
 package chokistream;
 
-import java.io.IOException;
-
 /**
  * A class to extend to provide an output location for a video.
  * Intended to be very agnostic of format, so you could for example write to a file.
  */
-public class VideoOutputInterface {
-	
-	protected StreamingInterface client;
-	protected NetworkThread networkThread;
+public interface VideoOutputInterface {
 	
 	/**
-	 * Instantiates a connection to a client using a NetworkThread. Does not start the connection.
-	 * Sub-classes may find this method useful.
-	 * 
-	 * @param client the client to connect to
-	 */
-	public VideoOutputInterface(StreamingInterface client) {
-		this.client = client;
-		
-		networkThread = new NetworkThread(this.client, this);
-	}
-	
-	/**
-	 * Renders a frame. Sub-classes should override.
+	 * Renders a frame.
 	 * 
 	 * @param frame
 	 */
-	public void renderFrame(Frame frame) {}
+	public void renderFrame(Frame frame);
 	
 	/**
-	 * Displays an error. Sub-classes may want to override.
+	 * Displays an error.
 	 * 
 	 * @param e The exception to display.
 	 */
-	public void displayError(Exception e) {
-		Logger.INSTANCE.log(e.getClass().getSimpleName()+": "+e.getMessage());
-	}
+	public void displayError(Exception e);
 	
 	/**
-	 * Kills the output. Sub-classes may want to override.
+	 * Kills the output.
 	 */
-	public void kill() {
-		networkThread.interrupt();
-		try {
-			client.close();
-		} catch (IOException e) {
-			displayError(e);
-		}
-	}
+	public void kill();
 }
