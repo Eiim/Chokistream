@@ -1,11 +1,11 @@
 package chokistream;
 
 public enum TGAPixelFormat {
-	BITS_32(4),
-	BITS_24(3),
-	BITS_16A(2),
-	BITS_16B(2),
-	BITS_16C(2);
+	RGBA8(4),
+	RGB8(3),
+	RGB565(2),
+	RGB5A1(2),
+	RGBA4(2);
 	
 	public int bytes;
 	
@@ -16,15 +16,15 @@ public enum TGAPixelFormat {
 	public static TGAPixelFormat fromInt(int pf) {
 		switch(pf) {
 			case 0:
-				return BITS_32;
+				return RGBA8;
 			case 2:
-				return BITS_16A;
+				return RGB565;
 			case 3:
-				return BITS_16B;
+				return RGB5A1;
 			case 4:
-				return BITS_16C;
+				return RGBA4;
 			default:
-				return BITS_24;
+				return RGB8;
 		}
 	}
 }

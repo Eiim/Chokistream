@@ -103,6 +103,9 @@ public class Main {
 	    			}
 	    	}
 		} else {
+			if(System.console() == null) {
+				// TODO: make custom console
+			}
 			App.main(args);
 		}
 	}

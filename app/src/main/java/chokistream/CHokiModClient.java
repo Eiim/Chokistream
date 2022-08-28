@@ -152,7 +152,7 @@ public class CHokiModClient implements StreamingInterface {
 				case (byte) 0xFF -> "Debug";
 				default -> "Unknown";
 			};
-			logger.log(String.format("Recieved packet of type 0x%02X (Type %s) and subtype 0x%02X", packet.type, pType, packet.subtype), LogLevel.VERBOSE);
+			logger.log(String.format("Recieved packet of type 0x%02X (%s) and subtype 0x%02X", packet.type, pType, packet.subtype), LogLevel.VERBOSE);
 			logger.log(""+packet.length, LogLevel.EXTREME);
 			logger.log(packet.data, LogLevel.EXTREME);
 			

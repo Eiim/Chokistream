@@ -33,8 +33,8 @@ public class HZModClient implements StreamingInterface {
 	private double bottomScale;
 	private InterpolationMode intrp;
 	public int quality;
-	private TGAPixelFormat topFormat = TGAPixelFormat.BITS_24;
-	private TGAPixelFormat bottomFormat = TGAPixelFormat.BITS_24;
+	private TGAPixelFormat topFormat = TGAPixelFormat.RGB8;
+	private TGAPixelFormat bottomFormat = TGAPixelFormat.RGB8;
 	
 	private static final Logger logger = Logger.INSTANCE;
 

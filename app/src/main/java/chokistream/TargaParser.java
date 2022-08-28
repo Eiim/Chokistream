@@ -83,7 +83,7 @@ public class TargaParser {
 	private static int[] getRGB(int[] bytes, TGAPixelFormat format) {
 		int r=0,g=0,b=0;
 		switch(format) {
-			case BITS_16A:
+			case RGB565:
 				// RRRRRGGG GGGBBBBB
 				r = (bytes[1] & 0b11111000) >>> 3;
 				g = ((bytes[1] & 0b00000111) << 3) | ((bytes[0] & 0b11100000) >>> 5);
@@ -93,7 +93,7 @@ public class TargaParser {
 				g = (g << 2) | (g >>> 4);
 				b = (b << 3) | (b >>> 2);
 				break;
-			case BITS_16B:
+			case RGB5A1:
 				// RRRRRGGG GGBBBBBA
 				r = (bytes[1] & 0b11111000) >>> 3;
 				g = ((bytes[1] & 0b00000111) << 2) | ((bytes[0] & 0b11000000) >>> 6);
@@ -103,7 +103,7 @@ public class TargaParser {
 				g = (g << 3) | (g >>> 2);
 				b = (b << 3) | (b >>> 2);
 				break;
-			case BITS_16C:
+			case RGBA4:
 				// AAAABBBB GGGGRRRR
 				r = bytes[0] & 0b00001111;
 				g = (bytes[0] & 0b11110000) >>> 4;
@@ -113,13 +113,13 @@ public class TargaParser {
 				g = (g << 4) | g;
 				b = (b << 4) | b;
 				break;
-			case BITS_24:
+			case RGB8:
 				// RRRRRRRRR GGGGGGGG BBBBBBBB
 				r = bytes[2];
 				g = bytes[1];
 				b = bytes[0];
 				break;
-			case BITS_32:
+			case RGBA8:
 				// AAAAAAAA BBBBBBBB GGGGGGGG RRRRRRRR
 				r = bytes[0];
 				g = bytes[1];
