@@ -220,14 +220,14 @@ public class CHokiModClient implements StreamingInterface {
 			pack[3] = (byte)(data.length >>> 8);
 			pack[4] = (byte)(data.length >>> 16);
 			pack[5] = (byte)(data.length >>> 24);
-			System.arraycopy(data, 0, pack, 6, data.length);
+			System.arraycopy(data, 0, pack, 5, data.length);
 		}
 		
 		void unpack() {
 			type = pack[0];
 			subtype = pack[1];
 			length = pack[2] + (pack[3] << 8) + (pack[4] << 16) + (pack[4] << 24);
-			data = Arrays.copyOfRange(pack, 6, data.length);
+			data = Arrays.copyOfRange(pack, 5, data.length);
 		}
 	}
 	
