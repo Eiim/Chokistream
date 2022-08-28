@@ -14,7 +14,7 @@ import chokistream.props.DSScreen;
 public class TargaParser {
 	public static BufferedImage parseBytes(byte[] data, DSScreen screen, TGAPixelFormat format) {
 		int width = 240;
-		int height = screen == DSScreen.BOTTOM ? 320 : 400;;
+		int height = screen == DSScreen.BOTTOM ? 320 : 400;
 		BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		
 		int pxnum = 0;

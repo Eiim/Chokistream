@@ -22,9 +22,6 @@ import chokistream.props.LogLevel;
  */
 public class CHokiModClient implements StreamingInterface {
 	
-	private final byte targaPacket = 0x03;
-	private final byte jpegPacket = 0x04;
-	
 	private Socket client = null;
 	private InputStream in = null;
 	private OutputStream out = null;
@@ -33,8 +30,12 @@ public class CHokiModClient implements StreamingInterface {
 	private double bottomScale;
 	private InterpolationMode intrp;
 	public int quality;
-	private TGAPixelFormat topFormat = TGAPixelFormat.BITS_24;
-	private TGAPixelFormat bottomFormat = TGAPixelFormat.BITS_24;
+	
+	private static final int FORMAT_MASK = 		0b00000111;
+	private static final int TGA_MASK = 		0b00001000;
+	private static final int SCREEN_MASK = 		0b00010000;
+	private static final int INTERLACE_MASK = 	0b00100000;
+	private static final int PARITY_MASK = 		0b01000000;
 	
 	private static final Logger logger = Logger.INSTANCE;
 
@@ -59,61 +60,53 @@ public class CHokiModClient implements StreamingInterface {
 		this.intrp = intrp;
 		this.quality = quality;
 		
-		// I believe these values are correct based on the HorizonScreen source code
-		byte screenByte = switch(reqScreen) {
-			case TOP -> 0x01;
-			case BOTTOM -> 0x02;
-			case BOTH -> 0x03;
-		};
-		
 		if (capCPU > 0) {
 			sendLimitCPU(capCPU);
 		}
 		
 		sendQuality(quality);
-		
-		sendInit(screenByte);
+		sendScreen(reqScreen);
+		sendInit();
 	}
 	
 	public void sendLimitCPU(int limitCPU) throws IOException {
 		// Creates the limit CPU packet to the 3DS
-		byte[] limitCPUPacket = new byte[9];
-		limitCPUPacket[0] = 0x7E;
-		limitCPUPacket[1] = 0x05;
-		limitCPUPacket[4] = (byte) 0xFF;
-		limitCPUPacket[8] = (byte) limitCPU;
-		logger.log("Sending limit CPU packet", LogLevel.EXTREME);
-		logger.log(limitCPUPacket, LogLevel.EXTREME);
-		out.write(limitCPUPacket);
+		logger.log("Sending CPU limit packet", LogLevel.VERBOSE);
+		out.write((new Packet((byte)0x04, (byte)0x02, new byte[] {(byte)limitCPU})).pack);
 	}
 	
 	public void sendQuality(int quality) throws IOException {
 		// Creates the quality packet to the 3DS
-		byte[] qualityPacket = new byte[9];
-		qualityPacket[0] = 0x7E;
-		qualityPacket[1] = 0x05;
-		qualityPacket[4] = 0x03;
-		qualityPacket[8] = (byte) quality;
-		logger.log("Sending quality packet", LogLevel.EXTREME);
-		logger.log(qualityPacket, LogLevel.EXTREME);
-		out.write(qualityPacket);
+		logger.log("Sending quality packet", LogLevel.VERBOSE);
+		out.write((new Packet((byte)0x04, (byte)0x01, new byte[] {(byte)quality})).pack);
 	}
 	
-	/**
-	 * You shouldn't really ever need to call this outside of the constructor, but
-	 * you can in case you really want to.
-	 * @param screen 0x01*top | 0x02*bottom (Really, just send 1, or maybe sometimes 3)
-	 * @throws IOException
-	 */
-	public void sendInit(byte screen) throws IOException {
-		// Creates the initialization packet to the 3DS
-		byte[] initializationPacket = new byte[9];
-		initializationPacket[0] = 0x7E;
-		initializationPacket[1] = 0x05;
-		initializationPacket[8] = screen;
-		logger.log("Sending initialization packet", LogLevel.EXTREME);
-		logger.log(initializationPacket, LogLevel.EXTREME);
-		out.write(initializationPacket);
+	public void sendScreen(DSScreenBoth screen) throws IOException {
+		logger.log("Sending screen packet", LogLevel.VERBOSE);
+		byte scr = switch(screen) {
+			case TOP -> 0x01;
+			case BOTTOM -> 0x02;
+			case BOTH -> 0x03;
+		};
+		out.write((new Packet((byte)0x04, (byte)0x03, new byte[] {scr})).pack);
+	}
+	
+	public void sendInit() throws IOException {
+		// This is really just 02 00 00 00 00
+		logger.log("Sending init packet", LogLevel.VERBOSE);
+		out.write((new Packet((byte)0x02, (byte)0x00, new byte[] {})).pack);
+	}
+	
+	// We don't really have a use for this yet but might as well support it
+	public void sendDisconnect() throws IOException {
+		logger.log("Sending disconnect packet", LogLevel.VERBOSE);
+		out.write((new Packet((byte)0x03, (byte)0x00, new byte[] {})).pack);
+	}
+	
+	// We don't really have a use for this yet but might as well support it
+	public void sendDebug(byte[] debugData) throws IOException {
+		logger.log("Sending debug packet", LogLevel.VERBOSE);
+		out.write((new Packet((byte)0xFF, (byte)0x00, debugData)).pack);
 	}
 
 	@Override
@@ -136,7 +129,8 @@ public class CHokiModClient implements StreamingInterface {
 			throw new SocketException("Socket closed");
 		}
 		returnPacket.type = (byte) type;
-		returnPacket.length = in.read() + (in.read() << 8) + (in.read() << 16);
+		returnPacket.subtype = (byte)in.read();
+		returnPacket.length = in.read() + (in.read() << 8) + (in.read() << 16) + (in.read() << 24);
 		returnPacket.data = in.readNBytes(returnPacket.length);
 		
 		return returnPacket;
@@ -147,51 +141,40 @@ public class CHokiModClient implements StreamingInterface {
 		Frame returnFrame = null;
 		Packet packet = new Packet();
 		
-		while (packet.type != jpegPacket && packet.type != targaPacket) {
+		// I'd kinda like to refactor this loop but it works for now
+		while (packet.type != 0x01) { // 0x01 is Image packet
 			packet = getPacket();
 			String pType = switch(packet.type) {
-				case jpegPacket -> "JPEG";
-				case targaPacket -> "TGA";
-				case 0x01 -> "Disconnect";
-				case 0x02 -> "Set mode";
-				case 0x7E -> "CFGBLK";
+				case 0x01 -> "Image";
+				case 0x02 -> "Init (unexpected!)";
+				case 0x03 -> "Disconnect";
+				case 0x04 -> "Settings (unexpected!)";
 				case (byte) 0xFF -> "Debug";
 				default -> "Unknown";
 			};
-			logger.log(String.format("Recieved packet of type 0x%02X (Type %s)", packet.type, pType), LogLevel.VERBOSE);
+			logger.log(String.format("Recieved packet of type 0x%02X (Type %s) and subtype 0x%02X", packet.type, pType, packet.subtype), LogLevel.VERBOSE);
 			logger.log(""+packet.length, LogLevel.EXTREME);
 			logger.log(packet.data, LogLevel.EXTREME);
 			
-			// If we get a Set Mode packet, we need to update our pixel format
-			if(packet.type == 0x02) {
-				topFormat = TGAPixelFormat.fromInt(packet.data[0] & 0x07);
-				bottomFormat = TGAPixelFormat.fromInt(packet.data[2] & 0x07);
-				logger.log("Set top TGA pixel format to "+topFormat, LogLevel.VERBOSE);
-				logger.log("Set bottom TGA pixel format to "+bottomFormat, LogLevel.VERBOSE);
-			} else if(packet.type == 0x01) {
+			if(packet.type == 0x03) {
 				// Might at a well respect disconnect packets
 				logger.log("Recieved disconnect packet, closing");
 				close();
 			}
 		}
 		
-		// Bottom packets start with 90 01
-		DSScreen screen = packet.data[1] > 0 ? DSScreen.BOTTOM : DSScreen.TOP;
-		/*
-		 * No clue why, but HzMod includes an extra 8 bytes at the front of the image.
-		 * We need to trim it off.
-		 */
-		byte[] data = Arrays.copyOfRange(packet.data, 8, packet.data.length);
+		// Whoa, we have a sane way to do screen detection now? How crazy!
+		DSScreen screen = (packet.subtype & SCREEN_MASK) > 0 ? DSScreen.BOTTOM : DSScreen.TOP;
 		
 		BufferedImage image = null;
 		
-		if (packet.type == jpegPacket) {
-			WritableInputStream imageData = new WritableInputStream(data, true);
+		if ((packet.subtype & TGA_MASK) == 0) { // JPEG mode
+			WritableInputStream imageData = new WritableInputStream(packet.data, true);
 			image = ImageIO.read(imageData.getInputStream());
 			// For some reason the red and blue channels are swapped. Fix it.
 			image = ColorHotfix.doColorHotfix(image, colorMode, true);
-		} else if (packet.type == targaPacket) {
-			image = TargaParser.parseBytes(data, screen, screen == DSScreen.BOTTOM ? bottomFormat : topFormat);
+		} else { // TGA mode
+			image = TargaParser.parseBytes(packet.data, screen, TGAPixelFormat.fromInt(packet.subtype & FORMAT_MASK));
 			image = ColorHotfix.doColorHotfix(image, colorMode, false);
 		}
 		
@@ -207,8 +190,45 @@ public class CHokiModClient implements StreamingInterface {
 	 */
 	private class Packet {
 		public byte type;
+		public byte subtype;
 		public int length;
 		public byte[] data;
+		public byte[] pack;
+		
+		Packet(){};
+		
+		Packet(byte type, byte subtype, byte[] data) {
+			this.type = type;
+			this.subtype = subtype;
+			this.length = data.length;
+			this.data = data;
+			pack();
+		}
+		
+		// This seems like something we should have but I don't have a use for it
+		@SuppressWarnings("unused")
+		Packet(byte[] rawData) {
+			pack = rawData;
+			unpack();
+		}
+		
+		void pack() {
+			pack = new byte[data.length+5];
+			pack[0] = type;
+			pack[1] = subtype;
+			pack[2] = (byte) data.length; // Narrowing ensures only bottom 8 bytes
+			pack[3] = (byte)(data.length >>> 8);
+			pack[4] = (byte)(data.length >>> 16);
+			pack[5] = (byte)(data.length >>> 24);
+			System.arraycopy(data, 0, pack, 6, data.length);
+		}
+		
+		void unpack() {
+			type = pack[0];
+			subtype = pack[1];
+			length = pack[2] + (pack[3] << 8) + (pack[4] << 16) + (pack[4] << 24);
+			data = Arrays.copyOfRange(pack, 6, data.length);
+		}
 	}
 	
 }
