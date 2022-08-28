@@ -1,13 +1,6 @@
 package chokistream;
 
 import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
 
 import chokistream.props.DSScreen;
 
