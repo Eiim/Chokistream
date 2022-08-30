@@ -208,7 +208,7 @@ public class CHokiModClient implements StreamingInterface {
 		int width = oldIm.getWidth();
 		for(int row = 1; row <= 120; row++) {
 			for(int col = 0; col < width; col++) {
-				oldIm.setRGB(row*2-parity, col, newIm.getRGB(row-1, col));
+				oldIm.setRGB(col, row*2-parity-1, newIm.getRGB(row-1, col));
 			}
 		}
 		return oldIm;

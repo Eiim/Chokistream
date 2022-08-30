@@ -1,5 +1,6 @@
 package chokistream;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -58,6 +59,10 @@ public class OutputFileVideo implements VideoOutputInterface {
 				long newNanos = System.nanoTime();
 				int frames = (int) (Math.round(newNanos-prevNanos)/16666667f);
 				prevNanos += ((long)frames * 16666667l); // Nanos of the frame boundary
+				// We can get a 1-width frame on connection with some HzMod versions, which we can't render to video. Fix that.
+				if(f.image.getWidth() == 1) {
+					f.image = new BufferedImage(400, 240, BufferedImage.TYPE_INT_RGB);
+				}
 				try {
 					for(int i = 0; i < frames; i++) {
 						enc.encodeNativeFrame(AWTUtil.fromBufferedImageRGB(f.image));
