@@ -7,6 +7,7 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 import javax.imageio.ImageIO;
@@ -165,6 +166,15 @@ public class CHokiModClient implements StreamingInterface {
 				// Might at a well respect disconnect packets
 				logger.log("Recieved disconnect packet, closing");
 				close();
+			} else if(packet.type == (byte)0xFF) {
+				// Output debug packets at verbose level
+				if(packet.subtype == 0x01) {
+					// ASCII
+					logger.log(new String(packet.data, StandardCharsets.US_ASCII), LogLevel.VERBOSE);
+				} else if(packet.subtype == 0x02) {
+					// Binary
+					logger.log(packet.data, LogLevel.VERBOSE);
+				}
 			}
 		}
 		
