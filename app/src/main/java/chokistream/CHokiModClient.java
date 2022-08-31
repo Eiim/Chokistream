@@ -69,8 +69,10 @@ public class CHokiModClient implements StreamingInterface {
 		if (capCPU > 0) {
 			sendLimitCPU(capCPU);
 		}
-		
-		sendQuality(quality);
+		sendImageType(quality == 0);
+		if (quality > 0) {
+			sendQuality(quality);
+		}
 		sendScreen(reqScreen);
 		sendInit();
 	}
@@ -95,6 +97,12 @@ public class CHokiModClient implements StreamingInterface {
 			case BOTH -> 0x03;
 		};
 		out.write((new Packet((byte)0x04, (byte)0x03, new byte[] {scr})).pack);
+	}
+	
+	public void sendImageType(boolean isTGA) throws IOException {
+		logger.log("Sending image type packet", LogLevel.VERBOSE);
+		byte imtype = isTGA ? (byte)0x01 : (byte)0x00;
+		out.write((new Packet((byte)0x04, (byte)0x04, new byte[] {imtype})).pack);	
 	}
 	
 	public void sendInit() throws IOException {
