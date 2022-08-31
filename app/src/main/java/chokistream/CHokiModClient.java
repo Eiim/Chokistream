@@ -214,11 +214,14 @@ public class CHokiModClient implements StreamingInterface {
 		return returnFrame;
 	}
 	
+	/* 
+	 * It's really the *columns* of the image that are interlaced, which correspond to the *rows* of the screen.
+	 */
 	private BufferedImage interlace(BufferedImage oldIm, BufferedImage newIm, int parity) {
-		int width = oldIm.getWidth();
-		for(int row = 1; row <= 120; row++) {
-			for(int col = 0; col < width; col++) {
-				oldIm.setRGB(col, row*2-parity-1, newIm.getRGB(row-1, col));
+		int height = oldIm.getHeight();
+		for(int col = 0; col < 120; col++) {
+			for(int row = 0; row < height; row++) {
+				oldIm.setRGB(col*2+parity, row, newIm.getRGB(col, row));
 			}
 		}
 		return oldIm;
