@@ -168,12 +168,16 @@ public class CHokiModClient implements StreamingInterface {
 				close();
 			} else if(packet.type == (byte)0xFF) {
 				// Output debug packets at verbose level
-				if(packet.subtype == 0x01) {
-					// ASCII
-					logger.log(new String(packet.data, StandardCharsets.US_ASCII), LogLevel.VERBOSE);
-				} else if(packet.subtype == 0x02) {
-					// Binary
-					logger.log(packet.data, LogLevel.VERBOSE);
+				switch(packet.subtype) {
+					case 0x01: // Binary
+						logger.log(packet.data, LogLevel.VERBOSE);
+						break;
+					case 0x02: // ASCII
+						logger.log(new String(packet.data, StandardCharsets.US_ASCII), LogLevel.VERBOSE);
+						break;
+					case 0x03: // UTF-8
+						logger.log(new String(packet.data, StandardCharsets.UTF_8), LogLevel.VERBOSE);
+						break;
 				}
 			}
 		}
