@@ -17,6 +17,10 @@ public class SettingsUI {
 		return p.getDefault();
 	}
 	
+	public boolean getPropBoolean(Prop<Boolean> p) {
+		return p.getDefault();
+	}
+	
 	/*
 	 * Unfortunately we require a class instance here because of generic erasure. Subclasses use c
 	 * for EnumProp.fromLogName. It'd be nice to find a way around this without making a separate

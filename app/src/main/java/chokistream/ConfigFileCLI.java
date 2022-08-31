@@ -26,6 +26,7 @@ public class ConfigFileCLI extends SettingsUI {
 		}
 	}
 	
+	@Override
 	public int getPropInt(Prop<Integer> p) {
 		String val = parser.getProperty(p.getShortName());
 		if(val.length() > 0) {
@@ -35,6 +36,7 @@ public class ConfigFileCLI extends SettingsUI {
 		}
 	}
 	
+	@Override
 	public String getPropString(Prop<String> p) {
 		String val = parser.getProperty(p.getShortName());
 		if(val.length() > 0) {
@@ -44,6 +46,7 @@ public class ConfigFileCLI extends SettingsUI {
 		}
 	}
 	
+	@Override
 	public double getPropDouble(Prop<Double> p) {
 		String val = parser.getProperty(p.getShortName());
 		if(val.length() > 0) {
@@ -53,6 +56,17 @@ public class ConfigFileCLI extends SettingsUI {
 		}
 	}
 	
+	@Override
+	public boolean getPropBoolean(Prop<Boolean> p) {
+		String val = parser.getProperty(p.getShortName());
+		if(val.length() > 0) {
+			return Boolean.parseBoolean(val);
+		} else {
+			return p.getDefault();
+		}
+	}
+	
+	@Override
 	public <T extends Enum<T> & EnumProp> T getPropEnum(Prop<T> p, Class<T> c) {
 		String val = parser.getProperty(p.getShortName());
 		if(val.length() > 0) {

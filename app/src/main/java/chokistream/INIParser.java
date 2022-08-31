@@ -99,6 +99,10 @@ public class INIParser {
 		setProperty(prop.getShortName(), Double.toString(value));
 	}
 	
+	public void setProp(Prop<?> prop, boolean value) throws IOException {
+		setProperty(prop.getShortName(), Boolean.toString(value));
+	}
+	
 	public String getProp(Prop<?> prop) {
 		return getProperty(prop.getShortName());
 	}

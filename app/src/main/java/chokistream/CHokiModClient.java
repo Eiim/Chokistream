@@ -49,7 +49,7 @@ public class CHokiModClient implements StreamingInterface {
 	 * @param capCPU Cap CPU cycles.
 	 * @param colorMode The color filter (option to enable hotfixColors).
 	 */
-	public CHokiModClient(String host, int quality, int capCPU, ColorMode receivedColorMode, int port, DSScreenBoth reqScreen,
+	public CHokiModClient(String host, int quality, boolean reqTGA, int capCPU, ColorMode receivedColorMode, int port, DSScreenBoth reqScreen,
 			double topScale, double bottomScale, InterpolationMode intrp) throws UnknownHostException, IOException {
 		// Connect to TCP port and set up client
 		client = new Socket(host, port);
@@ -69,8 +69,8 @@ public class CHokiModClient implements StreamingInterface {
 		if (capCPU > 0) {
 			sendLimitCPU(capCPU);
 		}
-		sendImageType(quality == 0);
-		if (quality > 0) {
+		sendImageType(reqTGA);
+		if (!reqTGA) {
 			sendQuality(quality);
 		}
 		sendScreen(reqScreen);

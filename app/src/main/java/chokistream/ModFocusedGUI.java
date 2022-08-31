@@ -65,6 +65,7 @@ public class ModFocusedGUI extends SettingsUI {
 	
 	private Button modButton;
 	private Button connect;
+	private Button controls;
 	private Button about;
 	
 	// Mod settings
@@ -190,9 +191,12 @@ public class ModFocusedGUI extends SettingsUI {
 		connect = new Button("Connect!");
 		connect.relocate(14, 250);
 		connect.setPrefWidth(286);
+		controls = new Button("Controls");
+		controls.relocate(320, 250);
+		controls.setPrefWidth(130);
 		about = new Button("About");
-		about.relocate(320, 250);
-		about.setPrefWidth(286);
+		about.relocate(456, 250);
+		about.setPrefWidth(150);
 		
 		// Pretty line
 		Line line = new Line(0, 0, 0, 260);
@@ -259,10 +263,7 @@ public class ModFocusedGUI extends SettingsUI {
 		reqScreenCHM.getItems().addAll(getEnumNames(DSScreenBoth.class));
 		tgaCHM = new CheckBox();
 		tgaCHM.setOnAction((e) -> {
-			qualityCHM.setText(tgaCHM.isSelected() ? "0" : ""+Prop.QUALITY.getDefault());
-		});
-		qualityCHM.setOnKeyTyped((e) -> {
-			tgaCHM.setSelected(qualityCHM.getText().equals("0"));
+			qualityCHM.setDisable(tgaCHM.isSelected());
 		});
 		
 		// Set up minimal NTR
@@ -278,8 +279,8 @@ public class ModFocusedGUI extends SettingsUI {
 		populateFields();
 		
 		Pane pane = new Pane(modLab, mod, modButton, ipLab, ip, layoutLab, layout, topScaleLab, topScale, bottomScaleLab, bottomScale, dpiLab, dpi,
-				intrpModeLab, intrpMode, connect, about, colorModeLab, colorMode, portLab, port, logModeLab, logMode, logLevelLab, logLevel,
-				logFileLab, logFile, outputFormatLab, outputFormat, videoCodecLab, videoCodec, videoFileLab, videoFile, line);
+				intrpModeLab, intrpMode, connect, colorModeLab, colorMode, portLab, port, logModeLab, logMode, logLevelLab, logLevel,
+				logFileLab, logFile, outputFormatLab, outputFormat, videoCodecLab, videoCodec, videoFileLab, videoFile, controls, about, line);
 		return new Scene(pane, 620, 286);
 	}
 	
@@ -492,6 +493,7 @@ public class ModFocusedGUI extends SettingsUI {
 			parser.setProp(Prop.OUTPUTFORMAT, getPropEnum(Prop.OUTPUTFORMAT, OutputFormat.class));
 			parser.setProp(Prop.VIDEOCODEC, getPropEnum(Prop.VIDEOCODEC, VideoFormat.class));
 			parser.setProp(Prop.VIDEOFILE, getPropString(Prop.VIDEOFILE));
+			parser.setProp(Prop.REQTGA, getPropBoolean(Prop.REQTGA));
 			
 			switch(getPropEnum(Prop.MOD, Mod.class)) {
 				case NTR:
@@ -539,7 +541,8 @@ public class ModFocusedGUI extends SettingsUI {
 			setTextDefault(parser, Prop.CPUCAP, cpuCapHz);
 			
 			setTextDefault(parser, Prop.QUALITY, qualityCHM);
-			tgaCHM.setSelected(qualityCHM.getText().equals("0"));
+			setCheckedDefault(parser, Prop.REQTGA, tgaCHM);
+			qualityCHM.setDisable(tgaCHM.isSelected());
 			setTextDefault(parser, Prop.CPUCAP, cpuCapCHM);
 			setValueDefault(parser, Prop.REQSCREEN, reqScreenCHM);
 			
@@ -570,6 +573,15 @@ public class ModFocusedGUI extends SettingsUI {
 		}
 	}
 	
+	private static void setCheckedDefault(INIParser parser, Prop<Boolean> p, CheckBox cb) {
+		String val = parser.getProp(p);
+		if(val.length() > 0 && (val.equals("true") || val.equals("false"))) {
+			cb.setSelected(val.equals("true"));
+		} else {
+			cb.setSelected(p.getDefault());
+		}
+	}
+	
 	// Generic popup
 	public void displayError(Exception e) {
 		Stage popup = new Stage();
@@ -585,6 +597,7 @@ public class ModFocusedGUI extends SettingsUI {
 		popup.show();
 	}
 	
+	@Override
 	public int getPropInt(Prop<Integer> p) {
 		if(p.equals(Prop.QUALITY)) {
 			return switch(EnumProp.fromLongName(Mod.class, mod.getValue())) {
@@ -611,6 +624,7 @@ public class ModFocusedGUI extends SettingsUI {
 		}
 	}
 	
+	@Override
 	public String getPropString(Prop<String> p) {
 		if(p.equals(Prop.IP)) {
 			return ip.getText();
@@ -623,6 +637,7 @@ public class ModFocusedGUI extends SettingsUI {
 		}
 	}
 	
+	@Override
 	public double getPropDouble(Prop<Double> p) {
 		if(p.equals(Prop.TOPSCALE)) {
 			return Double.parseDouble(topScale.getText());
@@ -633,6 +648,16 @@ public class ModFocusedGUI extends SettingsUI {
 		}
 	}
 	
+	@Override
+	public boolean getPropBoolean(Prop<Boolean> p) {
+		if(p.equals(Prop.REQTGA)) {
+			return tgaCHM.isSelected(); // Only used for CHokiMod
+		} else {
+			return p.getDefault();
+		}
+	}
+	
+	@Override
 	public <T extends Enum<T> & EnumProp> T getPropEnum(Prop<T> p, Class<T> c) {
 		if(p.equals(Prop.MOD)) {
 			return EnumProp.fromLongName(c, mod.getValue());

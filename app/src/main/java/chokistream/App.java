@@ -130,9 +130,10 @@ public class App extends Application {
     				int capCpu = ui.getPropInt(Prop.CPUCAP);
     				ColorMode colorMode = ui.getPropEnum(Prop.COLORMODE, ColorMode.class);
     				DSScreenBoth reqScreen = ui.getPropEnum(Prop.REQSCREEN, DSScreenBoth.class);
+    				boolean reqTGA = ui.getPropBoolean(Prop.REQTGA);
     				
     				// Initializes connection
-    				client = new CHokiModClient(ip, quality, capCpu, colorMode, port, reqScreen, topScale, bottomScale, intrp);
+    				client = new CHokiModClient(ip, quality, reqTGA, capCpu, colorMode, port, reqScreen, topScale, bottomScale, intrp);
     			} catch (Exception e) {
     				ui.displayError(e);
     			}
