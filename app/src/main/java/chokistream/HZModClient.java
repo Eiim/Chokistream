@@ -13,7 +13,6 @@ import javax.imageio.ImageIO;
 
 import chokistream.props.ColorMode;
 import chokistream.props.DSScreen;
-import chokistream.props.DSScreenBoth;
 import chokistream.props.InterpolationMode;
 import chokistream.props.LogLevel;
 

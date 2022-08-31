@@ -27,9 +27,9 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
-import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -473,6 +473,7 @@ public class ModFocusedGUI extends SettingsUI {
 		return names;
 	}
 	
+	@Override
 	public void saveSettings() {
 		try {
 			INIParser parser = new INIParser(new File("chokistream.ini"));
@@ -583,6 +584,7 @@ public class ModFocusedGUI extends SettingsUI {
 	}
 	
 	// Generic popup
+	@Override
 	public void displayError(Exception e) {
 		Stage popup = new Stage();
 		popup.initModality(Modality.APPLICATION_MODAL);
