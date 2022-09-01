@@ -26,87 +26,110 @@ import chokistream.props.VideoFormat;
  */
 public class Main {
 	public static void main(String[] args) {
+		
+		// Set up logging before anything else
+		SettingsUI ui = new ConfigFileCLI();
 		List<String> argsAL = Arrays.asList(args);
+		LogLevel level = ui.getPropEnum(Prop.LOGLEVEL, LogLevel.class);
+		LogMode mode = ui.getPropEnum(Prop.LOGMODE, LogMode.class);
+		String logFile = ui.getPropString(Prop.LOGFILE);
+    	Logger.INSTANCE.init(mode, level, logFile);
+    	
 		if(argsAL.contains("--console") || argsAL.contains("-c")) {
-			SettingsUI ui = new ConfigFileCLI();
-			
-			LogLevel level = ui.getPropEnum(Prop.LOGLEVEL, LogLevel.class);
-			LogMode mode = ui.getPropEnum(Prop.LOGMODE, LogMode.class);
-			String logFile = ui.getPropString(Prop.LOGFILE);
-	    	Logger.INSTANCE.init(mode, level, logFile);
-			
-			Mod mod;
-	    	String ip;
-	    	Layout layout;
-	    	int port;
-	    	double topScale = ui.getPropDouble(Prop.TOPSCALE);
-			double bottomScale = ui.getPropDouble(Prop.BOTTOMSCALE);
-			InterpolationMode intrp = ui.getPropEnum(Prop.INTRPMODE, InterpolationMode.class);
-	    	try {
-				mod = ui.getPropEnum(Prop.MOD, Mod.class);
-				ip = ui.getPropString(Prop.IP);
-				layout = ui.getPropEnum(Prop.LAYOUT, Layout.class);
-				port = ui.getPropInt(Prop.PORT);
-			} catch (RuntimeException e) {
-				ui.displayError(e);
-				return;
-			}
-	    	
-	    	switch(mod) {
-	    		case NTR:
-					try {
-						int quality = ui.getPropInt(Prop.QUALITY);
-		    			DSScreen screen = ui.getPropEnum(Prop.PRIORITYSCREEN, DSScreen.class);
-		    			int priority = ui.getPropInt(Prop.PRIORITYFACTOR);
-		    			int qos = ui.getPropInt(Prop.QOS);
-		    			ColorMode colorMode = ui.getPropEnum(Prop.COLORMODE, ColorMode.class);
-		    			
-		    			// Initializes connection
-		    			StreamingInterface client = new NTRClient(ip, quality, screen, priority, qos, colorMode, port, topScale, bottomScale, intrp);
-		    			String fileName = ui.getPropString(Prop.VIDEOFILE);
-		    			VideoFormat vf = ui.getPropEnum(Prop.VIDEOCODEC, VideoFormat.class);
-		    			new OutputFileVideo(client, layout, fileName+"."+vf.getExtension(), vf);
-					} catch (Exception e) {
-						ui.displayError(e);
-					}
-					break;
-	    		case CHOKIMOD:
-	    			try {
-	    				int quality = ui.getPropInt(Prop.QUALITY);
-	    				int capCpu = ui.getPropInt(Prop.CPUCAP);
-	    				ColorMode colorMode = ui.getPropEnum(Prop.COLORMODE, ColorMode.class);
-	    				DSScreenBoth reqScreen = ui.getPropEnum(Prop.REQSCREEN, DSScreenBoth.class);
-	    				Boolean reqTGA = ui.getPropBoolean(Prop.REQTGA);
-	    				
-	    				// Initializes connection
-	    				StreamingInterface client = new CHokiModClient(ip, quality, reqTGA, capCpu, colorMode, port, reqScreen, topScale, bottomScale, intrp);
-	    				String fileName = ui.getPropString(Prop.VIDEOFILE);
-	        			VideoFormat vf = ui.getPropEnum(Prop.VIDEOCODEC, VideoFormat.class);
-	        			new OutputFileVideo(client, layout, fileName+"."+vf.getExtension(), vf);
-	    			} catch (Exception e) {
-	    				ui.displayError(e);
-	    			}
-	    			break;
-	    		case HZMOD:
-	    			try {
-	    				int quality = ui.getPropInt(Prop.QUALITY);
-	    				int capCpu = ui.getPropInt(Prop.CPUCAP);
-	    				ColorMode colorMode = ui.getPropEnum(Prop.COLORMODE, ColorMode.class);
-	    				
-	    				// Initializes connection
-	    				StreamingInterface client = new HZModClient(ip, quality, capCpu, colorMode, port, topScale, bottomScale, intrp);
-	    				String fileName = ui.getPropString(Prop.VIDEOFILE);
-	        			VideoFormat vf = ui.getPropEnum(Prop.VIDEOCODEC, VideoFormat.class);
-	        			new OutputFileVideo(client, layout, fileName+"."+vf.getExtension(), vf);
-	    			} catch (Exception e) {
-	    				ui.displayError(e);
-	    			}
-	    	}
+			initializeFile(ui);
 		} else {
 			if(System.console() == null) {
 				// TODO: make custom console
 			}
 			App.main(args);
 		}
+	}
+	
+	private static StreamingInterface initialize(SettingsUI ui) {
+		// These are universal, so get these first and then sort out the rest by mod.
+    	// Technically quality could be here.
+    	Mod mod;
+    	String ip;
+    	int port;
+    	double topScale;
+    	double bottomScale;
+    	InterpolationMode intrp;
+    	try {
+			mod = ui.getPropEnum(Prop.MOD, Mod.class);
+			ip = ui.getPropString(Prop.IP);
+			port = ui.getPropInt(Prop.PORT);
+			topScale = ui.getPropDouble(Prop.TOPSCALE);
+			bottomScale = ui.getPropDouble(Prop.BOTTOMSCALE);
+			intrp = ui.getPropEnum(Prop.INTRPMODE, InterpolationMode.class);
+		} catch (RuntimeException e) {
+			ui.displayError(e);
+			return null;
+		}
+    	
+    	StreamingInterface client = null;
+    	
+    	switch(mod) {
+    		case NTR:
+				try {
+					int quality = ui.getPropInt(Prop.QUALITY);
+	    			DSScreen screen = ui.getPropEnum(Prop.PRIORITYSCREEN, DSScreen.class);
+	    			int priority = ui.getPropInt(Prop.PRIORITYFACTOR);
+	    			int qos = ui.getPropInt(Prop.QOS);
+	    			ColorMode colorMode = ui.getPropEnum(Prop.COLORMODE, ColorMode.class);
+	    			
+	    			// Initializes connection
+	    			client = new NTRClient(ip, quality, screen, priority, qos, colorMode, port, topScale, bottomScale, intrp);
+				} catch (Exception e) {
+					ui.displayError(e);
+				}
+				break;
+    		case CHOKIMOD:
+    			try {
+    				int quality = ui.getPropInt(Prop.QUALITY);
+    				int capCpu = ui.getPropInt(Prop.CPUCAP);
+    				ColorMode colorMode = ui.getPropEnum(Prop.COLORMODE, ColorMode.class);
+    				DSScreenBoth reqScreen = ui.getPropEnum(Prop.REQSCREEN, DSScreenBoth.class);
+    				boolean reqTGA = ui.getPropBoolean(Prop.REQTGA);
+    				
+    				// Initializes connection
+    				client = new CHokiModClient(ip, quality, reqTGA, capCpu, colorMode, port, reqScreen, topScale, bottomScale, intrp);
+    			} catch (Exception e) {
+    				ui.displayError(e);
+    			}
+    			break;
+    		case HZMOD:
+    			try {
+    				int quality = ui.getPropInt(Prop.QUALITY);
+    				int capCpu = ui.getPropInt(Prop.CPUCAP);
+    				ColorMode colorMode = ui.getPropEnum(Prop.COLORMODE, ColorMode.class);
+    				
+    				// Initializes connection
+    				client = new HZModClient(ip, quality, capCpu, colorMode, port, topScale, bottomScale, intrp);
+    			} catch (Exception e) {
+    				ui.displayError(e);
+    			}
+    	}
+    	return client;
+	}
+	
+	public static void initializeJFX(App app, SettingsUI ui) {
+		StreamingInterface client = initialize(ui);
+		
+		Layout layout = ui.getPropEnum(Prop.LAYOUT, Layout.class);
+		int dpi = ui.getPropInt(Prop.DPI);
+		double topScale = ui.getPropDouble(Prop.TOPSCALE);
+		double bottomScale = ui.getPropDouble(Prop.BOTTOMSCALE);
+		InterpolationMode intrp = ui.getPropEnum(Prop.INTRPMODE, InterpolationMode.class);
+		
+		new JavaFXVideo(app, client, layout, dpi, topScale, bottomScale, intrp);
+	}
+	
+	public static void initializeFile(SettingsUI ui) {
+		StreamingInterface client = initialize(ui);
+		
+		Layout layout = ui.getPropEnum(Prop.LAYOUT, Layout.class);
+		String fileName = ui.getPropString(Prop.VIDEOFILE);
+		VideoFormat vf = ui.getPropEnum(Prop.VIDEOCODEC, VideoFormat.class);
+		new OutputFileVideo(client, layout, fileName+"."+vf.getExtension(), vf);
 	}
 }
