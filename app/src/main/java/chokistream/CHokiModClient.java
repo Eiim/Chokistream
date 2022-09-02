@@ -186,6 +186,8 @@ public class CHokiModClient implements StreamingInterface {
 					case 0x03: // UTF-8
 						logger.log(new String(packet.data, StandardCharsets.UTF_8), LogLevel.VERBOSE);
 						break;
+					default:
+						// Don't log for now
 				}
 			}
 		}

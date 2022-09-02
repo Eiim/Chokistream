@@ -11,8 +11,7 @@ public class ColorHotfix {
 		int newRedPixel = ((currentPixelColor&0b00000000000000000000000011111111)); //bitwise AND
 		int newGrnPixel = ((currentPixelColor&0b00000000000000001111111100000000) >>> 8); //bit-shift right (unsigned)
 		int newBluPixel = ((currentPixelColor&0b00000000111111110000000000000000) >>> 16);
-		currentPixelColor = 0xFF000000 +  ((newRedPixel)<<16) + ((newGrnPixel)<<8) + (newBluPixel);
-		return currentPixelColor;
+		return 0xFF000000 +  ((newRedPixel)<<16) + ((newGrnPixel)<<8) + (newBluPixel);
 	}
 	
 	private static int reverseEightBits(int a) {
@@ -24,8 +23,7 @@ public class ColorHotfix {
 		int newGrnPixel = ((currentPixelColor&0b00000000000000001111111100000000) >>> 8);
 		int newBluPixel = ((currentPixelColor&0b00000000000000000000000011111111));
 		int newGrayPixel = (newRedPixel + newGrnPixel + newBluPixel)/3;
-		currentPixelColor = 0xFF000000 + ((newGrayPixel)<<16) + ((newGrayPixel)<<8) + (newGrayPixel);
-		return currentPixelColor;
+		return 0xFF000000 + ((newGrayPixel)<<16) + ((newGrayPixel)<<8) + (newGrayPixel);
 	}
 	
 	// THIS IS BROKEN. IT IS BORDERLINE UNSOLVABLE. TRUST ME, I SPENT HOURS ON THIS. -C
@@ -64,8 +62,7 @@ public class ColorHotfix {
 		//
 		
 		
-		currentPixelColor = 0xFF000000 + ((newRedPixel&0xFF)<<16) + ((newGrnPixel&0xFF)<<8) + (newBluPixel&0xFF);
-		return currentPixelColor;
+		return 0xFF000000 + ((newRedPixel&0xFF)<<16) + ((newGrnPixel&0xFF)<<8) + (newBluPixel&0xFF);
 	}
 	/*
 	 *

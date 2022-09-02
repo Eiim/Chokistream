@@ -63,29 +63,20 @@ public class ModFocusedGUI extends SettingsUI {
 	private ChoiceBox<String> videoCodec;
 	private TextField videoFile;
 	
-	private Button modButton;
-	private Button connect;
-	private Button controls;
-	private Button about;
-	
 	// Mod settings
 	private TextField qualityHz;
 	private TextField cpuCapHz;
 	private CheckBox tgaHz;
-	private Button applyHz;
 	
 	private TextField qualityCHM;
 	private TextField cpuCapCHM;
 	private ChoiceBox<String> reqScreenCHM;
 	private CheckBox tgaCHM;
-	private Button applyCHM;
 	
 	private TextField qualityNTR;
 	private ChoiceBox<String> priScreen;
 	private TextField priFac;
 	private TextField qos;
-	private Button ntrPatch;
-	private Button applyNTR;
 	
 	private static final Logger logger = Logger.INSTANCE;
 	
@@ -185,16 +176,16 @@ public class ModFocusedGUI extends SettingsUI {
 		videoFile.relocate(456, 220);
 		
 		// Finally, set up buttons
-		modButton = new Button("Mod Settings");
+		Button modButton = new Button("Mod Settings");
 		modButton.relocate(75, 40);
 		modButton.setPrefWidth(150);
-		connect = new Button("Connect!");
+		Button connect = new Button("Connect!");
 		connect.relocate(14, 250);
 		connect.setPrefWidth(286);
-		controls = new Button("Controls");
+		Button controls = new Button("Controls");
 		controls.relocate(320, 250);
 		controls.setPrefWidth(130);
-		about = new Button("About");
+		Button about = new Button("About");
 		about.relocate(456, 250);
 		about.setPrefWidth(150);
 		
@@ -335,10 +326,10 @@ public class ModFocusedGUI extends SettingsUI {
 		Label qosLab = new Label(Prop.QOS.getLongName());
 		qosLab.relocate(14, 129);
 		qos.relocate(150, 125);
-		ntrPatch = new Button("Patch NTR");
+		Button ntrPatch = new Button("Patch NTR");
 		ntrPatch.relocate(82, 155);
 		ntrPatch.setPrefWidth(150);
-		applyNTR = new Button("Apply");
+		Button applyNTR = new Button("Apply");
 		applyNTR.relocate(14, 185);
 		applyNTR.setPrefWidth(285);
 		
@@ -406,7 +397,7 @@ public class ModFocusedGUI extends SettingsUI {
 		Label cpuCapHzLab = new Label(Prop.CPUCAP.getLongName());
 		cpuCapHzLab.relocate(14, 99);
 		cpuCapHz.relocate(150, 95);
-		applyHz = new Button("Apply");
+		Button applyHz = new Button("Apply");
 		applyHz.relocate(14, 125);
 		applyHz.setPrefWidth(285);
 		Text t = new Text("HzMod Settings");
@@ -442,7 +433,7 @@ public class ModFocusedGUI extends SettingsUI {
 		reqScreenCHMLab.relocate(14, 129);
 		reqScreenCHM.relocate(149, 125);
 		reqScreenCHM.setPrefWidth(150);
-		applyCHM = new Button("Apply");
+		Button applyCHM = new Button("Apply");
 		applyCHM.relocate(14, 155);
 		applyCHM.setPrefWidth(285);
 		Text t = new Text("CHokiMod Settings");

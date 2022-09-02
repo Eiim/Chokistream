@@ -59,6 +59,7 @@ public class App extends Application {
     			break;
     		case FILE:
     			Main.initializeFile(ui);
+    			break;
     	}
     	
     	stage.close();

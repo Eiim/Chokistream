@@ -108,6 +108,7 @@ public class Main {
     			} catch (Exception e) {
     				ui.displayError(e);
     			}
+    			break;
     	}
     	return client;
 	}

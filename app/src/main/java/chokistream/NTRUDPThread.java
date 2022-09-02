@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
+import java.util.Arrays;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -14,9 +16,6 @@ import chokistream.props.ColorMode;
 import chokistream.props.DSScreen;
 import chokistream.props.InterpolationMode;
 import chokistream.props.LogLevel;
-
-import java.util.Arrays;
-import java.util.concurrent.BlockingQueue;
 
 /**
  * 
@@ -61,10 +60,9 @@ public class NTRUDPThread extends Thread {
 	
 	/**
 	 * Create an NTRUDPThread.
-	 * @param host The host or IP to connect to.
 	 * @throws SocketException
 	 */
-	NTRUDPThread(String host, DSScreen screen, ColorMode colorMode, double topScale, double bottomScale, InterpolationMode intrp) throws SocketException {
+	NTRUDPThread(DSScreen screen, ColorMode colorMode, double topScale, double bottomScale, InterpolationMode intrp) throws SocketException {
 		activeScreen = screen;
 		socket = new DatagramSocket(8001);
 		this.colorMode = colorMode;
@@ -82,6 +80,7 @@ public class NTRUDPThread extends Thread {
 		socket.close();
 	}
 
+	@Override
 	public void run() {
 		while (!shouldDie.get()) {
 			DatagramPacket packet = new DatagramPacket(packetBuffer, packetBuffer.length);

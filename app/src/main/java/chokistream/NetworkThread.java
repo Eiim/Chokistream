@@ -12,6 +12,7 @@ public class NetworkThread extends Thread {
 	/**
 	 * Start processing frames indefinitely
 	 */
+	@Override
 	public void run() {
 		while(active) {
 			try {
@@ -20,14 +21,11 @@ public class NetworkThread extends Thread {
 				if(active) {
 					output.renderFrame(f);
 				}
-			} catch(IOException e) {
-				if(e instanceof SocketException) {
-					// Sometimes expected, make note of it but just return peacefully
-					Logger.INSTANCE.log("Socket closed, stopping");
-					return;
-				}
-				output.displayError(e);
-			} catch(InterruptedException e) {
+			} catch(SocketException e) {
+				// Sometimes expected, make note of it but just return peacefully
+				Logger.INSTANCE.log("Socket closed, stopping");
+				return;
+			} catch(IOException | InterruptedException e) {
 				output.displayError(e);
 				return;
 			}

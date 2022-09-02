@@ -42,7 +42,7 @@ public class NTRClient implements StreamingInterface {
 		Socket client = new Socket(host, port);
 		client.setTcpNoDelay(true);
 		OutputStream out = client.getOutputStream();
-		thread = new NTRUDPThread(host, screen, colorMode, topScale, bottomScale, intrp);
+		thread = new NTRUDPThread(screen, colorMode, topScale, bottomScale, intrp);
 		thread.start();
 		
 		// Creates and sends the initialization packet to the 3DS

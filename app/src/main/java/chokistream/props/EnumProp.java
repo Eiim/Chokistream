@@ -1,5 +1,7 @@
 package chokistream.props;
 
+import java.util.NoSuchElementException;
+
 public interface EnumProp {
 	public String getLongName();
 	
@@ -15,6 +17,6 @@ public interface EnumProp {
 				return e;
 			}
 		}
-		throw new RuntimeException("Invalid name "+name+" for property "+eClass.getName());
+		throw new NoSuchElementException("Invalid name "+name+" for property "+eClass.getName());
 	}
 }

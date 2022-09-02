@@ -19,7 +19,6 @@ public class OutputFileVideo implements VideoOutputInterface {
 	private StreamingInterface client;
 	private NetworkThread networkThread;
 	private SequenceEncoder enc;
-	private long startNanos;
 	private long prevNanos;
 	private static final Logger logger = Logger.INSTANCE;
 	private boolean done;
@@ -35,13 +34,13 @@ public class OutputFileVideo implements VideoOutputInterface {
 		} catch (IOException e) {
 			displayError(e);
 		}
-		startNanos = System.nanoTime();
-		prevNanos = startNanos;
+		prevNanos = System.nanoTime();
 		
 		networkThread.start();
 		
 		// Add a runtime hook for when the process is terminated
 		Runtime.getRuntime().addShutdownHook(new Thread() {
+			@Override
 			public void run() {
 				logger.log("Shutting down");
 				done = true;
@@ -58,7 +57,7 @@ public class OutputFileVideo implements VideoOutputInterface {
 			if(f.screen == DSScreen.TOP) {
 				long newNanos = System.nanoTime();
 				int frames = (int) (Math.round(newNanos-prevNanos)/16666667f);
-				prevNanos += ((long)frames * 16666667l); // Nanos of the frame boundary
+				prevNanos += (frames * 16666667l); // Nanos of the frame boundary
 				// We can get a 1-width frame on connection with some HzMod versions, which we can't render to video. Fix that.
 				if(f.image.getWidth() == 1) {
 					f.image = new BufferedImage(400, 240, BufferedImage.TYPE_INT_RGB);
@@ -88,6 +87,7 @@ public class OutputFileVideo implements VideoOutputInterface {
 		}	
 	}
 	
+	@Override
 	public void displayError(Exception e) {
 		logger.logOnce(e.getClass()+": "+e.getMessage()+"\n"+Arrays.toString(e.getStackTrace()));
 	}
