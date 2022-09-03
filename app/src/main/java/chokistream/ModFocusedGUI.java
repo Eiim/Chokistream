@@ -72,6 +72,8 @@ public class ModFocusedGUI extends SettingsUI {
 	private TextField cpuCapCHM;
 	private ChoiceBox<String> reqScreenCHM;
 	private CheckBox tgaCHM;
+	private CheckBox interlace;
+	private CheckBox vsync;
 	
 	private TextField qualityNTR;
 	private ChoiceBox<String> priScreen;
@@ -256,6 +258,8 @@ public class ModFocusedGUI extends SettingsUI {
 		tgaCHM.setOnAction((e) -> {
 			qualityCHM.setDisable(tgaCHM.isSelected());
 		});
+		interlace = new CheckBox();
+		vsync = new CheckBox();
 		
 		// Set up minimal NTR
 		qualityNTR = new TextField();
@@ -433,15 +437,22 @@ public class ModFocusedGUI extends SettingsUI {
 		reqScreenCHMLab.relocate(14, 129);
 		reqScreenCHM.relocate(149, 125);
 		reqScreenCHM.setPrefWidth(150);
+		Label interlaceLab = new Label(Prop.INTERLACE.getLongName());
+		interlaceLab.relocate(14, 159);
+		interlace.relocate(150, 159);
+		Label vsyncLab =  new Label(Prop.VSYNC.getLongName());
+		vsyncLab.relocate(14, 189);
+		vsync.relocate(150, 189);
 		Button applyCHM = new Button("Apply");
-		applyCHM.relocate(14, 155);
+		applyCHM.relocate(14, 215);
 		applyCHM.setPrefWidth(285);
 		Text t = new Text("CHokiMod Settings");
 		t.relocate(14, 14);
 		t.setFont(new Font(16));
 		
-		Pane pane = new Pane(t, qualityCHMLab, qualityCHM, tgaCHMLab, tgaCHM, cpuCapCHMLab, cpuCapCHM, reqScreenCHMLab, reqScreenCHM, applyCHM);
-		Scene sc = new Scene(pane, 312, 190);
+		Pane pane = new Pane(t, qualityCHMLab, qualityCHM, tgaCHMLab, tgaCHM, cpuCapCHMLab, cpuCapCHM, reqScreenCHMLab, reqScreenCHM,
+				interlaceLab, interlace, vsyncLab, vsync, applyCHM);
+		Scene sc = new Scene(pane, 312, 250);
 		Stage st = new Stage();
 		st.setScene(sc);
 		st.setResizable(false);

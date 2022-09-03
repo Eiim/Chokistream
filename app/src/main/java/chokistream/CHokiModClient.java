@@ -33,6 +33,7 @@ public class CHokiModClient implements StreamingInterface {
 	public int quality;
 	private BufferedImage lastTopImage;
 	private BufferedImage lastBottomImage;
+	private boolean vsync;
 	
 	private static final int FORMAT_MASK = 		0b00000111;
 	private static final int TGA_MASK = 		0b00001000;
@@ -49,8 +50,8 @@ public class CHokiModClient implements StreamingInterface {
 	 * @param capCPU Cap CPU cycles.
 	 * @param colorMode The color filter (option to enable hotfixColors).
 	 */
-	public CHokiModClient(String host, int quality, boolean reqTGA, int capCPU, ColorMode receivedColorMode, int port, DSScreenBoth reqScreen,
-			double topScale, double bottomScale, InterpolationMode intrp) throws UnknownHostException, IOException {
+	public CHokiModClient(String host, int quality, boolean reqTGA, boolean interlace, boolean vsync, int capCPU, ColorMode receivedColorMode,
+			int port, DSScreenBoth reqScreen, double topScale, double bottomScale, InterpolationMode intrp) throws UnknownHostException, IOException {
 		// Connect to TCP port and set up client
 		client = new Socket(host, port);
 		client.setTcpNoDelay(true);
@@ -62,6 +63,7 @@ public class CHokiModClient implements StreamingInterface {
 		this.bottomScale = bottomScale;
 		this.intrp = intrp;
 		this.quality = quality;
+		this.vsync = vsync;
 		
 		lastTopImage = new BufferedImage(400, 240, BufferedImage.TYPE_INT_RGB);
 		lastBottomImage = new BufferedImage(320, 240, BufferedImage.TYPE_INT_RGB);
@@ -73,6 +75,7 @@ public class CHokiModClient implements StreamingInterface {
 		if (!reqTGA) {
 			sendQuality(quality);
 		}
+		sendInterlace(interlace);
 		sendScreen(reqScreen);
 		sendInit();
 	}
@@ -103,6 +106,12 @@ public class CHokiModClient implements StreamingInterface {
 		logger.log("Sending image type packet", LogLevel.VERBOSE);
 		byte imtype = isTGA ? (byte)0x01 : (byte)0x00;
 		out.write((new Packet((byte)0x04, (byte)0x04, new byte[] {imtype})).pack);	
+	}
+	
+	public void sendInterlace(boolean interlace) throws IOException {
+		logger.log("Sending interlace packet", LogLevel.VERBOSE);
+		byte intl = interlace ? (byte)0x01 : (byte)0x00;
+		out.write((new Packet((byte)0x04, (byte)0x05, new byte[] {intl})).pack);	
 	}
 	
 	public void sendInit() throws IOException {

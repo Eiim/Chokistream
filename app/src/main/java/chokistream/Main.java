@@ -90,9 +90,11 @@ public class Main {
     				ColorMode colorMode = ui.getPropEnum(Prop.COLORMODE, ColorMode.class);
     				DSScreenBoth reqScreen = ui.getPropEnum(Prop.REQSCREEN, DSScreenBoth.class);
     				boolean reqTGA = ui.getPropBoolean(Prop.REQTGA);
+    				boolean interlace = ui.getPropBoolean(Prop.INTERLACE);
+    				boolean vsync = ui.getPropBoolean(Prop.VSYNC);
     				
     				// Initializes connection
-    				client = new CHokiModClient(ip, quality, reqTGA, capCpu, colorMode, port, reqScreen, topScale, bottomScale, intrp);
+    				client = new CHokiModClient(ip, quality, reqTGA, interlace, vsync, capCpu, colorMode, port, reqScreen, topScale, bottomScale, intrp);
     			} catch (Exception e) {
     				ui.displayError(e);
     			}
