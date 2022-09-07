@@ -3,7 +3,7 @@ package chokistream.props;
 public enum Mod implements EnumProp {
 	NTR("NTR"),
 	HZMOD("HzMod"),
-	CHOKIMOD("CHokiMod");
+	CHIRUNOMOD("ChirunoMod");
 	
 	private final String longName;
 	

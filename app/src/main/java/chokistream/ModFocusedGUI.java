@@ -203,7 +203,7 @@ public class ModFocusedGUI extends SettingsUI {
 			port.setText(
 				switch(EnumProp.fromLongName(Mod.class, mod.getValue())) {
 					case NTR -> "8000";
-					case HZMOD, CHOKIMOD -> "6464";
+					case HZMOD, CHIRUNOMOD -> "6464";
 				}
 			);
 		});
@@ -228,8 +228,8 @@ public class ModFocusedGUI extends SettingsUI {
 				case HZMOD:
 					displayHzMod();
 					break;
-				case CHOKIMOD:
-					displayCHokiMod();
+				case CHIRUNOMOD:
+					displayChirunoMod();
 					break;
 			}
 		});
@@ -247,7 +247,7 @@ public class ModFocusedGUI extends SettingsUI {
 			tgaHz.setSelected(qualityHz.getText().equals("0"));
 		});
 		
-		// Set up minimal CHokiMod
+		// Set up minimal ChirunoMod
 		qualityCHM = new TextField();
 		qualityCHM.setTextFormatter(new TextFormatter<>(new IntegerStringConverter()));
 		cpuCapCHM = new TextField();
@@ -423,7 +423,7 @@ public class ModFocusedGUI extends SettingsUI {
 		st.show();
 	}
 	
-	private void displayCHokiMod() {
+	private void displayChirunoMod() {
 		Label qualityCHMLab = new Label(Prop.QUALITY.getLongName());
 		qualityCHMLab.relocate(14, 39);
 		qualityCHM.relocate(150, 35);
@@ -446,7 +446,7 @@ public class ModFocusedGUI extends SettingsUI {
 		Button applyCHM = new Button("Apply");
 		applyCHM.relocate(14, 215);
 		applyCHM.setPrefWidth(285);
-		Text t = new Text("CHokiMod Settings");
+		Text t = new Text("ChirunoMod Settings");
 		t.relocate(14, 14);
 		t.setFont(new Font(16));
 		
@@ -507,7 +507,7 @@ public class ModFocusedGUI extends SettingsUI {
 					parser.setProp(Prop.CPUCAP, getPropInt(Prop.CPUCAP));
 					parser.setProp(Prop.REQSCREEN, getPropEnum(Prop.REQSCREEN, DSScreenBoth.class));
 					break;
-				case CHOKIMOD:
+				case CHIRUNOMOD:
 					parser.setProp(Prop.QUALITY, getPropInt(Prop.QUALITY));
 					parser.setProp(Prop.CPUCAP, getPropInt(Prop.CPUCAP));
 					parser.setProp(Prop.REQSCREEN, getPropEnum(Prop.REQSCREEN, DSScreenBoth.class));
@@ -607,7 +607,7 @@ public class ModFocusedGUI extends SettingsUI {
 			return switch(EnumProp.fromLongName(Mod.class, mod.getValue())) {
 				case NTR -> Integer.parseInt(qualityNTR.getText());
 				case HZMOD -> Integer.parseInt(qualityHz.getText());
-				case CHOKIMOD -> Integer.parseInt(qualityCHM.getText());
+				case CHIRUNOMOD -> Integer.parseInt(qualityCHM.getText());
 			};
 		} else if(p.equals(Prop.PRIORITYFACTOR)) {
 			return Integer.parseInt(priFac.getText());
@@ -617,7 +617,7 @@ public class ModFocusedGUI extends SettingsUI {
 			return switch(EnumProp.fromLongName(Mod.class, mod.getValue())) {
 				case NTR -> p.getDefault(); // Hopefully never happens
 				case HZMOD -> Integer.parseInt(cpuCapHz.getText());
-				case CHOKIMOD -> Integer.parseInt(cpuCapCHM.getText());
+				case CHIRUNOMOD -> Integer.parseInt(cpuCapCHM.getText());
 			};
 		} else if(p.equals(Prop.PORT)) {
 			return Integer.parseInt(port.getText());
@@ -655,7 +655,7 @@ public class ModFocusedGUI extends SettingsUI {
 	@Override
 	public boolean getPropBoolean(Prop<Boolean> p) {
 		if(p.equals(Prop.REQTGA)) {
-			return tgaCHM.isSelected(); // Only used for CHokiMod
+			return tgaCHM.isSelected(); // Only used for ChirunoMod
 		} else {
 			return p.getDefault();
 		}
@@ -673,7 +673,7 @@ public class ModFocusedGUI extends SettingsUI {
 			return switch(EnumProp.fromLongName(Mod.class, mod.getValue())) {
 				case NTR -> p.getDefault(); // Hopefully never happens
 				case HZMOD -> p.getDefault(); // Hopefully never happens
-				case CHOKIMOD -> EnumProp.fromLongName(c, reqScreenCHM.getValue());
+				case CHIRUNOMOD -> EnumProp.fromLongName(c, reqScreenCHM.getValue());
 			};
 		} else if(p.equals(Prop.COLORMODE)) {
 			return EnumProp.fromLongName(c, colorMode.getValue());

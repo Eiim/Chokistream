@@ -83,7 +83,7 @@ public class Main {
 					ui.displayError(e);
 				}
 				break;
-    		case CHOKIMOD:
+    		case CHIRUNOMOD:
     			try {
     				int quality = ui.getPropInt(Prop.QUALITY);
     				int capCpu = ui.getPropInt(Prop.CPUCAP);
@@ -94,7 +94,7 @@ public class Main {
     				boolean vsync = ui.getPropBoolean(Prop.VSYNC);
     				
     				// Initializes connection
-    				client = new CHokiModClient(ip, quality, reqTGA, interlace, vsync, capCpu, colorMode, port, reqScreen, topScale, bottomScale, intrp);
+    				client = new ChirunoModClient(ip, quality, reqTGA, interlace, vsync, capCpu, colorMode, port, reqScreen, topScale, bottomScale, intrp);
     			} catch (Exception e) {
     				ui.displayError(e);
     			}
