@@ -187,13 +187,13 @@ public class CHokiModClient implements StreamingInterface {
 				// Output debug packets at verbose level
 				switch(packet.subtype) {
 					case 0x01: // Binary
-						logger.log(packet.data, LogLevel.VERBOSE);
+						logger.log(packet.data, LogLevel.REGULAR);
 						break;
 					case 0x02: // ASCII
-						logger.log(new String(packet.data, StandardCharsets.US_ASCII), LogLevel.VERBOSE);
+						logger.log(new String(packet.data, StandardCharsets.US_ASCII), LogLevel.REGULAR);
 						break;
 					case 0x03: // UTF-8
-						logger.log(new String(packet.data, StandardCharsets.UTF_8), LogLevel.VERBOSE);
+						logger.log(new String(packet.data, StandardCharsets.UTF_8), LogLevel.REGULAR);
 						break;
 					default:
 						// Don't log for now
