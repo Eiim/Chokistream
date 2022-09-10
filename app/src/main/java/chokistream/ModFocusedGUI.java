@@ -511,6 +511,8 @@ public class ModFocusedGUI extends SettingsUI {
 					parser.setProp(Prop.QUALITY, getPropInt(Prop.QUALITY));
 					parser.setProp(Prop.CPUCAP, getPropInt(Prop.CPUCAP));
 					parser.setProp(Prop.REQSCREEN, getPropEnum(Prop.REQSCREEN, DSScreenBoth.class));
+					parser.setProp(Prop.INTERLACE, getPropBoolean(Prop.INTERLACE));
+					parser.setProp(Prop.VSYNC, getPropBoolean(Prop.VSYNC));
 					break;
 			}
 		} catch (IOException | IniParseException e) {
@@ -548,6 +550,8 @@ public class ModFocusedGUI extends SettingsUI {
 			qualityCHM.setDisable(tgaCHM.isSelected());
 			setTextDefault(parser, Prop.CPUCAP, cpuCapCHM);
 			setValueDefault(parser, Prop.REQSCREEN, reqScreenCHM);
+			setCheckedDefault(parser, Prop.INTERLACE, interlace);
+			setCheckedDefault(parser, Prop.VSYNC, vsync);
 			
 			setTextDefault(parser, Prop.QUALITY, qualityNTR);
 			setValueDefault(parser, Prop.PRIORITYSCREEN, priScreen);
@@ -656,6 +660,10 @@ public class ModFocusedGUI extends SettingsUI {
 	public boolean getPropBoolean(Prop<Boolean> p) {
 		if(p.equals(Prop.REQTGA)) {
 			return tgaCHM.isSelected(); // Only used for ChirunoMod
+		} else if(p.equals(Prop.INTERLACE)) {
+			return interlace.isSelected();
+		} else if(p.equals(Prop.VSYNC)) {
+			return vsync.isSelected();
 		} else {
 			return p.getDefault();
 		}
