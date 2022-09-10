@@ -152,7 +152,9 @@ public class ChirunoModClient implements StreamingInterface {
 			throw new SocketException("Socket closed");
 		}
 		returnPacket.type = (byte) type;
-		returnPacket.subtype = (byte)in.read();
+		returnPacket.subtypeA = (byte)in.read();
+		returnPacket.subtypeB = (byte)in.read();
+		returnPacket.subtypeC = (byte)in.read();
 		returnPacket.length = in.read() + (in.read() << 8) + (in.read() << 16) + (in.read() << 24);
 		returnPacket.data = in.readNBytes(returnPacket.length);
 		
@@ -175,7 +177,7 @@ public class ChirunoModClient implements StreamingInterface {
 				case (byte) 0xFF -> "Debug";
 				default -> "Unknown";
 			};
-			logger.log(String.format("Recieved packet of type 0x%02X (%s) and subtype 0x%02X", packet.type, pType, packet.subtype), LogLevel.VERBOSE);
+			logger.log(String.format("Recieved packet of type 0x%02X (%s) and subtype 0x%02X", packet.type, pType, packet.subtypeA), LogLevel.VERBOSE);
 			logger.log(""+packet.length, LogLevel.EXTREME);
 			logger.log(packet.data, LogLevel.EXTREME);
 			
@@ -185,7 +187,7 @@ public class ChirunoModClient implements StreamingInterface {
 				close();
 			} else if(packet.type == (byte)0xFF) {
 				// Output debug packets at verbose level
-				switch(packet.subtype) {
+				switch(packet.subtypeA) {
 					case 0x01: // Binary
 						logger.log(packet.data, LogLevel.REGULAR);
 						break;
@@ -202,26 +204,26 @@ public class ChirunoModClient implements StreamingInterface {
 		}
 		
 		// Whoa, we have a sane way to do screen detection now? How crazy!
-		DSScreen screen = (packet.subtype & SCREEN_MASK) > 0 ? DSScreen.BOTTOM : DSScreen.TOP;
+		DSScreen screen = (packet.subtypeA & SCREEN_MASK) > 0 ? DSScreen.BOTTOM : DSScreen.TOP;
 		
 		BufferedImage image = null;
 		
-		if ((packet.subtype & TGA_MASK) == 0) { // JPEG mode
+		if ((packet.subtypeA & TGA_MASK) == 0) { // JPEG mode
 			WritableInputStream imageData = new WritableInputStream(packet.data, true);
 			image = ImageIO.read(imageData.getInputStream());
 			// For some reason the red and blue channels are swapped. Fix it.
 			image = ColorHotfix.doColorHotfix(image, colorMode, true);
 		} else { // TGA mode
-			image = TargaParser.parseBytes(packet.data, screen, TGAPixelFormat.fromInt(packet.subtype & FORMAT_MASK));
+			image = TargaParser.parseBytes(packet.data, screen, TGAPixelFormat.fromInt(packet.subtypeA & FORMAT_MASK));
 			image = ColorHotfix.doColorHotfix(image, colorMode, false);
 		}
 		
 		// Interlace with last frame, if applicable.
-		if((packet.subtype & INTERLACE_MASK) > 0) {
+		if((packet.subtypeA & INTERLACE_MASK) > 0) {
 			if(screen == DSScreen.TOP) {
-				image = interlace(lastTopImage, image, (packet.subtype & PARITY_MASK)/PARITY_MASK);
+				image = interlace(lastTopImage, image, (packet.subtypeA & PARITY_MASK)/PARITY_MASK);
 			}  else {
-				image = interlace(lastBottomImage, image, (packet.subtype & PARITY_MASK)/PARITY_MASK);
+				image = interlace(lastBottomImage, image, (packet.subtypeA & PARITY_MASK)/PARITY_MASK);
 			}
 		}
 		if(screen == DSScreen.TOP) {
@@ -255,7 +257,9 @@ public class ChirunoModClient implements StreamingInterface {
 	 */
 	private class Packet {
 		public byte type;
-		public byte subtype;
+		public byte subtypeA;
+		public byte subtypeB;
+		public byte subtypeC;
 		public int length;
 		public byte[] data;
 		public byte[] pack;
@@ -264,7 +268,7 @@ public class ChirunoModClient implements StreamingInterface {
 		
 		Packet(byte type, byte subtype, byte[] data) {
 			this.type = type;
-			this.subtype = subtype;
+			this.subtypeA = subtype;
 			this.length = data.length;
 			this.data = data;
 			pack();
@@ -278,13 +282,15 @@ public class ChirunoModClient implements StreamingInterface {
 		}
 		
 		void pack() {
-			pack = new byte[length+6];
+			pack = new byte[length+8];
 			pack[0] = type;
-			pack[1] = subtype;
-			pack[2] = (byte) length; // Narrowing ensures only bottom 8 bytes
-			pack[3] = (byte)(length >>> 8);
-			pack[4] = (byte)(length >>> 16);
-			pack[5] = (byte)(length >>> 24);
+			pack[1] = subtypeA;
+			pack[2] = subtypeB;
+			pack[3] = subtypeC;
+			pack[4] = (byte) length; // Narrowing ensures only bottom 8 bytes
+			pack[5] = (byte)(length >>> 8);
+			pack[6] = (byte)(length >>> 16);
+			pack[7] = (byte)(length >>> 24);
 			if(length > 0) {
 				System.arraycopy(data, 0, pack, 6, length);
 			}
@@ -292,8 +298,10 @@ public class ChirunoModClient implements StreamingInterface {
 		
 		void unpack() {
 			type = pack[0];
-			subtype = pack[1];
-			length = pack[2] + (pack[3] << 8) + (pack[4] << 16) + (pack[4] << 24);
+			subtypeA = pack[1];
+			subtypeB = pack[2];
+			subtypeC = pack[3];
+			length = pack[4] + (pack[5] << 8) + (pack[6] << 16) + (pack[7] << 24);
 			data = Arrays.copyOfRange(pack, 5, length);
 		}
 	}
