@@ -292,7 +292,7 @@ public class ChirunoModClient implements StreamingInterface {
 			pack[6] = (byte)(length >>> 16);
 			pack[7] = (byte)(length >>> 24);
 			if(length > 0) {
-				System.arraycopy(data, 0, pack, 6, length);
+				System.arraycopy(data, 0, pack, 8, length);
 			}
 		}
 		
@@ -302,7 +302,7 @@ public class ChirunoModClient implements StreamingInterface {
 			subtypeB = pack[2];
 			subtypeC = pack[3];
 			length = pack[4] + (pack[5] << 8) + (pack[6] << 16) + (pack[7] << 24);
-			data = Arrays.copyOfRange(pack, 5, length);
+			data = Arrays.copyOfRange(pack, 9, length);
 		}
 	}
 	
