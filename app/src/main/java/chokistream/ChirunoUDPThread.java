@@ -85,6 +85,7 @@ public class ChirunoUDPThread extends Thread {
 		while (!shouldDie.get()) {
 			DatagramPacket packet = new DatagramPacket(packetBuffer, packetBuffer.length);
 			try {
+				logger.log("Attempting socket.receive(packet)", LogLevel.VERBOSE);
 				socket.receive(packet);
 				byte[] data = packet.getData();
 				
