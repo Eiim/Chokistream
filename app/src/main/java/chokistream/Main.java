@@ -45,7 +45,7 @@ public class Main {
 		}
 	}
 	
-	private static StreamingInterface initialize(SettingsUI ui) {
+	public static StreamingInterface initialize(SettingsUI ui) {
 		// These are universal, so get these first and then sort out the rest by mod.
     	// Technically quality could be here.
     	Mod mod;
