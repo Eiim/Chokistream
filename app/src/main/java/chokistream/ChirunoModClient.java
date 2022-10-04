@@ -41,6 +41,9 @@ public class ChirunoModClient implements StreamingInterface {
 	private static final int INTERLACE_MASK = 	0b00100000;
 	private static final int PARITY_MASK = 		0b01000000;
 	
+	private static final int FRACTIONAL_MASK = 	0b00001000;
+	private static final int FRACTION_MASK = 	0b00000111;
+	
 	private static final Logger logger = Logger.INSTANCE;
 
 	/**
@@ -177,7 +180,7 @@ public class ChirunoModClient implements StreamingInterface {
 				case (byte) 0xFF -> "Debug";
 				default -> "Unknown";
 			};
-			logger.log(String.format("Recieved packet of type 0x%02X (%s) and subtype 0x%02X", packet.type, pType, packet.subtypeA), LogLevel.VERBOSE);
+			logger.log(String.format("Recieved packet of type 0x%02X (%s) and subtypes 0x%02X 0x%02X", packet.type, pType, packet.subtypeA, packet.subtypeB), LogLevel.VERBOSE);
 			logger.log(""+packet.length, LogLevel.EXTREME);
 			logger.log(packet.data, LogLevel.EXTREME);
 			
@@ -226,6 +229,16 @@ public class ChirunoModClient implements StreamingInterface {
 				image = interlace(lastBottomImage, image, (packet.subtypeA & PARITY_MASK)/PARITY_MASK);
 			}
 		}
+		
+		// Do fractional screen, if applicable.
+		if((packet.subtypeB & FRACTIONAL_MASK) > 0) {
+			if(screen == DSScreen.TOP) {
+				image = addFractional(lastTopImage, image, (packet.subtypeB & FRACTION_MASK));
+			}  else {
+				image = addFractional(lastBottomImage, image, (packet.subtypeB & FRACTION_MASK));
+			}
+		}
+		
 		if(screen == DSScreen.TOP) {
 			lastTopImage = image;
 		}  else {
@@ -247,6 +260,20 @@ public class ChirunoModClient implements StreamingInterface {
 		for(int col = 0; col < 120; col++) {
 			for(int row = 0; row < height; row++) {
 				oldIm.setRGB(col*2+parity, row, newIm.getRGB(col, row));
+			}
+		}
+		return oldIm;
+	}
+	
+	/*
+	 * It's really split by *rows* of the image, which correspond to *columns* of the screen.
+	 */
+	private BufferedImage addFractional(BufferedImage oldIm, BufferedImage newIm, int frac) {
+		int height = newIm.getHeight();
+		int offset = height*frac;
+		for(int row = 0; row < height; row++) {
+			for(int col = 0; col < 240; col++) {
+				oldIm.setRGB(col, offset+row, newIm.getRGB(col, row));
 			}
 		}
 		return oldIm;
