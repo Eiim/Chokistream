@@ -12,7 +12,7 @@ import chokistream.props.LogLevel;
 
 public class FPSTester implements VideoOutputInterface {
 	
-	private int recF = 0;
+	private long lastF;
 	private int qual = 1;
 	private Timer fpsTimer;
 	private NetworkThread networkThread;
@@ -28,17 +28,17 @@ public class FPSTester implements VideoOutputInterface {
 		//StreamingInterface client = Main.initialize(ui);
 		
 		ChirunoModClient client = new ChirunoModClient("172.22.104.175", qual, false, false, false, 0, ColorMode.REGULAR,
-				6464, DSScreenBoth.BOTTOM, 1.0, 1.0, InterpolationMode.NONE);
+				6464, DSScreenBoth.TOP, 1.0, 1.0, InterpolationMode.NONE);
 		
 		networkThread = new NetworkThread(client, this);
 		networkThread.start();
+		
+		lastF = System.nanoTime();
 		
 		fpsTimer = new Timer();
 		fpsTimer.scheduleAtFixedRate(new TimerTask() {
 			@Override
 			public void run() {
-				System.out.println(qual+","+(recF/10.0));
-				recF = 0;
 				if(qual < 100) {
 					qual++;
 					try {
@@ -48,6 +48,7 @@ public class FPSTester implements VideoOutputInterface {
 					}
 				} else {
 					networkThread.stopRunning();
+					fpsTimer.cancel();
 				}
 			}
 		}, 10*1000, 10*1000);
@@ -55,8 +56,9 @@ public class FPSTester implements VideoOutputInterface {
 	
 	@Override
 	public void renderFrame(Frame frame) {
-		//System.out.println("frame");
-		recF++;
+		long now = System.nanoTime();
+		System.out.println(qual+","+(now-lastF)/1e6);
+		lastF = now;
 	}
 
 	@Override
