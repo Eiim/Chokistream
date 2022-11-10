@@ -221,8 +221,6 @@ public class ChirunoModClient implements StreamingInterface {
 			image = ColorHotfix.doColorHotfix(image, colorMode, false);
 		}
 		
-		logger.log("image.getWidth = "+image.getWidth(), LogLevel.VERBOSE);
-		
 		// Interlace with last frame, if applicable.
 		if((packet.subtypeA & INTERLACE_MASK) > 0) {
 			if(screen == DSScreen.TOP) {
@@ -279,7 +277,9 @@ public class ChirunoModClient implements StreamingInterface {
 				try {
 					oldIm.setRGB(col, offset+row, newIm.getRGB(col, row));
 				} catch(Exception e) {
-					//logger.log(col+" "+row+" "+newIm.getWidth()+" "+newIm.getHeight(), LogLevel.EXTREME);
+					logger.log("Failed to get/set pixel.\nGet location:"+
+								col+","+row+" in "+newIm.getWidth()+","+newIm.getHeight()+"\nSet location:"+
+								col+","+offset+row+" in "+oldIm.getWidth()+","+oldIm.getHeight(), LogLevel.VERBOSE);
 				}
 			}
 		}
