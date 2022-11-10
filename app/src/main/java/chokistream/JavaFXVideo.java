@@ -379,7 +379,7 @@ public class JavaFXVideo implements VideoOutputInterface {
 		Stage bottomStage = new Stage();
 		Group gb = new Group();
 		gb.getChildren().add(bottomImageView);
-		Scene sb = new Scene(gb, 400*uiScale*bottomScale, 240*uiScale*bottomScale);
+		Scene sb = new Scene(gb, 320*uiScale*bottomScale, 240*uiScale*bottomScale);
 		bottomStage.setScene(sb);
 		bottomStage.setTitle("Chokistream");
 		bottomStage.show();
