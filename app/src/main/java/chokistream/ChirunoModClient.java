@@ -221,6 +221,8 @@ public class ChirunoModClient implements StreamingInterface {
 			image = ColorHotfix.doColorHotfix(image, colorMode, false);
 		}
 		
+		logger.log("image.getWidth = "+image.getWidth(), LogLevel.VERBOSE);
+		
 		// Interlace with last frame, if applicable.
 		if((packet.subtypeA & INTERLACE_MASK) > 0) {
 			if(screen == DSScreen.TOP) {
@@ -237,6 +239,7 @@ public class ChirunoModClient implements StreamingInterface {
 			}  else {
 				image = addFractional(lastBottomImage, image, (packet.subtypeB & FRACTION_MASK));
 			}
+			logger.log("Screen-Fraction = "+(packet.subtypeB & FRACTION_MASK), LogLevel.VERBOSE);
 		}
 		
 		if(screen == DSScreen.TOP) {
@@ -273,7 +276,11 @@ public class ChirunoModClient implements StreamingInterface {
 		int offset = height*frac;
 		for(int row = 0; row < height; row++) {
 			for(int col = 0; col < 240; col++) {
-				oldIm.setRGB(col, offset+row, newIm.getRGB(col, row));
+				try {
+					oldIm.setRGB(col, offset+row, newIm.getRGB(col, row));
+				} catch(Exception e) {
+					//logger.log(col+" "+row+" "+newIm.getWidth()+" "+newIm.getHeight(), LogLevel.EXTREME);
+				}
 			}
 		}
 		return oldIm;
