@@ -279,7 +279,7 @@ public class ChirunoModClient implements StreamingInterface {
 				} catch(Exception e) {
 					logger.log("Failed to get/set pixel.\nGet location:"+
 								col+","+row+" in "+newIm.getWidth()+","+newIm.getHeight()+"\nSet location:"+
-								col+","+offset+row+" in "+oldIm.getWidth()+","+oldIm.getHeight(), LogLevel.VERBOSE);
+								col+","+(offset+row)+" in "+oldIm.getWidth()+","+oldIm.getHeight(), LogLevel.VERBOSE);
 				}
 			}
 		}
