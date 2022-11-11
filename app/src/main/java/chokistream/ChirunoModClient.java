@@ -168,6 +168,7 @@ public class ChirunoModClient implements StreamingInterface {
 	public Frame getFrame() throws IOException {
 		Frame returnFrame = null;
 		Packet packet = new Packet();
+		boolean lastFrame = true;
 		
 		// I'd kinda like to refactor this loop but it works for now
 		while (packet.type != 0x01) { // 0x01 is Image packet
@@ -223,6 +224,9 @@ public class ChirunoModClient implements StreamingInterface {
 		
 		// Interlace with last frame, if applicable.
 		if((packet.subtypeA & INTERLACE_MASK) > 0) {
+			if((packet.subtypeA & PARITY_MASK) == 0) {
+				lastFrame = false;
+			}
 			if(screen == DSScreen.TOP) {
 				image = interlace(lastTopImage, image, (packet.subtypeA & PARITY_MASK)/PARITY_MASK);
 			}  else {
@@ -233,8 +237,14 @@ public class ChirunoModClient implements StreamingInterface {
 		// Do fractional screen, if applicable.
 		if((packet.subtypeB & FRACTIONAL_MASK) > 0) {
 			if(screen == DSScreen.TOP) {
+				if(((packet.subtypeB & FRACTION_MASK)+1)*image.getHeight() < 400) {
+					lastFrame = false;
+				}
 				image = addFractional(lastTopImage, image, (packet.subtypeB & FRACTION_MASK));
 			}  else {
+				if(((packet.subtypeB & FRACTION_MASK)+1)*image.getHeight() < 400) {
+					lastFrame = false;
+				}
 				image = addFractional(lastBottomImage, image, (packet.subtypeB & FRACTION_MASK));
 			}
 			logger.log("Screen-Fraction = "+(packet.subtypeB & FRACTION_MASK), LogLevel.VERBOSE);
@@ -246,11 +256,16 @@ public class ChirunoModClient implements StreamingInterface {
 			lastBottomImage = image;
 		}
 		
-		image = Interpolator.scale(image, intrp, screen == DSScreen.BOTTOM ? bottomScale : topScale);
+		if(lastFrame || vsync) {
+			image = Interpolator.scale(image, intrp, screen == DSScreen.BOTTOM ? bottomScale : topScale);
+			
+			returnFrame = new Frame(screen, image);
+			
+			return returnFrame;
+		} else {
+			return getFrame(); // Should never stack above 8 (16 if interlaced partial, please never do that), so this is probably fine
+		}
 		
-		returnFrame = new Frame(screen, image);
-		
-		return returnFrame;
 	}
 	
 	/* 
