@@ -247,7 +247,7 @@ public class ChirunoModClient implements StreamingInterface {
 				}
 				image = addFractional(lastBottomImage, image, (packet.subtypeB & FRACTION_MASK));
 			}
-			logger.log("Screen-Fraction = "+(packet.subtypeB & FRACTION_MASK), LogLevel.VERBOSE);
+			logger.log("Screen fraction: "+(packet.subtypeB & FRACTION_MASK), LogLevel.VERBOSE);
 		}
 		
 		if(screen == DSScreen.TOP) {
@@ -256,7 +256,7 @@ public class ChirunoModClient implements StreamingInterface {
 			lastBottomImage = image;
 		}
 		
-		if(lastFrame || vsync) {
+		if(lastFrame || !vsync) {
 			image = Interpolator.scale(image, intrp, screen == DSScreen.BOTTOM ? bottomScale : topScale);
 			
 			returnFrame = new Frame(screen, image);
