@@ -1,11 +1,12 @@
 ![Chokistream](banner.svg)
 
-Nintendo 3DS wireless video capture software, compatible with [BootNTR](https://github.com/44670/BootNTR) and [HzMod](https://chainswordcs.com/horizon-by-sono.html) and the only cross-platform video capture software to support HzMod.
+Nintendo 3DS wireless video capture software, compatible with [ChirunoMod](https://github.com/ChainSwordCS/ChirunoMod), [BootNTR](https://github.com/44670/BootNTR) and [HzMod](https://chainswordcs.com/horizon-by-sono.html) and the only cross-platform video capture software to support HzMod.
 
 A from-scratch re-implementation of [Snickerstream](https://github.com/RattletraPM/Snickerstream), with planned TARGA support from [TGAHz](https://github.com/ChainSwordCS/TGAHz-Parsing) and [HorizonScreen](hps://github.com/gamingaddictionz03/HorizonM)
 
 Notable features:
- * Portable: it's just a standalone jar file!
+ * Only client to support ChirunoMod!
+ * Supports Windows, Linux, and Mac (builds may not be available for all platforms for all releases)
  * TGA (lossless compression) support for HzMod, the only application other than HorizonScreen to do so!
  * Various display output options to get it looking just right on your monitor
  * No monitor? No problem! Chokistream can run entirely headless and stream straight to a video file. (currently very buggy)
