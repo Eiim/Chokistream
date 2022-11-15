@@ -13,6 +13,7 @@ import javax.imageio.ImageIO;
 
 import chokistream.props.ColorMode;
 import chokistream.props.DSScreen;
+import chokistream.props.DSScreenBoth;
 import chokistream.props.InterpolationMode;
 import chokistream.props.LogLevel;
 
@@ -21,8 +22,8 @@ import chokistream.props.LogLevel;
  */
 public class HZModClient implements StreamingInterface {
 	
-	private final byte targaPacket = 0x03;
-	private final byte jpegPacket = 0x04;
+	private static final byte TARGA_PACKET = 0x03;
+	private static final byte JPEG_PACKET = 0x04;
 	
 	private Socket client = null;
 	private InputStream in = null;
@@ -34,6 +35,9 @@ public class HZModClient implements StreamingInterface {
 	public int quality;
 	private TGAPixelFormat topFormat = TGAPixelFormat.RGB8;
 	private TGAPixelFormat bottomFormat = TGAPixelFormat.RGB8;
+	
+	private int topFrames;
+	private int bottomFrames;
 	
 	private static final Logger logger = Logger.INSTANCE;
 
@@ -139,11 +143,11 @@ public class HZModClient implements StreamingInterface {
 		Frame returnFrame = null;
 		Packet packet = new Packet();
 		
-		while (packet.type != jpegPacket && packet.type != targaPacket) {
+		while (packet.type != JPEG_PACKET && packet.type != TARGA_PACKET) {
 			packet = getPacket();
 			String pType = switch(packet.type) {
-				case jpegPacket -> "JPEG";
-				case targaPacket -> "TGA";
+				case JPEG_PACKET -> "JPEG";
+				case TARGA_PACKET -> "TGA";
 				case 0x01 -> "Disconnect";
 				case 0x02 -> "Set mode";
 				case 0x7E -> "CFGBLK";
@@ -177,12 +181,12 @@ public class HZModClient implements StreamingInterface {
 		
 		BufferedImage image = null;
 		
-		if (packet.type == jpegPacket) {
+		if (packet.type == JPEG_PACKET) {
 			WritableInputStream imageData = new WritableInputStream(data, true);
 			image = ImageIO.read(imageData.getInputStream());
 			// For some reason the red and blue channels are swapped. Fix it.
 			image = ColorHotfix.doColorHotfix(image, colorMode, true);
-		} else if (packet.type == targaPacket) {
+		} else if (packet.type == TARGA_PACKET) {
 			image = TargaParser.parseBytes(data, screen, screen == DSScreen.BOTTOM ? bottomFormat : topFormat);
 			image = ColorHotfix.doColorHotfix(image, colorMode, false);
 		}
@@ -191,7 +195,34 @@ public class HZModClient implements StreamingInterface {
 		
 		returnFrame = new Frame(screen, image);
 		
+		if(screen == DSScreen.TOP) {
+			topFrames++;
+		} else {
+			bottomFrames++;
+		}
+		
 		return returnFrame;
+	}
+	
+	@Override
+	public int getFrameCount(DSScreenBoth screens) {
+		switch(screens) {
+			case TOP:
+				int f = topFrames;
+				topFrames = 0;
+				return f;
+			case BOTTOM:
+				int f2 = bottomFrames;
+				bottomFrames = 0;
+				return f2;
+			case BOTH:
+				int f3 = topFrames + bottomFrames;
+				topFrames = 0;
+				bottomFrames = 0;
+				return f3;
+			default:
+				return 0; // Should never happen
+		}
 	}
 	
 	/**

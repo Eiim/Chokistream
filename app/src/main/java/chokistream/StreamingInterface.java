@@ -2,6 +2,8 @@ package chokistream;
 
 import java.io.IOException;
 
+import chokistream.props.DSScreenBoth;
+
 /**
  * Defines an interface that all streaming clients must implement.
  */
@@ -18,4 +20,9 @@ public interface StreamingInterface {
 	 */
 	public Frame getFrame() throws InterruptedException, IOException;
 	
+	/**
+	 * Gets the number of frames recieved since the last call.
+	 * @return The number of frames
+	 */
+	public int getFrameCount(DSScreenBoth screens);
 }

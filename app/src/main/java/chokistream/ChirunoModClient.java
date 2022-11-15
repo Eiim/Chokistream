@@ -35,6 +35,9 @@ public class ChirunoModClient implements StreamingInterface {
 	private BufferedImage lastBottomImage;
 	private boolean vsync;
 	
+	private int topFrames;
+	private int bottomFrames;
+	
 	private static final int FORMAT_MASK = 		0b00000111;
 	private static final int TGA_MASK = 		0b00001000;
 	private static final int SCREEN_MASK = 		0b00010000;
@@ -256,9 +259,17 @@ public class ChirunoModClient implements StreamingInterface {
 			lastBottomImage = image;
 		}
 		
+		// If we're not vsyncing, we still want to have correct fps, which means only count last frames
+		if(lastFrame) {
+			if(screen == DSScreen.TOP) {
+				topFrames++;
+			} else {
+				bottomFrames++;
+			}
+		}
+		
 		if(lastFrame || !vsync) {
 			image = Interpolator.scale(image, intrp, screen == DSScreen.BOTTOM ? bottomScale : topScale);
-			
 			returnFrame = new Frame(screen, image);
 			
 			return returnFrame;
@@ -299,6 +310,27 @@ public class ChirunoModClient implements StreamingInterface {
 			}
 		}
 		return oldIm;
+	}
+
+	@Override
+	public int getFrameCount(DSScreenBoth screens) {
+		switch(screens) {
+			case TOP:
+				int f = topFrames;
+				topFrames = 0;
+				return f;
+			case BOTTOM:
+				int f2 = bottomFrames;
+				bottomFrames = 0;
+				return f2;
+			case BOTH:
+				int f3 = topFrames + bottomFrames;
+				topFrames = 0;
+				bottomFrames = 0;
+				return f3;
+			default:
+				return 0; // Should never happen
+		}
 	}
 	
 	/**

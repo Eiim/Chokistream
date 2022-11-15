@@ -11,6 +11,7 @@ import java.util.TimerTask;
 import javax.imageio.ImageIO;
 
 import chokistream.props.DSScreen;
+import chokistream.props.DSScreenBoth;
 import chokistream.props.InterpolationMode;
 import chokistream.props.Layout;
 import chokistream.props.LogLevel;
@@ -41,8 +42,6 @@ public class JavaFXVideo implements VideoOutputInterface {
 	private static final Logger logger = Logger.INSTANCE;
 	private double topScale;
 	private double bottomScale;
-	private int topFrames = 0;
-	private int bottomFrames = 0;
 	private int topFPS = 0;
 	private int bottomFPS = 0;
 	private Timer fpsTimer;
@@ -196,20 +195,20 @@ public class JavaFXVideo implements VideoOutputInterface {
 		
 		fpsTimer = new Timer();
 		fpsTimer.scheduleAtFixedRate(new TimerTask() {
+			@Override
 			public void run() {
-				topFPS = topFrames;
-				bottomFPS = bottomFrames;
-				topFrames = 0;
-				bottomFrames = 0;
+				topFPS = client.getFrameCount(DSScreenBoth.TOP);
+				bottomFPS = client.getFrameCount(DSScreenBoth.BOTTOM);
 				
 				// We can't update it from this thread, but Platform.runLater allows us to request an event on the main thread
 				Platform.runLater(new Runnable() {
+					@Override
 					public void run() {
 						if(stages.size() == 2) {
 							stages.get(0).setTitle("Chokistream - Top Screen ("+topFPS+" FPS)");
 							stages.get(1).setTitle("Chokistream - Bottom Screen ("+bottomFPS+" FPS)");
 						} else {
-							stages.get(0).setTitle("Chokistream ("+(int)Math.max(topFPS, bottomFPS)+" FPS)");
+							stages.get(0).setTitle("Chokistream ("+Math.max(topFPS, bottomFPS)+" FPS)");
 						}
 					}
 				});
@@ -228,10 +227,8 @@ public class JavaFXVideo implements VideoOutputInterface {
 	public void renderFrame(Frame fr) {
 		if(fr.screen == DSScreen.BOTTOM) {
 			bottomImageView.setImage(SwingFXUtils.toFXImage(fr.image, null));
-			bottomFrames++;
 		} else {
 			topImageView.setImage(SwingFXUtils.toFXImage(fr.image, null));
-			topFrames++;
 		}
 	}
 	

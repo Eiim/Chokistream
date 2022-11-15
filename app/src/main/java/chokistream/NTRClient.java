@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 import chokistream.props.ColorMode;
 import chokistream.props.ConsoleModel;
 import chokistream.props.DSScreen;
+import chokistream.props.DSScreenBoth;
 import chokistream.props.InterpolationMode;
 import chokistream.props.LogLevel;
 
@@ -23,6 +24,9 @@ public class NTRClient implements StreamingInterface {
 	private NTRUDPThread thread;
 	
 	private static final Logger logger = Logger.INSTANCE;
+	
+	private int topFrames;
+	private int bottomFrames;
 
 	/**
 	 * Create an NTRClient.
@@ -83,7 +87,13 @@ public class NTRClient implements StreamingInterface {
 
 	@Override
 	public Frame getFrame() throws InterruptedException {
-		return thread.getFrame();
+		Frame f = thread.getFrame();
+		if(f.screen == DSScreen.TOP) {
+			topFrames++;
+		} else {
+			bottomFrames++;
+		}
+		return f;
 	}
 	
 	public static void sendNFCPatch(String host, int port, byte[] addr, ConsoleModel model) throws UnknownHostException, IOException {
@@ -99,5 +109,26 @@ public class NTRClient implements StreamingInterface {
 		patchOut.write(binaryPacketPatch);
 		patchOut.close();
 		patchClient.close();
+	}
+	
+	@Override
+	public int getFrameCount(DSScreenBoth screens) {
+		switch(screens) {
+			case TOP:
+				int f = topFrames;
+				topFrames = 0;
+				return f;
+			case BOTTOM:
+				int f2 = bottomFrames;
+				bottomFrames = 0;
+				return f2;
+			case BOTH:
+				int f3 = topFrames + bottomFrames;
+				topFrames = 0;
+				bottomFrames = 0;
+				return f3;
+			default:
+				return 0; // Should never happen
+		}
 	}
 }
