@@ -23,6 +23,7 @@ Describe the issue you're having. Add screenshots if applicable.
  * HzMod/NTR/ChirunoMod version (on the 3DS)
  * New 3DS or original 3DS?
  * Games where the issue is encountered, if applicable
+
 Take screenshots of the Chokistream settings, including mod settings, and put them here.
 
 **Additional context**
