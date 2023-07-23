@@ -35,6 +35,8 @@ public class HZModClient implements StreamingInterface {
 	public int quality;
 	private TGAPixelFormat topFormat = TGAPixelFormat.RGB8;
 	private TGAPixelFormat bottomFormat = TGAPixelFormat.RGB8;
+	private BufferedImage lastTopImage;
+	private BufferedImage lastBottomImage;
 	
 	private int topFrames;
 	private int bottomFrames;
@@ -61,6 +63,9 @@ public class HZModClient implements StreamingInterface {
 		this.bottomScale = bottomScale;
 		this.intrp = intrp;
 		this.quality = quality;
+		
+		lastTopImage = new BufferedImage(240, 400, BufferedImage.TYPE_INT_RGB);
+		lastBottomImage = new BufferedImage(240, 320, BufferedImage.TYPE_INT_RGB);
 		
 		if (capCPU > 0) {
 			sendLimitCPU(capCPU);
@@ -165,18 +170,19 @@ public class HZModClient implements StreamingInterface {
 				logger.log("Set top TGA pixel format to "+topFormat, LogLevel.VERBOSE);
 				logger.log("Set bottom TGA pixel format to "+bottomFormat, LogLevel.VERBOSE);
 			} else if(packet.type == 0x01) {
-				// Might at a well respect disconnect packets
+				// Might as well respect disconnect packets
 				logger.log("Recieved disconnect packet, closing");
 				close();
 			}
 		}
 		
-		// Bottom packets start with 90 01
+		// Bottom packets have 01 as second byte
 		DSScreen screen = packet.data[1] > 0 ? DSScreen.BOTTOM : DSScreen.TOP;
-		/*
-		 * No clue why, but HzMod includes an extra 8 bytes at the front of the image.
-		 * We need to trim it off.
-		 */
+		
+		// First byte is pixel offset
+		int xoffset = packet.data[0];
+		
+		// First 8 bytes are header, trim them off for the image data
 		byte[] data = Arrays.copyOfRange(packet.data, 8, packet.data.length);
 		
 		BufferedImage image = null;
@@ -191,7 +197,15 @@ public class HZModClient implements StreamingInterface {
 			image = ColorHotfix.doColorHotfix(image, colorMode, false);
 		}
 		
-		image = Interpolator.scale(image, intrp, screen == DSScreen.BOTTOM ? bottomScale : topScale);
+		if(screen == DSScreen.BOTTOM) {
+			image = addFractional(image, lastBottomImage, xoffset);
+			lastBottomImage = image;
+			image = Interpolator.scale(image, intrp, bottomScale);
+		} else {
+			image = addFractional(image, lastTopImage, xoffset);
+			lastTopImage = image;
+			image = Interpolator.scale(image, intrp, topScale);
+		}
 		
 		returnFrame = new Frame(screen, image);
 		
@@ -223,6 +237,25 @@ public class HZModClient implements StreamingInterface {
 			default:
 				return 0; // Should never happen
 		}
+	}
+	
+	/*
+	 * It's really split by *rows* of the image, which correspond to *columns* of the screen.
+	 */
+	private BufferedImage addFractional(BufferedImage oldIm, BufferedImage newIm, int offset) {
+		int height = newIm.getHeight();
+		for(int row = 0; row < height; row++) {
+			for(int col = 0; col < 240; col++) {
+				try {
+					oldIm.setRGB(col, offset+row, newIm.getRGB(col, row));
+				} catch(Exception e) {
+					logger.log("Failed to get/set pixel.\nGet location:"+
+								col+","+row+" in "+newIm.getWidth()+","+newIm.getHeight()+"\nSet location:"+
+								col+","+(offset+row)+" in "+oldIm.getWidth()+","+oldIm.getHeight(), LogLevel.VERBOSE);
+				}
+			}
+		}
+		return oldIm;
 	}
 	
 	/**
