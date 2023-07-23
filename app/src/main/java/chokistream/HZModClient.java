@@ -198,11 +198,11 @@ public class HZModClient implements StreamingInterface {
 		}
 		
 		if(screen == DSScreen.BOTTOM) {
-			image = addFractional(image, lastBottomImage, xoffset);
+			image = addFractional(lastBottomImage, image, xoffset);
 			lastBottomImage = image;
 			image = Interpolator.scale(image, intrp, bottomScale);
 		} else {
-			image = addFractional(image, lastTopImage, xoffset);
+			image = addFractional(lastTopImage, image, xoffset);
 			lastTopImage = image;
 			image = Interpolator.scale(image, intrp, topScale);
 		}
