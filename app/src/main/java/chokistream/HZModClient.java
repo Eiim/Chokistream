@@ -180,7 +180,7 @@ public class HZModClient implements StreamingInterface {
 		DSScreen screen = packet.data[1] > 0 ? DSScreen.BOTTOM : DSScreen.TOP;
 		
 		// First byte is pixel offset
-		int xoffset = packet.data[0];
+		int xoffset = packet.data[0] & 0xff;
 		
 		// First 8 bytes are header, trim them off for the image data
 		byte[] data = Arrays.copyOfRange(packet.data, 8, packet.data.length);
