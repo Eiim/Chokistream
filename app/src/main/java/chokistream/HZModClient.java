@@ -166,7 +166,7 @@ public class HZModClient implements StreamingInterface {
 			// If we get a Set Mode packet, we need to update our pixel format
 			if(packet.type == 0x02) {
 				topFormat = TGAPixelFormat.fromInt(packet.data[0] & 0x07);
-				bottomFormat = TGAPixelFormat.fromInt(packet.data[2] & 0x07);
+				bottomFormat = TGAPixelFormat.fromInt(packet.data[8] & 0x07);
 				logger.log("Set top TGA pixel format to "+topFormat, LogLevel.VERBOSE);
 				logger.log("Set bottom TGA pixel format to "+bottomFormat, LogLevel.VERBOSE);
 			} else if(packet.type == 0x01) {
@@ -176,11 +176,14 @@ public class HZModClient implements StreamingInterface {
 			}
 		}
 		
-		// Bottom packets have 01 as second byte
-		DSScreen screen = packet.data[1] > 0 ? DSScreen.BOTTOM : DSScreen.TOP;
+		// First two bytes is pixel offset (actually four, but other two are never used)
+		int offset = (packet.data[0] & 0xff) + ((packet.data[1] & 0xff) << 8);
 		
-		// First byte is pixel offset
-		int xoffset = packet.data[0] & 0xff;
+		// Values >= 400 indicate bottom screen
+		DSScreen screen = offset >= 400 ? DSScreen.BOTTOM : DSScreen.TOP;;
+		
+		// If bottom screen, subtract 400 to get actual offset
+		offset %= 400;
 		
 		// First 8 bytes are header, trim them off for the image data
 		byte[] data = Arrays.copyOfRange(packet.data, 8, packet.data.length);
@@ -197,12 +200,14 @@ public class HZModClient implements StreamingInterface {
 			image = ColorHotfix.doColorHotfix(image, colorMode, false);
 		}
 		
+		logger.log(screen.getLongName()+":"+image.getWidth()+","+image.getHeight(), LogLevel.VERBOSE);
+		
 		if(screen == DSScreen.BOTTOM) {
-			image = addFractional(lastBottomImage, image, xoffset);
+			image = addFractional(lastBottomImage, image, offset);
 			lastBottomImage = image;
 			image = Interpolator.scale(image, intrp, bottomScale);
 		} else {
-			image = addFractional(lastTopImage, image, xoffset);
+			image = addFractional(lastTopImage, image, offset);
 			lastTopImage = image;
 			image = Interpolator.scale(image, intrp, topScale);
 		}
@@ -252,6 +257,7 @@ public class HZModClient implements StreamingInterface {
 					logger.log("Failed to get/set pixel.\nGet location:"+
 								col+","+row+" in "+newIm.getWidth()+","+newIm.getHeight()+"\nSet location:"+
 								col+","+(offset+row)+" in "+oldIm.getWidth()+","+oldIm.getHeight(), LogLevel.VERBOSE);
+					break; // Somehow this fixes things. I don't understand it.
 				}
 			}
 		}
