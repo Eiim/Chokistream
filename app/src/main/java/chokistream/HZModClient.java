@@ -180,7 +180,7 @@ public class HZModClient implements StreamingInterface {
 		int offset = (packet.data[0] & 0xff) + ((packet.data[1] & 0xff) << 8);
 		
 		// Values >= 400 indicate bottom screen
-		DSScreen screen = offset >= 400 ? DSScreen.BOTTOM : DSScreen.TOP;;
+		DSScreen screen = offset >= 400 ? DSScreen.BOTTOM : DSScreen.TOP;
 		
 		// If bottom screen, subtract 400 to get actual offset
 		offset %= 400;
@@ -203,22 +203,18 @@ public class HZModClient implements StreamingInterface {
 		logger.log(screen.getLongName()+":"+image.getWidth()+","+image.getHeight(), LogLevel.VERBOSE);
 		
 		if(screen == DSScreen.BOTTOM) {
+			if(image.getHeight() + offset == 320) bottomFrames++;
 			image = addFractional(lastBottomImage, image, offset);
 			lastBottomImage = image;
 			image = Interpolator.scale(image, intrp, bottomScale);
 		} else {
+			if(image.getHeight() + offset == 400) topFrames++;
 			image = addFractional(lastTopImage, image, offset);
 			lastTopImage = image;
 			image = Interpolator.scale(image, intrp, topScale);
 		}
 		
 		returnFrame = new Frame(screen, image);
-		
-		if(screen == DSScreen.TOP) {
-			topFrames++;
-		} else {
-			bottomFrames++;
-		}
 		
 		return returnFrame;
 	}
