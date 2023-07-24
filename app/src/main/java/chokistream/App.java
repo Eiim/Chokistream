@@ -60,6 +60,9 @@ public class App extends Application {
     		case FILE:
     			Main.initializeFile(ui);
     			break;
+    		case SEQUENCE:
+    			Main.initializeSequence(ui);
+    			break;
     	}
     	
     	stage.close();

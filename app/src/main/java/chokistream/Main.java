@@ -135,4 +135,11 @@ public class Main {
 		VideoFormat vf = ui.getPropEnum(Prop.VIDEOCODEC, VideoFormat.class);
 		new OutputFileVideo(client, layout, fileName+"."+vf.getExtension(), vf);
 	}
+	
+	public static void initializeSequence(SettingsUI ui) {
+		StreamingInterface client = initialize(ui);
+		// Temporary until we have a different property
+		String filename = ui.getPropString(Prop.VIDEOFILE);
+		new ImageSequenceVideo(client, filename, "");
+	}
 }

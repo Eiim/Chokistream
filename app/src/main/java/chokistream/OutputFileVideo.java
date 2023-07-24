@@ -89,6 +89,6 @@ public class OutputFileVideo implements VideoOutputInterface {
 	
 	@Override
 	public void displayError(Exception e) {
-		logger.logOnce(e.getClass()+": "+e.getMessage()+"\n"+Arrays.toString(e.getStackTrace()));
+		logger.logOnce(e.getClass()+": "+e.getMessage()+System.lineSeparator()+Arrays.toString(e.getStackTrace()));
 	}
 }

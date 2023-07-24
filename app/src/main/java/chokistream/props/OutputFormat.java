@@ -3,7 +3,8 @@ package chokistream.props;
 public enum OutputFormat implements EnumProp {
 	
 	FILE("File Streaming"),
-	VISUAL("Visual");
+	VISUAL("Visual"),
+	SEQUENCE("Image Sequence");
 	
 	private final String longName;
 	
