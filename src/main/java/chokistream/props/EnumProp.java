@@ -19,4 +19,16 @@ public interface EnumProp {
 		}
 		throw new NoSuchElementException("Invalid name "+name+" for property "+eClass.getName());
 	}
+	
+	/*
+	 * Very similar, helper function to get all long names for an enum
+	 */
+	public static <E extends Enum<E> & EnumProp> String[] getLongNames(Class<E> eClass) {
+		E[] values = eClass.getEnumConstants();
+		String[] names = new String[values.length];
+		for(int i = 0; i < values.length; i++) {
+			names[i] = values[i].getLongName();
+		}
+		return names;
+	}
 }

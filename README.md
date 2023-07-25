@@ -28,4 +28,4 @@ See the [Using Chokistream](https://github.com/Eiim/Chokistream/wiki/Using-Choki
 
 Written in Java 17 with Gradle 7.5, requires Java 17 to be installed :)
 
-No other requirements. Run `gradlew build` in Windows Command Prompt or `./gradlew build` in a Unix terminal. The jar is built to `app/build/libs/chokistream.jar`.
+No other requirements. Run `gradlew build` in Windows Command Prompt or `./gradlew build` in a Unix terminal. The jar is built to `build/libs/chokistream.jar`.

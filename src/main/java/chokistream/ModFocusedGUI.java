@@ -281,7 +281,7 @@ public class ModFocusedGUI extends SettingsUI {
 	
 	private void displayAbout() {
 		ImageView logo = new ImageView();
-		logo.setImage(IconLoader.get64x());
+		//logo.setImage(IconLoader.get64x());
 		logo.relocate(10, 10);
 		Text name = new Text(84, 64, "Chokistream");
 		name.setFont(Font.font("System", FontWeight.BOLD, 60));

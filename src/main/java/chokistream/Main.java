@@ -41,7 +41,8 @@ public class Main {
 			if(System.console() == null) {
 				// TODO: make custom console
 			}
-			App.main(args);
+			//App.main(args);
+			new SwingGUI();
 		}
 	}
 	
