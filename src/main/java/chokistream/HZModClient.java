@@ -176,8 +176,20 @@ public class HZModClient implements StreamingInterface {
 			}
 		}
 		
-		// First two bytes is pixel offset (actually four, but other two are never used)
-		int offset = (packet.data[0] & 0xff) + ((packet.data[1] & 0xff) << 8);
+		int offset;
+		
+		if (packet.type == TARGA_PACKET) {
+			offset = (packet.data[10] & 0xff) + ((packet.data[11] & 0xff) << 8); // origin_y
+		} else { // JPEG
+			// First two bytes is pixel offset (actually four, but other two are never used)
+			offset = (packet.data[0] & 0xff) + ((packet.data[1] & 0xff) << 8);
+		}
+		
+		logger.log("offset="+offset, LogLevel.EXTREME);
+		
+		if(offset < 0 || offset > 720) {
+			offset = 0;
+		}
 		
 		// Values >= 400 indicate bottom screen
 		DSScreen screen = offset >= 400 ? DSScreen.BOTTOM : DSScreen.TOP;
@@ -185,8 +197,16 @@ public class HZModClient implements StreamingInterface {
 		// If bottom screen, subtract 400 to get actual offset
 		offset %= 400;
 		
-		// First 8 bytes are header, trim them off for the image data
-		byte[] data = Arrays.copyOfRange(packet.data, 8, packet.data.length);
+		int pdataoffset;
+		
+		if (packet.type == JPEG_PACKET) {
+			// First 8 bytes are header, trim them off for the image data
+			pdataoffset = 8;
+		} else {
+			pdataoffset = 0;
+		}
+		
+		byte[] data = Arrays.copyOfRange(packet.data, pdataoffset, packet.data.length);
 		
 		BufferedImage image = null;
 		

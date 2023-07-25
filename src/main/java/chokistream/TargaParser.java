@@ -3,18 +3,77 @@ package chokistream;
 import java.awt.image.BufferedImage;
 
 import chokistream.props.DSScreen;
+import chokistream.props.LogLevel;
 
 public class TargaParser {
 	public static BufferedImage parseBytes(byte[] data, DSScreen screen, TGAPixelFormat format) {
-		int width = 240;
-		int height = screen == DSScreen.BOTTOM ? 320 : 400;
+		//int width = 240;
+		//int height = screen == DSScreen.BOTTOM ? 320 : 400;
+		
+		int height = (data[15] & 0xff) * 256 + (data[14] & 0xff);
+		if(height < 1 || height > 400 ) {
+			Logger.INSTANCE.log("Warning: invalid height in Targa metadata. height="+height, LogLevel.VERBOSE);
+			height = screen == DSScreen.BOTTOM ? 320 : 400;
+		}
+		int width = (data[13] & 0xff) * 256 + (data[12] & 0xff);
+		if(width < 1 || width > 240) {
+			Logger.INSTANCE.log("Warning: invalid width in Targa metadata. width="+width, LogLevel.VERBOSE);
+			width = 240;
+		}
+		
 		BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		
+		if(data[1] != 0x00) {
+			Logger.INSTANCE.log("Warning: Unexpected color-mapped image. Function not implemented. colormaptype="+(data[1] & 0xff));
+		}
+		
+		if(data[2] != 0x0A) {
+			Logger.INSTANCE.log("Warning: reported image type is not BGR_RLE. Function not implemented. imagetype="+(data[2] & 0xff));
+		}
+		
+		//int offset = (data[10] & 0xff) * 256 + (data[11] & 0xff);
+		
+		int rf = -1;
+		switch(data[16] & 0xff) {
+			case 16:
+				rf = 3;
+				break;
+			case 17:
+				rf = 2;
+				break;
+			case 18:
+				rf = 4;
+				break;
+			case 24:
+				rf = 1;
+				break;
+			case 32:
+				rf = 5;
+				break;
+			default:
+				rf = -1;
+				break;
+		}
+		
+		if(rf == -1) {
+			Logger.INSTANCE.log("Warning: Pixel format specified in Targa metadata is invalid. reported_bpp="+(data[16] & 0xff)+"; format="+TGAPixelFormat.toInt(format));
+		} else {
+			if(TGAPixelFormat.fromInt(rf) != format) {
+				Logger.INSTANCE.log("Warning: Pixel format specified in Targa metadata differs from previously specified format. Overriding... reported_bpp="+(data[16] & 0xff)+"; format="+TGAPixelFormat.toInt(format));
+			}
+			format = TGAPixelFormat.fromInt(rf);
+		}
+		
+
+		int idfieldlength = data[0] & 0xff;
+		int startingoffset = 18 + idfieldlength; // This should be correct... Formerly hardcoded to 22.
+		
 		int pxnum = 0;
-		for(int i = 22; i < data.length-26 && pxnum < width*height;) {
+		for(int i = startingoffset; i < data.length - (startingoffset + 4) && pxnum < width*height;) {
 			byte header = data[i];
 			boolean rle = (header & 0x80) == 0x80; // Top bit is one
 			int packlen = (header & 0x7F) + 1; // Bottom 15 bits plus one
+			
 			
 			if(rle) {
 				i += 1;
@@ -38,6 +97,7 @@ public class TargaParser {
 					try {
 						image.setRGB(pxnum%width, pxnum/width, (r << 16) | (g << 8) | b);
 					} catch(ArrayIndexOutOfBoundsException e) {
+						Logger.INSTANCE.log(e.getMessage());
 						// TODO: error handling?
 					}
 					pxnum++;
@@ -63,6 +123,7 @@ public class TargaParser {
 					try {
 						image.setRGB(pxnum%width, pxnum/width, (r << 16) | (g << 8) | b);
 					} catch(ArrayIndexOutOfBoundsException e) {
+						Logger.INSTANCE.log(e.getMessage());
 						// TODO: error handling?
 					}
 					pxnum++;
