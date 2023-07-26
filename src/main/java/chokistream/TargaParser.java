@@ -24,6 +24,9 @@ public class TargaParser {
 			width = 240;
 		}
 		
+		//debug
+		width = 180;
+		
 		logger.log("height="+height, LogLevel.EXTREME);
 		logger.log("width="+width, LogLevel.EXTREME);
 		
@@ -106,14 +109,6 @@ public class TargaParser {
 			byte header = data[i];
 			boolean rle = (header & 0x80) == 0x80; // Top bit is one
 			int packlen = (header & 0x7F) + 1; // Bottom 15 bits plus one
-			
-			// debug
-			if(format == TGAPixelFormat.RGB8) {
-				//rle = false;
-			}
-			if(format == TGAPixelFormat.RGBA8) {
-				//rle = false;
-			}
 			
 			if(rle) {
 				i += 1;
@@ -247,16 +242,21 @@ public class TargaParser {
 				b = (b << 4) | b;
 				break;
 			case RGB8:
-				// RRRRRRRRR GGGGGGGG BBBBBBBB
-				r = bytes[2];
-				g = bytes[1];
-				b = bytes[0];
+				// RRRRRRRRR GGGGGGGG BBBBBBBB (?)
+				//r = bytes[2];
+				g = bytes[0];
+				//b = bytes[0];
 				break;
 			case RGBA8:
-				// AAAAAAAA BBBBBBBB GGGGGGGG RRRRRRRR
+				// AAAAAAAA BBBBBBBB GGGGGGGG RRRRRRRR (formerly)
 				r = bytes[0];
+				
 				g = bytes[1];
+				
 				b = bytes[2];
+				
+				//r = g;
+				//b = g;
 				break;
 		}
 		return new int[] {r,g,b};
