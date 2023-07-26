@@ -6,29 +6,32 @@ import chokistream.props.DSScreen;
 import chokistream.props.LogLevel;
 
 public class TargaParser {
+	
+	private static final Logger logger = Logger.INSTANCE;
+	
 	public static BufferedImage parseBytes(byte[] data, DSScreen screen, TGAPixelFormat format) {
 		//int width = 240;
 		//int height = screen == DSScreen.BOTTOM ? 320 : 400;
 		
 		int height = (data[15] & 0xff) * 256 + (data[14] & 0xff);
 		if(height < 1 || height > 400 ) {
-			Logger.INSTANCE.log("Warning: invalid height in Targa metadata. height="+height, LogLevel.VERBOSE);
+			logger.log("Warning: invalid \"height\" in Targa metadata. height="+height, LogLevel.VERBOSE);
 			height = screen == DSScreen.BOTTOM ? 320 : 400;
 		}
 		int width = (data[13] & 0xff) * 256 + (data[12] & 0xff);
 		if(width < 1 || width > 240) {
-			Logger.INSTANCE.log("Warning: invalid width in Targa metadata. width="+width, LogLevel.VERBOSE);
+			logger.log("Warning: invalid \"width\" in Targa metadata. width="+width, LogLevel.VERBOSE);
 			width = 240;
 		}
 		
 		BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		
 		if(data[1] != 0x00) {
-			Logger.INSTANCE.log("Warning: Unexpected color-mapped image. Function not implemented. colormaptype="+(data[1] & 0xff));
+			logger.log("Warning: Unexpected color-mapped image. Function not implemented. colormaptype="+(data[1] & 0xff));
 		}
 		
 		if(data[2] != 0x0A) {
-			Logger.INSTANCE.log("Warning: reported image type is not BGR_RLE. Function not implemented. imagetype="+(data[2] & 0xff));
+			logger.log("Warning: reported image type is not BGR_RLE. Function not implemented. imagetype="+(data[2] & 0xff));
 		}
 		
 		//int offset = (data[10] & 0xff) * 256 + (data[11] & 0xff);
@@ -56,17 +59,30 @@ public class TargaParser {
 		}
 		
 		if(rf == -1) {
-			Logger.INSTANCE.log("Warning: Pixel format specified in Targa metadata is invalid. reported_bpp="+(data[16] & 0xff)+"; format="+TGAPixelFormat.toInt(format));
+			logger.log("Warning: Pixel format specified in Targa metadata is invalid. Falling back... reported_bpp="+(data[16] & 0xff)+"; format="+TGAPixelFormat.toString(format));
 		} else {
 			if(TGAPixelFormat.fromInt(rf) != format) {
-				Logger.INSTANCE.log("Warning: Pixel format specified in Targa metadata differs from previously specified format. Overriding... reported_bpp="+(data[16] & 0xff)+"; format="+TGAPixelFormat.toInt(format));
+				logger.log("Warning: Pixel format specified in Targa metadata differs from previously specified format. tga_reported_format="+TGAPixelFormat.toString(TGAPixelFormat.fromInt(rf))+"; format="+TGAPixelFormat.toString(format));
 			}
 			format = TGAPixelFormat.fromInt(rf);
 		}
+		logger.log("format="+TGAPixelFormat.toString(format), LogLevel.EXTREME);
 		
+		int attrbits = data[17] & 0b00001111;
+		logger.log("attrbits="+(attrbits), LogLevel.EXTREME);
+		if(attrbits != 0) {
+			//Logger.INSTANCE.log("Warning: \"Number of attribute bits per pixel\" is not zero. Function not implemented. attrbits="+(attrbits));
+		}
 
 		int idfieldlength = data[0] & 0xff;
 		int startingoffset = 18 + idfieldlength; // This should be correct... Formerly hardcoded to 22.
+		logger.log("\"Image ID\" field length="+(idfieldlength), LogLevel.EXTREME);
+		
+		boolean formatswitched = false;
+		if(format == TGAPixelFormat.RGB8) {
+			format = TGAPixelFormat.RGBA8;
+			formatswitched = true;
+		}
 		
 		int pxnum = 0;
 		for(int i = startingoffset; i < data.length - (startingoffset + 4) && pxnum < width*height;) {
@@ -74,6 +90,13 @@ public class TargaParser {
 			boolean rle = (header & 0x80) == 0x80; // Top bit is one
 			int packlen = (header & 0x7F) + 1; // Bottom 15 bits plus one
 			
+			// debug
+			if(format == TGAPixelFormat.RGB8) {
+				//rle = false;
+			}
+			if(format == TGAPixelFormat.RGBA8) {
+				rle = false;
+			}
 			
 			if(rle) {
 				i += 1;
@@ -83,7 +106,7 @@ public class TargaParser {
 						colorDat[k] = data[i+k] & 0xff;
 					} catch(ArrayIndexOutOfBoundsException e) {
 						colorDat[k] = 0;
-						Logger.INSTANCE.log(e.getMessage());
+						logger.log(e.getMessage());
 					}
 				}
 				int[] rgb = getRGB(colorDat, format);
@@ -97,7 +120,7 @@ public class TargaParser {
 					try {
 						image.setRGB(pxnum%width, pxnum/width, (r << 16) | (g << 8) | b);
 					} catch(ArrayIndexOutOfBoundsException e) {
-						Logger.INSTANCE.log(e.getMessage());
+						logger.log(e.getMessage());
 						// TODO: error handling?
 					}
 					pxnum++;
@@ -112,7 +135,7 @@ public class TargaParser {
 							colorDat[k] = data[i+k] & 0xff;
 						} catch(ArrayIndexOutOfBoundsException e) {
 							colorDat[k] = 0;
-							Logger.INSTANCE.log(e.getMessage());
+							logger.log(e.getMessage());
 						}
 					}
 					int[] rgb = getRGB(colorDat, format);
@@ -123,13 +146,16 @@ public class TargaParser {
 					try {
 						image.setRGB(pxnum%width, pxnum/width, (r << 16) | (g << 8) | b);
 					} catch(ArrayIndexOutOfBoundsException e) {
-						Logger.INSTANCE.log(e.getMessage());
+						logger.log(e.getMessage());
 						// TODO: error handling?
 					}
 					pxnum++;
 					i += format.bytes;
 				}
 			}
+		}
+		if(formatswitched) {
+			format = TGAPixelFormat.RGB8;
 		}
 		return image;
 	}
