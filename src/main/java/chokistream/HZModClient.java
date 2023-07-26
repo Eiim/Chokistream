@@ -221,11 +221,11 @@ public class HZModClient implements StreamingInterface {
 				lastTopImage = image;
 			} else if(image.getHeight() > 1) {
 				if(image.getHeight() + offset == 400) topFrames++;
-				image = addFractional(lastBottomImage, image, offset);
-				lastBottomImage = image;
+				image = addFractional(lastTopImage, image, offset);
+				lastTopImage = image;
 			} else {
 				// 1-wide frame, use the last one instead
-				image = lastBottomImage;
+				image = lastTopImage;
 			}
 			image = Interpolator.scale(image, intrp, topScale);
 		}
