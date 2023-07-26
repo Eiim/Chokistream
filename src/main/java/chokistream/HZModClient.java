@@ -226,7 +226,7 @@ public class HZModClient implements StreamingInterface {
 			if(image.getHeight() == 320) {
 				bottomFrames++;
 				lastBottomImage = image;
-			} else if(image.getHeight() > 1) {
+			} else if(image.getWidth() > 1) {
 				if(image.getHeight() + offset == 320) bottomFrames++;
 				image = addFractional(lastBottomImage, image, offset);
 				lastBottomImage = image;
@@ -239,7 +239,7 @@ public class HZModClient implements StreamingInterface {
 			if(image.getHeight() == 400) {
 				topFrames++;
 				lastTopImage = image;
-			} else if(image.getHeight() > 1) {
+			} else if(image.getWidth() > 1) {
 				if(image.getHeight() + offset == 400) topFrames++;
 				image = addFractional(lastTopImage, image, offset);
 				lastTopImage = image;
@@ -281,6 +281,7 @@ public class HZModClient implements StreamingInterface {
 	 */
 	private BufferedImage addFractional(BufferedImage oldIm, BufferedImage newIm, int offset) {
 		int height = newIm.getHeight();
+		logger.log("addFractional: height="+height, LogLevel.EXTREME);
 		for(int row = 0; row < height; row++) {
 			for(int col = 0; col < 240; col++) {
 				try {

@@ -15,7 +15,7 @@ public class TargaParser {
 		
 		int height = (data[15] & 0xff) * 256 + (data[14] & 0xff);
 		if(height < 1 || height > 400 ) {
-			logger.log("Warning: invalid \"height\" in Targa metadata. height="+height, LogLevel.VERBOSE);
+			logger.log("Warning: invalid \"height\" in Targa metadata. height="+height);
 			height = screen == DSScreen.BOTTOM ? 320 : 400;
 		}
 		int width = (data[13] & 0xff) * 256 + (data[12] & 0xff);
@@ -23,6 +23,9 @@ public class TargaParser {
 			logger.log("Warning: invalid \"width\" in Targa metadata. width="+width, LogLevel.VERBOSE);
 			width = 240;
 		}
+		
+		logger.log("height="+height, LogLevel.EXTREME);
+		logger.log("width="+width, LogLevel.EXTREME);
 		
 		BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		
@@ -34,7 +37,7 @@ public class TargaParser {
 			logger.log("Warning: reported image type is not BGR_RLE. Function not implemented. imagetype="+(data[2] & 0xff));
 		}
 		
-		//int offset = (data[10] & 0xff) * 256 + (data[11] & 0xff);
+		//int origin_y = (data[10] & 0xff) * 256 + (data[11] & 0xff);
 		
 		int rf = -1;
 		switch(data[16] & 0xff) {
@@ -59,33 +62,47 @@ public class TargaParser {
 		}
 		
 		if(rf == -1) {
-			logger.log("Warning: Pixel format specified in Targa metadata is invalid. Falling back... reported_bpp="+(data[16] & 0xff)+"; format="+TGAPixelFormat.toString(format));
+			if((data[16] & 0xff) == 8) {
+				logger.log("Warning: Bit-depth \"BPP=8\" specified in Targa metadata is invalid. This error is common and can be safely ignored.", LogLevel.EXTREME);
+			} else {
+				logger.log("Warning: Bit-depth specified in Targa metadata is invalid. Falling back... tga_reported_bpp="+(data[16] & 0xff)+"; format="+TGAPixelFormat.toString(format));
+			}
 		} else {
 			if(TGAPixelFormat.fromInt(rf) != format) {
 				logger.log("Warning: Pixel format specified in Targa metadata differs from previously specified format. tga_reported_format="+TGAPixelFormat.toString(TGAPixelFormat.fromInt(rf))+"; format="+TGAPixelFormat.toString(format));
 			}
 			format = TGAPixelFormat.fromInt(rf);
 		}
-		logger.log("format="+TGAPixelFormat.toString(format), LogLevel.EXTREME);
 		
-		int attrbits = data[17] & 0b00001111;
+		int attrbits = (data[17] & 0xff) & 0b00001111;
 		logger.log("attrbits="+(attrbits), LogLevel.EXTREME);
 		if(attrbits != 0) {
 			//Logger.INSTANCE.log("Warning: \"Number of attribute bits per pixel\" is not zero. Function not implemented. attrbits="+(attrbits));
 		}
+		
+		boolean formatswitched = false;
+		TGAPixelFormat backupformat = TGAPixelFormat.RGB5A1;
+		if((data[16] & 0xff) == 8) { // Probably 16bpp.
+			formatswitched = true;
+			backupformat = format;
+			format = TGAPixelFormat.RGB5A1;
+		}
+		if(format == TGAPixelFormat.RGB8) { // When HzMod says "24bpp" it actually means "32bpp" :(
+			formatswitched = true;
+			backupformat = format;
+			format = TGAPixelFormat.RGBA8;
+		}
+		
+		logger.log("format="+TGAPixelFormat.toString(format), LogLevel.EXTREME);
 
 		int idfieldlength = data[0] & 0xff;
 		int startingoffset = 18 + idfieldlength; // This should be correct... Formerly hardcoded to 22.
-		logger.log("\"Image ID\" field length="+(idfieldlength), LogLevel.EXTREME);
-		
-		boolean formatswitched = false;
-		if(format == TGAPixelFormat.RGB8) {
-			format = TGAPixelFormat.RGBA8;
-			formatswitched = true;
-		}
+		logger.log("idfieldlength="+(idfieldlength), LogLevel.EXTREME);
+		int datalengthoffset = startingoffset + 4; // Formerly hardcoded to 26. Is this correct?
 		
 		int pxnum = 0;
-		for(int i = startingoffset; i < data.length - (startingoffset + 4) && pxnum < width*height;) {
+		for(int i = startingoffset; i < data.length - datalengthoffset && pxnum < width*height;) {
+			boolean errorout = false;
 			byte header = data[i];
 			boolean rle = (header & 0x80) == 0x80; // Top bit is one
 			int packlen = (header & 0x7F) + 1; // Bottom 15 bits plus one
@@ -95,7 +112,7 @@ public class TargaParser {
 				//rle = false;
 			}
 			if(format == TGAPixelFormat.RGBA8) {
-				rle = false;
+				//rle = false;
 			}
 			
 			if(rle) {
@@ -106,7 +123,10 @@ public class TargaParser {
 						colorDat[k] = data[i+k] & 0xff;
 					} catch(ArrayIndexOutOfBoundsException e) {
 						colorDat[k] = 0;
-						logger.log(e.getMessage());
+						logger.log("Error: Reached end of image data while decoding colors of RLE packet. ("+e.getMessage()+")");
+						// fill the rest of the colors with 0. draw pixels (unless all colors are zero). then break out of the larger for-loop.
+						errorout = true;
+						break;
 					}
 				}
 				int[] rgb = getRGB(colorDat, format);
@@ -114,14 +134,20 @@ public class TargaParser {
 				int g = rgb[1];
 				int b = rgb[2];
 				
+				if(errorout == true && r == 0 && g == 0 && b == 0) {
+					break;
+				}
+				
 				// Repeat for as many times as are in packlen
 				for(int pn = 0; pn < packlen; pn++) {
 					// Maybe should double-check that we haven't overrun here
 					try {
 						image.setRGB(pxnum%width, pxnum/width, (r << 16) | (g << 8) | b);
 					} catch(ArrayIndexOutOfBoundsException e) {
-						logger.log(e.getMessage());
-						// TODO: error handling?
+						logger.log("Error: Reached end of image buffer while writing pixels of RLE packet. ("+e.getMessage()+")");
+						// break out of the larger for-loop.
+						errorout = true;
+						break;
 					}
 					pxnum++;
 				}
@@ -134,8 +160,14 @@ public class TargaParser {
 						try {
 							colorDat[k] = data[i+k] & 0xff;
 						} catch(ArrayIndexOutOfBoundsException e) {
-							colorDat[k] = 0;
-							logger.log(e.getMessage());
+							logger.log("Error: Reached end of image data while decoding pixels of RAW packet. ("+e.getMessage()+")");
+							// fill the rest of the colors with 0. draw this pixel (unless all colors are zero). then break out of the larger for-loop.
+							errorout = true;
+							while(k < format.bytes) {
+								colorDat[k] = 0;
+								k++;
+							}
+							break;
 						}
 					}
 					int[] rgb = getRGB(colorDat, format);
@@ -143,19 +175,40 @@ public class TargaParser {
 					int g = rgb[1];
 					int b = rgb[2];
 					
+					if(errorout == true && r == 0 && g == 0 && b == 0) {
+						break;
+					}
+					
 					try {
 						image.setRGB(pxnum%width, pxnum/width, (r << 16) | (g << 8) | b);
 					} catch(ArrayIndexOutOfBoundsException e) {
-						logger.log(e.getMessage());
-						// TODO: error handling?
+						logger.log("Error: Reached end of image buffer while writing pixels of RAW packet. ("+e.getMessage()+")");
+						// break out of the larger for-loop.
+						errorout = true;
+						break;
 					}
 					pxnum++;
 					i += format.bytes;
+					if(errorout == true) {
+						break;
+					}
 				}
+			}
+			
+			if(errorout == true) {
+				if(pxnum >= width*height) {
+					logger.log("Cont.: Received image data exceeds expected size by about "+((data.length - datalengthoffset) - i)+" bytes. (Is bit-depth mismatched?)");
+				} else if(i >= data.length - datalengthoffset) {
+					logger.log("Cont.: Received image data is about "+(width*height - pxnum)+" pixels smaller than expected. (Is bit-depth mismatched?)");
+				} else {
+					logger.log("Cont.: Unknown error. pxnum="+pxnum+"; width*height="+(width*height)+"; i="+i+"; data.length="+(data.length - datalengthoffset));
+				}
+				break;
 			}
 		}
 		if(formatswitched) {
-			format = TGAPixelFormat.RGB8;
+			format = backupformat;
+			formatswitched = false;
 		}
 		return image;
 	}
