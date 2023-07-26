@@ -203,14 +203,30 @@ public class HZModClient implements StreamingInterface {
 		logger.log(screen.getLongName()+":"+image.getWidth()+","+image.getHeight(), LogLevel.VERBOSE);
 		
 		if(screen == DSScreen.BOTTOM) {
-			if(image.getHeight() + offset == 320) bottomFrames++;
-			image = addFractional(lastBottomImage, image, offset);
-			lastBottomImage = image;
+			if(image.getHeight() == 320) {
+				bottomFrames++;
+				lastBottomImage = image;
+			} else if(image.getHeight() > 1) {
+				if(image.getHeight() + offset == 320) bottomFrames++;
+				image = addFractional(lastBottomImage, image, offset);
+				lastBottomImage = image;
+			} else {
+				// 1-wide frame, use the last one instead
+				image = lastBottomImage;
+			}
 			image = Interpolator.scale(image, intrp, bottomScale);
 		} else {
-			if(image.getHeight() + offset == 400) topFrames++;
-			image = addFractional(lastTopImage, image, offset);
-			lastTopImage = image;
+			if(image.getHeight() == 400) {
+				topFrames++;
+				lastTopImage = image;
+			} else if(image.getHeight() > 1) {
+				if(image.getHeight() + offset == 400) topFrames++;
+				image = addFractional(lastBottomImage, image, offset);
+				lastBottomImage = image;
+			} else {
+				// 1-wide frame, use the last one instead
+				image = lastBottomImage;
+			}
 			image = Interpolator.scale(image, intrp, topScale);
 		}
 		
