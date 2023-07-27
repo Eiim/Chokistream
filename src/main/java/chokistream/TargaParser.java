@@ -192,11 +192,11 @@ public class TargaParser {
 			
 			if(errorout == true) {
 				if(pxnum >= width*height) {
-					logger.log("Cont.: Received image data exceeds expected size by about "+((data.length - datalengthoffset) - i)+" bytes. (Is bit-depth mismatched?)");
-				} else if(i >= data.length - datalengthoffset) {
+					logger.log("Cont.: Received image data exceeds expected size by about "+(endOfImgDataOffset - i)+" bytes. (Is bit-depth mismatched?)");
+				} else if(i >= endOfImgDataOffset) {
 					logger.log("Cont.: Received image data is about "+(width*height - pxnum)+" pixels smaller than expected. (Is bit-depth mismatched?)");
 				} else {
-					logger.log("Cont.: Unknown error. pxnum="+pxnum+"; width*height="+(width*height)+"; i="+i+"; data.length="+(data.length - datalengthoffset));
+					logger.log("Cont.: Unknown error. pxnum="+pxnum+"; width*height="+(width*height)+"; i="+i+"; data.length="+endOfImgDataOffset);
 				}
 				break;
 			}
