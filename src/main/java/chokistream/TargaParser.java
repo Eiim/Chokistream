@@ -25,7 +25,7 @@ public class TargaParser {
 		}
 		
 		//debug
-		width = 180;
+		//width = 180;
 		
 		logger.log("height="+height, LogLevel.EXTREME);
 		logger.log("width="+width, LogLevel.EXTREME);
@@ -101,10 +101,10 @@ public class TargaParser {
 		int idfieldlength = data[0] & 0xff;
 		int startingoffset = 18 + idfieldlength; // This should be correct... Formerly hardcoded to 22.
 		logger.log("idfieldlength="+(idfieldlength), LogLevel.EXTREME);
-		int datalengthoffset = startingoffset + 4; // Formerly hardcoded to 26. Is this correct?
+		int endOfImgDataOffset = data.length - 26; // footer (26 bytes) + other areas (which probably aren't present)
 		
 		int pxnum = 0;
-		for(int i = startingoffset; i < data.length - datalengthoffset && pxnum < width*height;) {
+		for(int i = startingoffset; i < endOfImgDataOffset && pxnum < width*height;) {
 			boolean errorout = false;
 			byte header = data[i];
 			boolean rle = (header & 0x80) == 0x80; // Top bit is one
@@ -242,13 +242,13 @@ public class TargaParser {
 				b = (b << 4) | b;
 				break;
 			case RGB8:
-				// RRRRRRRRR GGGGGGGG BBBBBBBB (?)
-				//r = bytes[2];
-				g = bytes[0];
-				//b = bytes[0];
+				// RRRRRRRRR GGGGGGGG BBBBBBBB
+				r = bytes[2];
+				g = bytes[1];
+				b = bytes[0];
 				break;
 			case RGBA8:
-				// AAAAAAAA BBBBBBBB GGGGGGGG RRRRRRRR (formerly)
+				// AAAAAAAA BBBBBBBB GGGGGGGG RRRRRRRR
 				r = bytes[0];
 				
 				g = bytes[1];

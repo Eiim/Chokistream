@@ -169,6 +169,15 @@ public class HZModClient implements StreamingInterface {
 				bottomFormat = TGAPixelFormat.fromInt(packet.data[8] & 0x07);
 				logger.log("Set top TGA pixel format to "+topFormat, LogLevel.VERBOSE);
 				logger.log("Set bottom TGA pixel format to "+bottomFormat, LogLevel.VERBOSE);
+				
+				// Log to console if a "Stride" value is unexpected. (debug)
+				int topStride = (packet.data[4]&0xff) + ((packet.data[5]&0xff)*0x100) + ((packet.data[6]&0xff)*0x10000) + ((packet.data[7]&0xff)*0x1000000);
+				if(topStride / topFormat.bytes != 240)
+					logger.log("Warning: Unexpected \"Stride\" for top screen. stride="+topStride+"; possible-width="+(topStride/topFormat.bytes), LogLevel.VERBOSE);
+				int botStride = (packet.data[12]&0xff) + ((packet.data[13]&0xff)*0x100) + ((packet.data[14]&0xff)*0x10000) + ((packet.data[15]&0xff)*0x1000000);
+				if(botStride / bottomFormat.bytes != 240)
+					logger.log("Warning: Unexpected \"Stride\" for bottom screen. stride="+botStride+"; possible-width="+(botStride/bottomFormat.bytes), LogLevel.VERBOSE);
+				
 			} else if(packet.type == 0x01) {
 				// Might as well respect disconnect packets
 				logger.log("Recieved disconnect packet, closing");
