@@ -93,7 +93,7 @@ public class TargaParser {
 			//Logger.INSTANCE.log("Warning: \"Number of attribute bits per pixel\" is not zero. Function not implemented. attrbits="+(attrbits));
 		}
 		
-		logger.log("format="+TGAPixelFormat.toString(format), LogLevel.EXTREME);
+		logger.log("format="+format, LogLevel.EXTREME);
 
 		int idfieldlength = data[0] & 0xff;
 		int startingoffset = 18 + idfieldlength; // This should be correct... Formerly hardcoded to 22.
@@ -393,7 +393,7 @@ public class TargaParser {
 		int r=0,g=0,b=0;
 		switch(format) {
 			case RGB565:
-				// RRRRRGGG GGGBBBBB
+				// GGGBBBBB RRRRRGGG
 				r = (bytes[1] & 0b11111000) >>> 3;
 				g = ((bytes[1] & 0b00000111) << 3) | ((bytes[0] & 0b11100000) >>> 5);
 				b = bytes[0] & 0b00011111;
@@ -403,7 +403,7 @@ public class TargaParser {
 				b = (b << 3) | (b >>> 2);
 				break;
 			case RGB5A1:
-				// RRRRRGGG GGBBBBBA
+				// GGBBBBBA RRRRRGGG
 				r = (bytes[1] & 0b11111000) >>> 3;
 				g = ((bytes[1] & 0b00000111) << 2) | ((bytes[0] & 0b11000000) >>> 6);
 				b = (bytes[0] & 0b00111110) >>> 1;
@@ -412,10 +412,10 @@ public class TargaParser {
 				g = (g << 3) | (g >>> 2);
 				b = (b << 3) | (b >>> 2);
 				break;
-			case RGBA4:
-				// AAAABBBB GGGGRRRR
-				r = bytes[0] & 0b00001111;
-				g = (bytes[0] & 0b11110000) >>> 4;
+			case RGBA4: // untested
+				// BBBBAAAA RRRRGGGG
+				r = (bytes[0] & 0b11110000) >>> 4;
+				g = bytes[0] & 0b00001111;
 				b = bytes[1] & 0b00001111;
 				// Scale from 4 bits to 8 bits
 				r = (r << 4) | r;
@@ -423,21 +423,16 @@ public class TargaParser {
 				b = (b << 4) | b;
 				break;
 			case RGB8:
-				// RRRRRRRRR GGGGGGGG BBBBBBBB
+				// BBBBBBBB GGGGGGGG RRRRRRRR
 				r = bytes[2];
 				g = bytes[1];
 				b = bytes[0];
 				break;
-			case RGBA8:
+			case RGBA8: // untested
 				// AAAAAAAA BBBBBBBB GGGGGGGG RRRRRRRR
-				r = bytes[0];
-				
-				g = bytes[1];
-				
-				b = bytes[2];
-				
-				//r = g;
-				//b = g;
+				r = bytes[3];
+				g = bytes[2];
+				b = bytes[1];
 				break;
 		}
 		return new int[] {r,g,b};

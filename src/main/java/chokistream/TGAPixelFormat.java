@@ -44,19 +44,4 @@ public enum TGAPixelFormat {
 				return -1;
 		}
 	}
-	
-	public static String toString(TGAPixelFormat pf) {
-		switch(pf) {
-			case RGBA8:
-				return "RGBA8";
-			case RGB565:
-				return "RGB565";
-			case RGB5A1:
-				return "RGB5A1";
-			case RGBA4:
-				return "RGBA4";
-			default:
-				return "RGB8";
-		}
-	}
 }
