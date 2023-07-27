@@ -42,56 +42,52 @@ public class TargaParser {
 		
 		//int origin_y = (data[10] & 0xff) * 256 + (data[11] & 0xff);
 		
-		int rf = -1;
-		switch(data[16] & 0xff) {
+		int tgaBpp = data[16] & 0xff;
+		TGAPixelFormat tgaReportedFormat = TGAPixelFormat.RGB8; // placeholder
+		boolean tgaBppErr = false;
+		switch(tgaBpp) {
 			case 16:
-				rf = 3;
+				tgaReportedFormat = TGAPixelFormat.RGB5A1;
 				break;
 			case 17:
-				rf = 2;
+				tgaReportedFormat = TGAPixelFormat.RGB565;
 				break;
 			case 18:
-				rf = 4;
+				tgaReportedFormat = TGAPixelFormat.RGBA4;
 				break;
 			case 24:
-				rf = 1;
+				tgaReportedFormat = TGAPixelFormat.RGB8;
 				break;
 			case 32:
-				rf = 0;
+				tgaReportedFormat = TGAPixelFormat.RGBA8;
+				break;
+			case 8:
+				logger.log("Warning: Bit-depth \"BPP=8\" specified in Targa metadata. Function not implemented. (This error is common and can be safely ignored)", LogLevel.EXTREME);
+				format = TGAPixelFormat.RGB5A1; // good enough error-handling
+				tgaBppErr = true;
 				break;
 			default:
-				rf = -1;
+				logger.log("Warning: Invalid bit-depth \"BPP="+tgaBpp+"\" specified in Targa metadata. Falling back to "+format+" ...");
+				tgaBppErr = true;
 				break;
 		}
 		
-		if(rf == -1) {
-			if((data[16] & 0xff) == 8) {
-				logger.log("Warning: Bit-depth \"BPP=8\" specified in Targa metadata is invalid. This error is common and can be safely ignored.", LogLevel.EXTREME);
-			} else {
-				logger.log("Warning: Bit-depth specified in Targa metadata is invalid. Falling back... tga_reported_bpp="+(data[16] & 0xff)+"; format="+TGAPixelFormat.toString(format));
-			}
-		} else {
-			if(TGAPixelFormat.fromInt(rf) != format) {
-				if(rf == 0 && format == TGAPixelFormat.RGB8) {
+		if(!tgaBppErr) {
+			if(tgaReportedFormat != format) {
+				if(tgaReportedFormat == TGAPixelFormat.RGBA8 && format == TGAPixelFormat.RGB8) {
 					logger.log("Warning: Format is RGBA8 (32bpp) but MODESET packet mis-reports RGB8 (24bpp). This is usually safe to ignore.", LogLevel.EXTREME);
 				}
-				logger.log("Warning: Pixel format specified in Targa metadata differs from previously specified format. tga_reported_format="+TGAPixelFormat.toString(TGAPixelFormat.fromInt(rf))+"; format="+TGAPixelFormat.toString(format));
+				logger.log("Warning: Color format specified in Targa metadata ("+tgaReportedFormat+") differs from format specified by MODESET packet ("+format+")");
+				format = tgaReportedFormat;
 			}
-			format = TGAPixelFormat.fromInt(rf);
 		}
+		
+		
 		
 		int attrbits = (data[17] & 0xff) & 0b00001111;
 		logger.log("attrbits="+(attrbits), LogLevel.EXTREME);
 		if(attrbits != 0) {
 			//Logger.INSTANCE.log("Warning: \"Number of attribute bits per pixel\" is not zero. Function not implemented. attrbits="+(attrbits));
-		}
-		
-		boolean formatswitched = false;
-		TGAPixelFormat backupformat = TGAPixelFormat.RGB5A1;
-		if((data[16] & 0xff) == 8) { // Probably 16bpp.
-			formatswitched = true;
-			backupformat = format;
-			format = TGAPixelFormat.RGB5A1;
 		}
 		
 		logger.log("format="+TGAPixelFormat.toString(format), LogLevel.EXTREME);
@@ -198,10 +194,6 @@ public class TargaParser {
 				}
 				break;
 			}
-		}
-		if(formatswitched) {
-			format = backupformat;
-			formatswitched = false;
 		}
 		return image;
 	}
