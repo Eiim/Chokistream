@@ -57,7 +57,7 @@ public class TargaParser {
 				rf = 1;
 				break;
 			case 32:
-				rf = 5;
+				rf = 0;
 				break;
 			default:
 				rf = -1;
@@ -72,6 +72,9 @@ public class TargaParser {
 			}
 		} else {
 			if(TGAPixelFormat.fromInt(rf) != format) {
+				if(rf == 0 && format == TGAPixelFormat.RGB8) {
+					logger.log("Warning: Format is RGBA8 (32bpp) but MODESET packet mis-reports RGB8 (24bpp). This is usually safe to ignore.", LogLevel.EXTREME);
+				}
 				logger.log("Warning: Pixel format specified in Targa metadata differs from previously specified format. tga_reported_format="+TGAPixelFormat.toString(TGAPixelFormat.fromInt(rf))+"; format="+TGAPixelFormat.toString(format));
 			}
 			format = TGAPixelFormat.fromInt(rf);
@@ -89,11 +92,6 @@ public class TargaParser {
 			formatswitched = true;
 			backupformat = format;
 			format = TGAPixelFormat.RGB5A1;
-		}
-		if(format == TGAPixelFormat.RGB8) { // When HzMod says "24bpp" it actually means "32bpp" :(
-			formatswitched = true;
-			backupformat = format;
-			format = TGAPixelFormat.RGBA8;
 		}
 		
 		logger.log("format="+TGAPixelFormat.toString(format), LogLevel.EXTREME);
