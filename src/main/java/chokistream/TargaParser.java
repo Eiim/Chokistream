@@ -254,7 +254,7 @@ public class TargaParser {
 					for(int k = 0; k < format.bytes; k++) {
 						// Maybe should double-check that we haven't overrun here
 						try {
-							decBuf[(pn*format.bytes)+k] = colorDat[k];
+							decBuf[((pxnum+pn)*format.bytes)+k] = colorDat[k];
 						} catch(ArrayIndexOutOfBoundsException e) {
 							logger.log("Error: Reached end of image buffer while writing pixels of RLE packet. ("+e.getMessage()+")");
 							// break out of the larger for-loop.
@@ -265,8 +265,9 @@ public class TargaParser {
 					if(errorout) {
 						break; // lazy
 					}
-					pxnum++;
+					//pxnum++;
 				}
+				pxnum += packlen;
 				i += format.bytes;
 			} else {
 				i += 1;
