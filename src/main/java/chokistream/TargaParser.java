@@ -19,13 +19,10 @@ public class TargaParser {
 			height = screen == DSScreen.BOTTOM ? 320 : 400;
 		}
 		int width = (data[13] & 0xff) * 256 + (data[12] & 0xff);
-		if(width < 1 || width > 240) {
+		if(width < 1 || width > 256) {
 			logger.log("Warning: invalid \"width\" in Targa metadata. width="+width, LogLevel.VERBOSE);
 			width = 240;
 		}
-		
-		//debug
-		//width = 180;
 		
 		logger.log("height="+height, LogLevel.EXTREME);
 		logger.log("width="+width, LogLevel.EXTREME);
@@ -74,6 +71,7 @@ public class TargaParser {
 		
 		boolean isMalformed24bpp = false;
 		
+		// this is broken somehow, but the issue seems to be self-contained
 		if(!tgaBppErr) {
 			if(tgaReportedFormat != format) {
 				if(tgaReportedFormat == TGAPixelFormat.RGBA8 && format == TGAPixelFormat.RGB8) {
