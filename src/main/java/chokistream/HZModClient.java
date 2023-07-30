@@ -206,16 +206,13 @@ public class HZModClient implements StreamingInterface {
 		// If bottom screen, subtract 400 to get actual offset
 		offset %= 400;
 		
-		int pdataoffset;
-		
+		// Trim extra header (added by HzMod) if necessary
+		int packetDataOffset = 0;
 		if (packet.type == JPEG_PACKET) {
-			// First 8 bytes are header, trim them off for the image data
-			pdataoffset = 8;
-		} else {
-			pdataoffset = 0;
+			packetDataOffset = 8;
 		}
 		
-		byte[] data = Arrays.copyOfRange(packet.data, pdataoffset, packet.data.length);
+		byte[] data = Arrays.copyOfRange(packet.data, packetDataOffset, packet.data.length);
 		
 		BufferedImage image = null;
 		
