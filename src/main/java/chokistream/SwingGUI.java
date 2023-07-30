@@ -7,6 +7,9 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.File;
 import java.io.IOException;
 
 import javax.swing.BorderFactory;
@@ -25,6 +28,7 @@ import javax.swing.SwingConstants;
 
 import com.formdev.flatlaf.FlatLightLaf;
 
+import chokistream.INIParser.IniParseException;
 import chokistream.props.ColorMode;
 import chokistream.props.ConsoleModel;
 import chokistream.props.DSScreen;
@@ -37,6 +41,7 @@ import chokistream.props.LogMode;
 import chokistream.props.Mod;
 import chokistream.props.OutputFormat;
 import chokistream.props.Prop;
+import chokistream.props.VideoFormat;
 
 public class SwingGUI extends SettingsUI {
 	
@@ -58,10 +63,12 @@ public class SwingGUI extends SettingsUI {
 	private JComboBox<String> outputFormat;
 	
 	// Video settings
+	private JFrame videoSettings;
 	private JComboBox<String> videoCodec;
 	private JTextField videoFile;
 	
 	// Image sequence settings
+	private JFrame sequenceSettings;
 	private JTextField sequenceDir;
 	private JTextField sequencePrefix;
 	
@@ -107,7 +114,7 @@ public class SwingGUI extends SettingsUI {
 	public SwingGUI() {
 		FlatLightLaf.setup();
 		f = new JFrame();
-		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		f.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		f.setTitle("Chokistream");
 		JPanel p = new JPanel();
 		GridBagConstraints c = new GridBagConstraints();
@@ -185,6 +192,43 @@ public class SwingGUI extends SettingsUI {
 			}
 		});
 		
+		outputSettings.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				switch(getPropEnum(Prop.OUTPUTFORMAT, OutputFormat.class)) {
+				case FILE -> videoSettings.setVisible(true);
+				case SEQUENCE -> sequenceSettings.setVisible(true);
+				}
+			}
+		});
+		
+		connect.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				saveSettings();
+				OutputFormat outForm = getPropEnum(Prop.OUTPUTFORMAT, OutputFormat.class);
+		    	switch(outForm) {
+		    		case VISUAL:
+		    			//Main.initializeJFX(this, ui);
+		    			break;
+		    		case FILE:
+		    			Main.initializeFile(SwingGUI.this);
+		    			break;
+		    		case SEQUENCE:
+		    			Main.initializeSequence(SwingGUI.this);
+		    			break;
+		    	}
+			}
+		});
+		
+		f.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				saveSettings();
+				System.exit(0);
+			}
+		});
+		
 		f.getRootPane().setDefaultButton(connect);
 		f.pack();
 		f.setVisible(true);
@@ -193,6 +237,10 @@ public class SwingGUI extends SettingsUI {
 		createNTRSettings();
 		createNTRPatch();
 		createCHMSettings();
+		createVideoSettings();
+		createSequenceSettings();
+		
+		loadSettings();
 	}
 	
 	@Override
@@ -230,6 +278,10 @@ public class SwingGUI extends SettingsUI {
 			return logFile.getText();
 		} else if(p.equals(Prop.VIDEOFILE)) {
 			return videoFile.getText();
+		} else if(p.equals(Prop.SEQUENCEDIR)) {
+			return sequenceDir.getText();
+		} else if(p.equals(Prop.SEQUENCEPREFIX)) {
+			return sequencePrefix.getText();
 		} else {
 			return p.getDefault();
 		}
@@ -297,14 +349,124 @@ public class SwingGUI extends SettingsUI {
 
 	@Override
 	public void saveSettings() {
-		// TODO Auto-generated method stub
-		super.saveSettings();
+		try {
+			INIParser parser = new INIParser(new File("chokistream.ini"));
+			parser.setProp(Prop.IP, getPropString(Prop.IP));
+			parser.setProp(Prop.MOD, getPropEnum(Prop.MOD, Mod.class));
+			parser.setProp(Prop.PRIORITYSCREEN, getPropEnum(Prop.PRIORITYSCREEN, DSScreen.class));
+			parser.setProp(Prop.PRIORITYFACTOR, getPropInt(Prop.PRIORITYFACTOR));
+			parser.setProp(Prop.LAYOUT, getPropEnum(Prop.LAYOUT, Layout.class));
+			parser.setProp(Prop.COLORMODE, getPropEnum(Prop.COLORMODE, ColorMode.class));
+			parser.setProp(Prop.PORT, getPropInt(Prop.PORT));
+			parser.setProp(Prop.TOPSCALE, getPropDouble(Prop.TOPSCALE));
+			parser.setProp(Prop.BOTTOMSCALE, getPropDouble(Prop.BOTTOMSCALE));
+			parser.setProp(Prop.LOGMODE, getPropEnum(Prop.LOGMODE, LogMode.class));
+			parser.setProp(Prop.LOGLEVEL, getPropEnum(Prop.LOGLEVEL, LogLevel.class));
+			parser.setProp(Prop.LOGFILE, getPropString(Prop.LOGFILE));
+			parser.setProp(Prop.INTRPMODE, getPropEnum(Prop.INTRPMODE, InterpolationMode.class));
+			parser.setProp(Prop.DPI, getPropInt(Prop.DPI));
+			parser.setProp(Prop.OUTPUTFORMAT, getPropEnum(Prop.OUTPUTFORMAT, OutputFormat.class));
+			parser.setProp(Prop.VIDEOCODEC, getPropEnum(Prop.VIDEOCODEC, VideoFormat.class));
+			parser.setProp(Prop.VIDEOFILE, getPropString(Prop.VIDEOFILE));
+			parser.setProp(Prop.SEQUENCEDIR, getPropString(Prop.SEQUENCEDIR));
+			parser.setProp(Prop.SEQUENCEPREFIX, getPropString(Prop.SEQUENCEPREFIX));
+			parser.setProp(Prop.REQTGA, getPropBoolean(Prop.REQTGA));
+			
+			switch(getPropEnum(Prop.MOD, Mod.class)) {
+				case NTR:
+					parser.setProp(Prop.QUALITY, getPropInt(Prop.QUALITY));
+					parser.setProp(Prop.PRIORITYSCREEN, getPropEnum(Prop.PRIORITYSCREEN, DSScreen.class));
+					parser.setProp(Prop.PRIORITYFACTOR, getPropInt(Prop.PRIORITYFACTOR));
+					parser.setProp(Prop.QOS, getPropInt(Prop.QOS));
+					break;
+				case HZMOD:
+					parser.setProp(Prop.QUALITY, getPropInt(Prop.QUALITY));
+					parser.setProp(Prop.CPUCAP, getPropInt(Prop.CPUCAP));
+					break;
+				case CHIRUNOMOD:
+					parser.setProp(Prop.QUALITY, getPropInt(Prop.QUALITY));
+					parser.setProp(Prop.CPUCAP, getPropInt(Prop.CPUCAP));
+					parser.setProp(Prop.REQSCREEN, getPropEnum(Prop.REQSCREEN, DSScreenBoth.class));
+					parser.setProp(Prop.INTERLACE, getPropBoolean(Prop.INTERLACE));
+					parser.setProp(Prop.VSYNC, getPropBoolean(Prop.VSYNC));
+					break;
+			}
+		} catch (IOException | IniParseException e) {
+			displayError(e);
+		}
 	}
 
 	@Override
 	public void loadSettings() {
-		// TODO Auto-generated method stub
-		super.loadSettings();
+		try {
+			INIParser parser = new INIParser(new File("chokistream.ini"));
+			
+			setTextDefault(parser, Prop.IP, ip);
+			setTextDefault(parser, Prop.TOPSCALE, topScale);
+			setTextDefault(parser, Prop.BOTTOMSCALE, bottomScale);
+			setTextDefault(parser, Prop.PORT, port);
+			setTextDefault(parser, Prop.LOGFILE, logFile);
+			setTextDefault(parser, Prop.VIDEOFILE, videoFile);
+			setTextDefault(parser, Prop.DPI, dpi);
+			
+			setValueDefault(parser, Prop.MOD, mod);
+			setValueDefault(parser, Prop.LAYOUT, layout);
+			setValueDefault(parser, Prop.INTRPMODE, intrpMode);
+			setValueDefault(parser, Prop.COLORMODE, colorMode);
+			setValueDefault(parser, Prop.LOGMODE, logMode);
+			setValueDefault(parser, Prop.LOGLEVEL, logLevel);
+			
+			setTextDefault(parser, Prop.QUALITY, qualityHz);
+			tgaHz.setSelected(qualityHz.getText().equals("0"));
+			setTextDefault(parser, Prop.CPUCAP, cpuCapHz);
+			
+			setTextDefault(parser, Prop.QUALITY, qualityCHM);
+			setCheckedDefault(parser, Prop.REQTGA, tgaCHM);
+			setTextDefault(parser, Prop.CPUCAP, cpuCapCHM);
+			setValueDefault(parser, Prop.REQSCREEN, reqScreenCHM);
+			setCheckedDefault(parser, Prop.INTERLACE, interlace);
+			setCheckedDefault(parser, Prop.VSYNC, vsync);
+			
+			setTextDefault(parser, Prop.QUALITY, qualityNTR);
+			setValueDefault(parser, Prop.PRIORITYSCREEN, priScreen);
+			setTextDefault(parser, Prop.PRIORITYFACTOR, priFac);
+			setTextDefault(parser, Prop.QOS, qos);
+			
+			setValueDefault(parser, Prop.OUTPUTFORMAT, outputFormat);
+			setValueDefault(parser, Prop.VIDEOCODEC, videoCodec);
+			
+			setTextDefault(parser, Prop.SEQUENCEDIR, sequenceDir);
+			setTextDefault(parser, Prop.SEQUENCEPREFIX, sequencePrefix);
+		} catch (IOException | IniParseException e) {
+			displayError(e);
+		}
+	}
+	
+	private static void setTextDefault(INIParser parser, Prop<?> p, JTextField tf) {
+		String val = parser.getProp(p);
+		if(val.length() > 0) {
+			tf.setText(val);
+		} else {
+			tf.setText(p.getDefault().toString());
+		}
+	}
+	
+	private static <T extends EnumProp> void setValueDefault(INIParser parser, Prop<T> p, JComboBox<String> tf) {
+		String val = parser.getProp(p);
+		if(val.length() > 0) {
+			tf.setSelectedItem(val);
+		} else {
+			tf.setSelectedItem(p.getDefault().getLongName());
+		}
+	}
+	
+	private static void setCheckedDefault(INIParser parser, Prop<Boolean> p, JCheckBox cb) {
+		String val = parser.getProp(p);
+		if(val.length() > 0 && (val.equals("true") || val.equals("false"))) {
+			cb.setSelected(val.equals("true"));
+		} else {
+			cb.setSelected(p.getDefault());
+		}
 	}
 
 	public void createAbout() {
@@ -362,6 +524,70 @@ public class SwingGUI extends SettingsUI {
 		});
 		
 		hzSettings.pack();
+	}
+	
+	public void createVideoSettings() {
+		videoSettings = new JFrame();
+		JPanel p = new JPanel();
+		GridBagConstraints c = new GridBagConstraints();
+		frameSetup(videoSettings, p, c);
+		videoSettings.setTitle("Video Settings");
+		
+		JLabel header = new JLabel("Video Settings");
+		header.setFont(new Font("System", Font.PLAIN, 20));
+		add(header, p, c, 0, 0, 2, 1);
+		
+		add(new JLabel("Video Codec"), p, c, 0, 1);
+		add(new JLabel("Video File"), p, c, 0, 2);
+		
+		videoCodec = new JComboBox<String>(EnumProp.getLongNames(VideoFormat.class));;
+		add(videoCodec, p, c, 1, 1);
+		videoFile = new JTextField(Prop.VIDEOFILE.getDefault());
+		add(videoFile, p, c, 1, 2);
+		
+		JButton apply = new JButton("Apply");
+		add(apply, p, c, 0, 3, 2, 1);
+		apply.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				saveSettings();
+				videoSettings.setVisible(false);
+			}
+		});
+		
+		videoSettings.pack();
+	}
+	
+	public void createSequenceSettings() {
+		sequenceSettings = new JFrame();
+		JPanel p = new JPanel();
+		GridBagConstraints c = new GridBagConstraints();
+		frameSetup(sequenceSettings, p, c);
+		sequenceSettings.setTitle("Sequence Settings");
+		
+		JLabel header = new JLabel("Sequence Settings");
+		header.setFont(new Font("System", Font.PLAIN, 20));
+		add(header, p, c, 0, 0, 2, 1);
+		
+		add(new JLabel("Images Directory"), p, c, 0, 1);
+		add(new JLabel("Image Prefix"), p, c, 0, 2);
+		
+		sequenceDir = new JTextField(Prop.SEQUENCEDIR.getDefault());
+		add(sequenceDir, p, c, 1, 1);
+		sequencePrefix = new JTextField(Prop.SEQUENCEPREFIX.getDefault());
+		add(sequencePrefix, p, c, 1, 2);
+		
+		JButton apply = new JButton("Apply");
+		add(apply, p, c, 0, 3, 2, 1);
+		apply.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				saveSettings();
+				sequenceSettings.setVisible(false);
+			}
+		});
+		
+		sequenceSettings.pack();
 	}
 	
 	public void createNTRSettings() {

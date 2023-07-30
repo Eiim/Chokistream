@@ -32,6 +32,8 @@ public class Prop<T> {
 	public static final Prop<OutputFormat> OUTPUTFORMAT = new Prop<>("outputFormat", "Output Format", OutputFormat.VISUAL);
 	public static final Prop<VideoFormat> VIDEOCODEC = new Prop<>("codec", "Video Codec", VideoFormat.PRORES);
 	public static final Prop<String> VIDEOFILE = new Prop<>("videoFile", "Video File", "out");
+	public static final Prop<String> SEQUENCEDIR = new Prop<>("sequenceDir", "Output Directory", "out");
+	public static final Prop<String> SEQUENCEPREFIX = new Prop<>("sequencePrefix", "Image Prefix", "");
 
 	private final String shortName; // short, camel-case name used in .ini
 	private final String longName; // longer, human-friendly name used in GUI
