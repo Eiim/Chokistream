@@ -383,4 +383,11 @@ public class JavaFXVideo implements VideoOutputInterface {
 		
 		stages.add(bottomStage);
 	}
+	
+	public void startNewThread() {
+		logger.log("Restarting network thread");
+		networkThread.stopRunning();
+		networkThread = new NetworkThread(this.client, this);
+		networkThread.start();
+	}
 }

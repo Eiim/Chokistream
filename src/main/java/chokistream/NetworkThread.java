@@ -1,8 +1,6 @@
 package chokistream;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.net.SocketException;
 
 public class NetworkThread extends Thread {
@@ -25,12 +23,9 @@ public class NetworkThread extends Thread {
 				}
 			} catch(SocketException e) {
 				// Sometimes expected, make note of it but just return peacefully
-				//Logger.INSTANCE.log("Socket closed, stopping");
-				//return;
-				StringWriter sw = new StringWriter();
-				e.printStackTrace(new PrintWriter(sw));
-				Logger.INSTANCE.log("Socket apparently closed, full exception: ");
-				Logger.INSTANCE.log(sw.toString());
+				Logger.INSTANCE.log("Socket closed, stopping");
+				((JavaFXVideo) output).startNewThread();
+				return;
 			} catch(IOException | InterruptedException e) {
 				output.displayError(e);
 				return;
