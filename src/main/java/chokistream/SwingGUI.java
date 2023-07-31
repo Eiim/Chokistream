@@ -7,6 +7,8 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -25,6 +27,8 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import com.formdev.flatlaf.FlatLightLaf;
 
@@ -218,6 +222,13 @@ public class SwingGUI extends SettingsUI {
 		    			Main.initializeSequence(SwingGUI.this);
 		    			break;
 		    	}
+			}
+		});
+		
+		outputFormat.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				outputSettings.setEnabled(!outputFormat.getSelectedItem().equals(OutputFormat.VISUAL.getLongName()));
 			}
 		});
 		
@@ -491,41 +502,6 @@ public class SwingGUI extends SettingsUI {
 		f.setVisible(true);
 	}
 	
-	public void createHzModSettings() {
-		hzSettings = new JFrame();
-		JPanel p = new JPanel();
-		GridBagConstraints c = new GridBagConstraints();
-		frameSetup(hzSettings, p, c);
-		hzSettings.setTitle("HzMod Settings");
-		
-		JLabel header = new JLabel("HzMod Settings");
-		header.setFont(new Font("System", Font.PLAIN, 20));
-		add(header, p, c, 0, 0, 2, 1);
-		
-		add(new JLabel("Quality"), p, c, 0, 1);
-		add(new JLabel("Request TGA?"), p, c, 0, 2);
-		add(new JLabel("CPU Cap"), p, c, 0, 3);
-		
-		qualityHz = new JTextField();
-		add(qualityHz, p, c, 1, 1);
-		tgaHz = new JCheckBox();
-		add(tgaHz, p, c, 1, 2);
-		cpuCapHz = new JTextField();
-		add(cpuCapHz, p, c, 1, 3);
-		
-		JButton apply = new JButton("Apply");
-		add(apply, p, c, 0, 4, 2, 1);
-		apply.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				saveSettings();
-				hzSettings.setVisible(false);
-			}
-		});
-		
-		hzSettings.pack();
-	}
-	
 	public void createVideoSettings() {
 		videoSettings = new JFrame();
 		JPanel p = new JPanel();
@@ -679,6 +655,48 @@ public class SwingGUI extends SettingsUI {
 		ntrPatch.pack();
 	}
 	
+	public void createHzModSettings() {
+		hzSettings = new JFrame();
+		JPanel p = new JPanel();
+		GridBagConstraints c = new GridBagConstraints();
+		frameSetup(hzSettings, p, c);
+		hzSettings.setTitle("HzMod Settings");
+		
+		JLabel header = new JLabel("HzMod Settings");
+		header.setFont(new Font("System", Font.PLAIN, 20));
+		add(header, p, c, 0, 0, 2, 1);
+		
+		add(new JLabel("Quality"), p, c, 0, 1);
+		add(new JLabel("Request TGA?"), p, c, 0, 2);
+		add(new JLabel("CPU Cap"), p, c, 0, 3);
+		
+		qualityHz = new JTextField();
+		add(qualityHz, p, c, 1, 1);
+		tgaHz = new JCheckBox();
+		add(tgaHz, p, c, 1, 2);
+		cpuCapHz = new JTextField();
+		add(cpuCapHz, p, c, 1, 3);
+		
+		tgaHz.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				qualityHz.setEnabled(!tgaHz.isSelected());
+			}
+		});
+		
+		JButton apply = new JButton("Apply");
+		add(apply, p, c, 0, 4, 2, 1);
+		apply.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				saveSettings();
+				hzSettings.setVisible(false);
+			}
+		});
+		
+		hzSettings.pack();
+	}
+	
 	public void createCHMSettings() {
 		chmSettings = new JFrame();
 		JPanel p = new JPanel();
@@ -709,6 +727,13 @@ public class SwingGUI extends SettingsUI {
 		add(interlace, p, c, 1, 5);
 		vsync = new JCheckBox();
 		add(vsync, p, c, 1, 6);
+		
+		tgaCHM.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				qualityCHM.setEnabled(!tgaCHM.isSelected());
+			}
+		});
 		
 		JButton apply = new JButton("Apply");
 		add(apply, p, c, 0, 7, 2, 1);
