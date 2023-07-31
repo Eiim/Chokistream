@@ -130,17 +130,17 @@ public class SwingGUI extends SettingsUI {
 		
 		mod = new JComboBox<String>(EnumProp.getLongNames(Mod.class));
 		add(mod, p, c, 1, 0);
-		ip = new JTextField(Prop.IP.getDefault());
+		ip = new JTextField();
 		add(ip, p, c, 1, 2);
 		layout = new JComboBox<String>(EnumProp.getLongNames(Layout.class));
 		add(layout, p, c, 1, 3);
-		topScale = new JTextField(Prop.TOPSCALE.getDefault().toString());
+		topScale = new JTextField();
 		add(topScale, p, c, 1, 4);
-		bottomScale = new JTextField(Prop.BOTTOMSCALE.getDefault().toString());
+		bottomScale = new JTextField();
 		add(bottomScale, p, c, 1, 5);
 		intrpMode = new JComboBox<String>(EnumProp.getLongNames(InterpolationMode.class));
 		add(intrpMode, p, c, 1, 6);
-		dpi = new JTextField(Prop.DPI.getDefault().toString());
+		dpi = new JTextField();
 		add(dpi, p, c, 1, 7);
 		
 		add(new JSeparator(SwingConstants.VERTICAL), p, c, 2, 0, 1, 8);
@@ -154,13 +154,13 @@ public class SwingGUI extends SettingsUI {
 		
 		colorMode = new JComboBox<String>(EnumProp.getLongNames(ColorMode.class));
 		add(colorMode, p, c, 4, 0);
-		port = new JTextField(Prop.PORT.getDefault().toString());
+		port = new JTextField();
 		add(port, p, c, 4, 1);
 		logMode = new JComboBox<String>(EnumProp.getLongNames(LogMode.class));
 		add(logMode, p, c, 4, 2);
 		logLevel = new JComboBox<String>(EnumProp.getLongNames(LogLevel.class));
 		add(logLevel, p, c, 4, 3);
-		logFile = new JTextField(Prop.LOGFILE.getDefault());
+		logFile = new JTextField();
 		add(logFile, p, c, 4, 4);
 		outputFormat = new JComboBox<String>(EnumProp.getLongNames(OutputFormat.class));
 		add(outputFormat, p, c, 4, 5);
@@ -506,11 +506,11 @@ public class SwingGUI extends SettingsUI {
 		add(new JLabel("Request TGA?"), p, c, 0, 2);
 		add(new JLabel("CPU Cap"), p, c, 0, 3);
 		
-		qualityHz = new JTextField(Prop.QUALITY.getDefault().toString());
+		qualityHz = new JTextField();
 		add(qualityHz, p, c, 1, 1);
-		tgaHz = new JCheckBox(null, null, Prop.REQTGA.getDefault());
+		tgaHz = new JCheckBox();
 		add(tgaHz, p, c, 1, 2);
-		cpuCapHz = new JTextField(Prop.CPUCAP.getDefault().toString());
+		cpuCapHz = new JTextField();
 		add(cpuCapHz, p, c, 1, 3);
 		
 		JButton apply = new JButton("Apply");
@@ -542,7 +542,7 @@ public class SwingGUI extends SettingsUI {
 		
 		videoCodec = new JComboBox<String>(EnumProp.getLongNames(VideoFormat.class));;
 		add(videoCodec, p, c, 1, 1);
-		videoFile = new JTextField(Prop.VIDEOFILE.getDefault());
+		videoFile = new JTextField();
 		add(videoFile, p, c, 1, 2);
 		
 		JButton apply = new JButton("Apply");
@@ -572,9 +572,9 @@ public class SwingGUI extends SettingsUI {
 		add(new JLabel("Images Directory"), p, c, 0, 1);
 		add(new JLabel("Image Prefix"), p, c, 0, 2);
 		
-		sequenceDir = new JTextField(Prop.SEQUENCEDIR.getDefault());
+		sequenceDir = new JTextField();
 		add(sequenceDir, p, c, 1, 1);
-		sequencePrefix = new JTextField(Prop.SEQUENCEPREFIX.getDefault());
+		sequencePrefix = new JTextField();
 		add(sequencePrefix, p, c, 1, 2);
 		
 		JButton apply = new JButton("Apply");
@@ -606,13 +606,13 @@ public class SwingGUI extends SettingsUI {
 		add(new JLabel("Priority Factor"), p, c, 0, 3);
 		add(new JLabel("QoS"), p, c, 0, 4);
 		
-		qualityNTR = new JTextField(Prop.QUALITY.getDefault().toString());
+		qualityNTR = new JTextField();
 		add(qualityNTR, p, c, 1, 1);
 		priScreen = new JComboBox<>(EnumProp.getLongNames(DSScreen.class));
 		add(priScreen, p, c, 1, 2);
-		priFac = new JTextField(Prop.PRIORITYFACTOR.getDefault().toString());
+		priFac = new JTextField();
 		add(priFac, p, c, 1, 3);
-		qos = new JTextField(Prop.QOS.getDefault().toString());
+		qos = new JTextField();
 		add(qos, p, c, 1, 4);
 		
 		JButton patch = new JButton("Patch NTR");
@@ -697,17 +697,17 @@ public class SwingGUI extends SettingsUI {
 		add(new JLabel("Interlace?"), p, c, 0, 5);
 		add(new JLabel("VSync/HSync"), p, c, 0, 6);
 		
-		qualityCHM = new JTextField(Prop.QUALITY.getDefault().toString());
+		qualityCHM = new JTextField();
 		add(qualityCHM, p, c, 1, 1);
-		tgaCHM = new JCheckBox(null, null, Prop.REQTGA.getDefault());
+		tgaCHM = new JCheckBox();
 		add(tgaCHM, p, c, 1, 2);
-		cpuCapCHM = new JTextField(Prop.CPUCAP.getDefault().toString());
+		cpuCapCHM = new JTextField();
 		add(cpuCapCHM, p, c, 1, 3);
 		reqScreenCHM = new JComboBox<>(EnumProp.getLongNames(DSScreenBoth.class));
 		add(reqScreenCHM, p, c, 1, 4);
-		interlace = new JCheckBox(null, null, Prop.INTERLACE.getDefault());
+		interlace = new JCheckBox();
 		add(interlace, p, c, 1, 5);
-		vsync = new JCheckBox(null, null, Prop.VSYNC.getDefault());
+		vsync = new JCheckBox();
 		add(vsync, p, c, 1, 6);
 		
 		JButton apply = new JButton("Apply");
