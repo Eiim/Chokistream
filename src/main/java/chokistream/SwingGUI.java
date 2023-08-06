@@ -213,7 +213,7 @@ public class SwingGUI extends SettingsUI {
 				OutputFormat outForm = getPropEnum(Prop.OUTPUTFORMAT, OutputFormat.class);
 		    	switch(outForm) {
 		    		case VISUAL:
-		    			//Main.initializeJFX(this, ui);
+		    			Main.initializeSwing(SwingGUI.this);
 		    			break;
 		    		case FILE:
 		    			Main.initializeFile(SwingGUI.this);
@@ -229,6 +229,18 @@ public class SwingGUI extends SettingsUI {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
 				outputSettings.setEnabled(!outputFormat.getSelectedItem().equals(OutputFormat.VISUAL.getLongName()));
+			}
+		});
+		
+		mod.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				port.setText(
+					switch(getPropEnum(Prop.MOD, Mod.class)) {
+						case NTR -> "8000";
+						case HZMOD, CHIRUNOMOD -> "6464";
+					}
+				);
 			}
 		});
 		

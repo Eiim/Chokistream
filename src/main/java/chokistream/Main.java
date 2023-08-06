@@ -128,6 +128,18 @@ public class Main {
 		new JavaFXVideo(app, client, layout, dpi, topScale, bottomScale, intrp);
 	}
 	
+	public static void initializeSwing(SettingsUI ui) {
+		StreamingInterface client = initialize(ui);
+		
+		Layout layout = ui.getPropEnum(Prop.LAYOUT, Layout.class);
+		int dpi = ui.getPropInt(Prop.DPI);
+		double topScale = ui.getPropDouble(Prop.TOPSCALE);
+		double bottomScale = ui.getPropDouble(Prop.BOTTOMSCALE);
+		InterpolationMode intrp = ui.getPropEnum(Prop.INTRPMODE, InterpolationMode.class);
+		
+		new SwingVideo(client, layout, dpi, topScale, bottomScale, intrp);
+	}
+	
 	public static void initializeFile(SettingsUI ui) {
 		StreamingInterface client = initialize(ui);
 		
