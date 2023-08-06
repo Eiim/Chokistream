@@ -12,7 +12,6 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import chokistream.props.DSScreen;
-import chokistream.props.InterpolationMode;
 import chokistream.props.Layout;
 import chokistream.props.LogLevel;
 
@@ -31,7 +30,7 @@ public class SwingVideo implements VideoOutputInterface {
 	private int bottomFPS = 0;
 	private Timer fpsTimer;
 
-	public SwingVideo(StreamingInterface client, Layout layout, int dpi, double topScale, double bottomScale, InterpolationMode intrp) {
+	public SwingVideo(StreamingInterface client, Layout layout, int dpi, double topScale, double bottomScale) {
 		this.client = client;
 		this.topScale = topScale;
 		this.bottomScale = bottomScale;
@@ -42,8 +41,8 @@ public class SwingVideo implements VideoOutputInterface {
 		case SEPARATE: {
 			JFrame top = new JFrame();
 			JFrame bottom = new JFrame();
-			topImageView = new ImageComponent(DSScreen.TOP, topScale, intrp);
-			bottomImageView = new ImageComponent(DSScreen.BOTTOM, bottomScale, intrp);
+			topImageView = new ImageComponent(DSScreen.TOP, topScale);
+			bottomImageView = new ImageComponent(DSScreen.BOTTOM, bottomScale);
 			top.add(topImageView);
 			bottom.add(bottomImageView);
 			top.pack();
@@ -57,7 +56,7 @@ public class SwingVideo implements VideoOutputInterface {
 			break;
 		} case TOP_ONLY: {
 			JFrame top = new JFrame();
-			topImageView = new ImageComponent(DSScreen.TOP, topScale, intrp);
+			topImageView = new ImageComponent(DSScreen.TOP, topScale);
 			top.add(topImageView);
 			top.pack();
 			top.setTitle("Chokistream");
@@ -66,7 +65,7 @@ public class SwingVideo implements VideoOutputInterface {
 			break;
 		} case BOTTOM_ONLY: {
 			JFrame bottom = new JFrame();
-			bottomImageView = new ImageComponent(DSScreen.BOTTOM, bottomScale, intrp);
+			bottomImageView = new ImageComponent(DSScreen.BOTTOM, bottomScale);
 			bottom.add(bottomImageView);
 			bottom.pack();
 			bottom.setTitle("Chokistream");
@@ -76,10 +75,10 @@ public class SwingVideo implements VideoOutputInterface {
 		} case HORIZONTAL: {
 			JFrame f = new JFrame();
 			f.setLayout(new BoxLayout(f.getContentPane(), BoxLayout.X_AXIS));
-			topImageView = new ImageComponent(DSScreen.TOP, topScale, intrp);
+			topImageView = new ImageComponent(DSScreen.TOP, topScale);
 			topImageView.setAlignmentX(Component.CENTER_ALIGNMENT);
 			f.add(topImageView);
-			bottomImageView = new ImageComponent(DSScreen.BOTTOM, bottomScale, intrp);
+			bottomImageView = new ImageComponent(DSScreen.BOTTOM, bottomScale);
 			bottomImageView.setAlignmentX(Component.CENTER_ALIGNMENT);
 			f.add(bottomImageView);
 			f.pack();
@@ -90,10 +89,10 @@ public class SwingVideo implements VideoOutputInterface {
 		} case HORIZONTAL_INV: {
 			JFrame f = new JFrame();
 			f.setLayout(new BoxLayout(f.getContentPane(), BoxLayout.X_AXIS));
-			bottomImageView = new ImageComponent(DSScreen.BOTTOM, bottomScale, intrp);
+			bottomImageView = new ImageComponent(DSScreen.BOTTOM, bottomScale);
 			bottomImageView.setAlignmentX(Component.CENTER_ALIGNMENT);
 			f.add(bottomImageView);
-			topImageView = new ImageComponent(DSScreen.TOP, topScale, intrp);
+			topImageView = new ImageComponent(DSScreen.TOP, topScale);
 			topImageView.setAlignmentX(Component.CENTER_ALIGNMENT);
 			f.add(topImageView);
 			f.pack();
@@ -104,10 +103,10 @@ public class SwingVideo implements VideoOutputInterface {
 		} case VERTICAL: {
 			JFrame f = new JFrame();
 			f.setLayout(new BoxLayout(f.getContentPane(), BoxLayout.Y_AXIS));
-			topImageView = new ImageComponent(DSScreen.TOP, topScale, intrp);
+			topImageView = new ImageComponent(DSScreen.TOP, topScale);
 			topImageView.setAlignmentX(Component.CENTER_ALIGNMENT);
 			f.add(topImageView);
-			bottomImageView = new ImageComponent(DSScreen.BOTTOM, bottomScale, intrp);
+			bottomImageView = new ImageComponent(DSScreen.BOTTOM, bottomScale);
 			bottomImageView.setAlignmentX(Component.CENTER_ALIGNMENT);
 			f.add(bottomImageView);
 			f.pack();
@@ -118,10 +117,10 @@ public class SwingVideo implements VideoOutputInterface {
 		} case VERTICAL_INV: {
 			JFrame f = new JFrame();
 			f.setLayout(new BoxLayout(f.getContentPane(), BoxLayout.X_AXIS));
-			bottomImageView = new ImageComponent(DSScreen.BOTTOM, bottomScale, intrp);
+			bottomImageView = new ImageComponent(DSScreen.BOTTOM, bottomScale);
 			bottomImageView.setAlignmentX(Component.CENTER_ALIGNMENT);
 			f.add(bottomImageView);
-			topImageView = new ImageComponent(DSScreen.TOP, topScale, intrp);
+			topImageView = new ImageComponent(DSScreen.TOP, topScale);
 			topImageView.setAlignmentX(Component.CENTER_ALIGNMENT);
 			f.add(topImageView);
 			f.pack();

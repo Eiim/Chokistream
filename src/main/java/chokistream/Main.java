@@ -135,9 +135,8 @@ public class Main {
 		int dpi = ui.getPropInt(Prop.DPI);
 		double topScale = ui.getPropDouble(Prop.TOPSCALE);
 		double bottomScale = ui.getPropDouble(Prop.BOTTOMSCALE);
-		InterpolationMode intrp = ui.getPropEnum(Prop.INTRPMODE, InterpolationMode.class);
 		
-		new SwingVideo(client, layout, dpi, topScale, bottomScale, intrp);
+		new SwingVideo(client, layout, dpi, topScale, bottomScale);
 	}
 	
 	public static void initializeFile(SettingsUI ui) {

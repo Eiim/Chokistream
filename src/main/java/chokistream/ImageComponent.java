@@ -8,7 +8,6 @@ import java.awt.image.BufferedImage;
 import javax.swing.JComponent;
 
 import chokistream.props.DSScreen;
-import chokistream.props.InterpolationMode;
 
 public class ImageComponent extends JComponent {
 
@@ -19,11 +18,9 @@ public class ImageComponent extends JComponent {
 	private DSScreen screen;
 	private int width;
 	private int height;
-	private InterpolationMode intrp;
 
-	public ImageComponent(DSScreen screen, double scale, InterpolationMode intrp) {
+	public ImageComponent(DSScreen screen, double scale) {
 		this.screen = screen;
-		this.intrp = intrp;
 		width = (int)((screen == DSScreen.TOP ? 400 : 320) * scale);
 		height = (int) (240 * scale);
 		img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
@@ -33,11 +30,11 @@ public class ImageComponent extends JComponent {
 	@Override
 	public void paintComponent(Graphics g)
     {
-        g.drawImage(processImage(img), 0, 0, null);
+        g.drawImage(img, 0, 0, null);
     }
 	
 	public void updateImage(BufferedImage image) {
-		img = image;
+		img = processImage(image);
 		repaint();
 	}
 	
@@ -46,20 +43,14 @@ public class ImageComponent extends JComponent {
 		double hscale = (double)width / in.getHeight();
 		double vscale = (double)height / in.getWidth();
 		Logger.INSTANCE.log(width+" "+height+" "+hscale+" "+vscale+" "+in.getHeight()+" "+in.getWidth());
-		switch(intrp) {
-		case NONE:
-			for(int i = 0; i < width; i++) {
-				for(int j = 0; j < height; j++) {
-					try {
-						out.setRGB(i, height-j-1, in.getRGB((int)(j / hscale), (int)(i / vscale)));
-					} catch(ArrayIndexOutOfBoundsException e) {
-						if(j == 0 || j == height-1) {}
-							//System.out.println(i+" "+j+" "+(int)(j/hscale)+" "+(int)(i/vscale)+" "+in.getWidth()+" "+in.getHeight());
-					}
+		for(int i = 0; i < width; i++) {
+			for(int j = 0; j < height; j++) {
+				try {
+					out.setRGB(i, height-j-1, in.getRGB((int)(j / hscale), (int)(i / vscale)));
+				} catch(ArrayIndexOutOfBoundsException e) {
+					System.out.println(i+" "+j+" "+(int)(j/hscale)+" "+(int)(i/vscale)+" "+in.getWidth()+" "+in.getHeight());
 				}
 			}
-		default:
-			Logger.INSTANCE.logOnce("Unsupported interpretation mode "+intrp.getLongName());
 		}
 		return out;
 	}
