@@ -1,5 +1,6 @@
 package chokistream;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
@@ -150,6 +151,7 @@ public class SwingVideo implements VideoOutputInterface {
 			    }
 			});
 			f.addKeyListener(kl);
+			f.getContentPane().setBackground(Color.BLACK);
 		}
 		
 		fpsTimer = new Timer();

@@ -7,6 +7,8 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
+import chokistream.props.LogLevel;
+
 public class KeypressHandler implements KeyListener {
 	
 	private SwingVideo output;
@@ -40,7 +42,7 @@ public class KeypressHandler implements KeyListener {
 					File fb = new File("chokistream_bottom.png");
 					ImageIO.write(bottomImageView.getImage(), "png", fb);
 				}
-				logger.log("Took a screenshot!");
+				logger.log("Took a screenshot!", LogLevel.VERBOSE);
 			} catch (IOException e1) {
 				output.displayError(e1);
 			}
@@ -56,6 +58,7 @@ public class KeypressHandler implements KeyListener {
 			if(e.getKeyCode() == KeyEvent.VK_UP) {
 				if(c.quality < 100) {
 					c.quality++;
+					logger.log("Increasing quality to "+c.quality, LogLevel.VERBOSE);
 					try {
 						c.sendQuality(c.quality);
 					} catch (IOException e1) {
@@ -65,6 +68,7 @@ public class KeypressHandler implements KeyListener {
 			} else if(e.getKeyCode() == KeyEvent.VK_DOWN) {
 				if(c.quality > 0) {
 					c.quality--;
+					logger.log("Decreasing quality to "+c.quality, LogLevel.VERBOSE);
 					try {
 						c.sendQuality(c.quality);
 					} catch (IOException e1) {
@@ -78,6 +82,7 @@ public class KeypressHandler implements KeyListener {
 			if(e.getKeyCode() == KeyEvent.VK_UP) {
 				if(c.quality < 100) {
 					c.quality++;
+					logger.log("Increasing quality to "+c.quality, LogLevel.VERBOSE);
 					try {
 						c.sendQuality(c.quality);
 					} catch (IOException e1) {
@@ -87,6 +92,7 @@ public class KeypressHandler implements KeyListener {
 			} else if(e.getKeyCode() == KeyEvent.VK_DOWN) {
 				if(c.quality > 0) {
 					c.quality--;
+					logger.log("Decreasing quality to "+c.quality, LogLevel.VERBOSE);
 					try {
 						c.sendQuality(c.quality);
 					} catch (IOException e1) {
