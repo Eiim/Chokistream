@@ -2,7 +2,6 @@ package chokistream;
 
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Image;
 import java.awt.image.BufferedImage;
 
 import javax.swing.JComponent;
@@ -42,7 +41,6 @@ public class ImageComponent extends JComponent {
 		BufferedImage out = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		double hscale = (double)width / in.getHeight();
 		double vscale = (double)height / in.getWidth();
-		Logger.INSTANCE.log(width+" "+height+" "+hscale+" "+vscale+" "+in.getHeight()+" "+in.getWidth());
 		for(int i = 0; i < width; i++) {
 			for(int j = 0; j < height; j++) {
 				try {
@@ -55,7 +53,7 @@ public class ImageComponent extends JComponent {
 		return out;
 	}
 	
-	public Image getImage() {
+	public BufferedImage getImage() {
 		return img;
 	}
 	

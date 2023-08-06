@@ -1,17 +1,20 @@
 package chokistream;
 
 import java.awt.Component;
+import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import chokistream.props.DSScreen;
+import chokistream.props.DSScreenBoth;
 import chokistream.props.Layout;
 import chokistream.props.LogLevel;
 
@@ -23,12 +26,13 @@ public class SwingVideo implements VideoOutputInterface {
 	private ImageComponent topImageView;
 	private ImageComponent bottomImageView;
 	private double uiScale;
-	private static final Logger logger = Logger.INSTANCE;
 	private double topScale;
 	private double bottomScale;
 	private int topFPS = 0;
 	private int bottomFPS = 0;
 	private Timer fpsTimer;
+	
+	private static final Logger logger = Logger.INSTANCE;
 
 	public SwingVideo(StreamingInterface client, Layout layout, int dpi, double topScale, double bottomScale) {
 		this.client = client;
@@ -133,6 +137,8 @@ public class SwingVideo implements VideoOutputInterface {
 			return;
 		}}
 		
+		KeyListener kl = new KeypressHandler(this, client, topImageView, bottomImageView);
+		
 		for(JFrame f : frames) {
 			f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			f.setResizable(false);
@@ -143,7 +149,24 @@ public class SwingVideo implements VideoOutputInterface {
 			    	kill();
 			    }
 			});
+			f.addKeyListener(kl);
 		}
+		
+		fpsTimer = new Timer();
+		fpsTimer.scheduleAtFixedRate(new TimerTask() {
+			@Override
+			public void run() {
+				topFPS = client.getFrameCount(DSScreenBoth.TOP);
+				bottomFPS = client.getFrameCount(DSScreenBoth.BOTTOM);
+				
+				if(frames.size() == 2) {
+					frames.get(0).setTitle("Chokistream - Top Screen ("+topFPS+" FPS)");
+					frames.get(1).setTitle("Chokistream - Bottom Screen ("+bottomFPS+" FPS)");
+				} else {
+					frames.get(0).setTitle("Chokistream ("+Math.max(topFPS, bottomFPS)+" FPS)");
+				}
+			}
+		}, 1000, 1000);
 		
 		networkThread.start();
 		
