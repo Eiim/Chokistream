@@ -20,6 +20,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -29,6 +30,8 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 import com.formdev.flatlaf.FlatLightLaf;
 
@@ -57,8 +60,6 @@ public class SwingGUI extends SettingsUI {
 	private JComboBox<String> layout;
 	private JTextField topScale;
 	private JTextField bottomScale;
-	private JComboBox<String> intrpMode;
-	private JTextField dpi;
 	private JComboBox<String> colorMode;
 	private JTextField port;
 	private JComboBox<String> logMode;
@@ -129,23 +130,17 @@ public class SwingGUI extends SettingsUI {
 		add(new JLabel(Prop.LAYOUT.getLongName()), p, c, 0, 3);
 		add(new JLabel(Prop.TOPSCALE.getLongName()), p, c, 0, 4);
 		add(new JLabel(Prop.BOTTOMSCALE.getLongName()), p, c, 0, 5);
-		add(new JLabel(Prop.INTRPMODE.getLongName()), p, c, 0, 6);
-		add(new JLabel(Prop.DPI.getLongName()), p, c, 0, 7);
 		
 		mod = new JComboBox<String>(EnumProp.getLongNames(Mod.class));
-		add(mod, p, c, 1, 0);
+		add(mod, p, c, 1, 0, "3DS mod to connect to");
 		ip = new JTextField();
-		add(ip, p, c, 1, 2);
+		add(ip, p, c, 1, 2, "IP of the 3DS");
 		layout = new JComboBox<String>(EnumProp.getLongNames(Layout.class));
-		add(layout, p, c, 1, 3);
+		add(layout, p, c, 1, 3, "Layout of the screens. Choose Top Only unless using a dual-screen mod/version.");
 		topScale = new JTextField();
-		add(topScale, p, c, 1, 4);
+		add(topScale, p, c, 1, 4, "Factor to scale the top screen by");
 		bottomScale = new JTextField();
-		add(bottomScale, p, c, 1, 5);
-		intrpMode = new JComboBox<String>(EnumProp.getLongNames(InterpolationMode.class));
-		add(intrpMode, p, c, 1, 6);
-		dpi = new JTextField();
-		add(dpi, p, c, 1, 7);
+		add(bottomScale, p, c, 1, 5, "Factor to scale the bottom screen by");
 		
 		add(new JSeparator(SwingConstants.VERTICAL), p, c, 2, 0, 1, 8);
 		
@@ -157,17 +152,17 @@ public class SwingGUI extends SettingsUI {
 		add(new JLabel(Prop.OUTPUTFORMAT.getLongName()), p, c, 3, 5);
 		
 		colorMode = new JComboBox<String>(EnumProp.getLongNames(ColorMode.class));
-		add(colorMode, p, c, 4, 0);
+		add(colorMode, p, c, 4, 0, "HzMod color correction options");
 		port = new JTextField();
-		add(port, p, c, 4, 1);
+		add(port, p, c, 4, 1, "3DS port, usually leave as default");
 		logMode = new JComboBox<String>(EnumProp.getLongNames(LogMode.class));
-		add(logMode, p, c, 4, 2);
+		add(logMode, p, c, 4, 2, "Log to file or console");
 		logLevel = new JComboBox<String>(EnumProp.getLongNames(LogLevel.class));
-		add(logLevel, p, c, 4, 3);
+		add(logLevel, p, c, 4, 3, "Amount of detail in logs");
 		logFile = new JTextField();
-		add(logFile, p, c, 4, 4);
+		add(logFile, p, c, 4, 4, "Filename for log file");
 		outputFormat = new JComboBox<String>(EnumProp.getLongNames(OutputFormat.class));
-		add(outputFormat, p, c, 4, 5);
+		add(outputFormat, p, c, 4, 5, "Output format. Switch to file streaming or image sequence for file output.");
 		
 		JButton modSettings = new JButton("Mod Settings");
 		JButton outputSettings = new JButton("Output Settings");
@@ -175,10 +170,10 @@ public class SwingGUI extends SettingsUI {
 		JButton about = new JButton("About");
 		JButton connect = new JButton("Connect!");
 		add(modSettings, p, c, 0, 1, 2, 1);
-		add(connect, p, c, 0, 8, 2, 1);
+		add(connect, p, c, 0, 7, 2, 1);
 		add(outputSettings, p, c, 3, 6, 2, 1);
-		add(controls, p, c, 3, 7, 2, 1);
-		add(about, p, c, 3, 8, 2, 1);
+		add(controls, p, c, 0, 6, 2, 1);
+		add(about, p, c, 3, 7, 2, 1);
 		
 		about.addActionListener(new ActionListener() {
 			@Override
@@ -244,6 +239,33 @@ public class SwingGUI extends SettingsUI {
 			}
 		});
 		
+		logLevel.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				logger.setLevel(getPropEnum(Prop.LOGLEVEL, LogLevel.class));
+			}
+		});
+		
+		logMode.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				logger.setMode(getPropEnum(Prop.LOGMODE, LogMode.class));
+			}
+		});
+		
+		logFile.getDocument().addDocumentListener(new DocumentListener() {
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+				logger.setFile(getPropString(Prop.LOGFILE));
+			}
+
+			@Override
+			public void insertUpdate(DocumentEvent e) {changedUpdate(e);}
+
+			@Override
+			public void removeUpdate(DocumentEvent e) {changedUpdate(e);}
+		});
+		
 		f.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
@@ -286,8 +308,6 @@ public class SwingGUI extends SettingsUI {
 			};
 		} else if(p.equals(Prop.PORT)) {
 			return Integer.parseInt(port.getText());
-		} else if(p.equals(Prop.DPI)) {
-			return Integer.parseInt(dpi.getText());
 		} else {
 			return p.getDefault();
 		}
@@ -354,8 +374,6 @@ public class SwingGUI extends SettingsUI {
 			return EnumProp.fromLongName(c, logMode.getSelectedItem().toString());
 		} else if(p.equals(Prop.LOGLEVEL)) {
 			return EnumProp.fromLongName(c, logLevel.getSelectedItem().toString());
-		} else if(p.equals(Prop.INTRPMODE)) {
-			return EnumProp.fromLongName(c, intrpMode.getSelectedItem().toString());
 		} else if(p.equals(Prop.OUTPUTFORMAT)) {
 			return EnumProp.fromLongName(c, outputFormat.getSelectedItem().toString());
 		} else if(p.equals(Prop.VIDEOCODEC)) {
@@ -430,11 +448,9 @@ public class SwingGUI extends SettingsUI {
 			setTextDefault(parser, Prop.PORT, port);
 			setTextDefault(parser, Prop.LOGFILE, logFile);
 			setTextDefault(parser, Prop.VIDEOFILE, videoFile);
-			setTextDefault(parser, Prop.DPI, dpi);
 			
 			setValueDefault(parser, Prop.MOD, mod);
 			setValueDefault(parser, Prop.LAYOUT, layout);
-			setValueDefault(parser, Prop.INTRPMODE, intrpMode);
 			setValueDefault(parser, Prop.COLORMODE, colorMode);
 			setValueDefault(parser, Prop.LOGMODE, logMode);
 			setValueDefault(parser, Prop.LOGLEVEL, logLevel);
@@ -529,9 +545,9 @@ public class SwingGUI extends SettingsUI {
 		add(new JLabel("Video File"), p, c, 0, 2);
 		
 		videoCodec = new JComboBox<String>(EnumProp.getLongNames(VideoFormat.class));;
-		add(videoCodec, p, c, 1, 1);
+		add(videoCodec, p, c, 1, 1, "Codec for video file output");
 		videoFile = new JTextField();
-		add(videoFile, p, c, 1, 2);
+		add(videoFile, p, c, 1, 2, "File name for video file output");
 		
 		JButton apply = new JButton("Apply");
 		add(apply, p, c, 0, 3, 2, 1);
@@ -561,9 +577,9 @@ public class SwingGUI extends SettingsUI {
 		add(new JLabel("Image Prefix"), p, c, 0, 2);
 		
 		sequenceDir = new JTextField();
-		add(sequenceDir, p, c, 1, 1);
+		add(sequenceDir, p, c, 1, 1, "Directory for image sequences");
 		sequencePrefix = new JTextField();
-		add(sequencePrefix, p, c, 1, 2);
+		add(sequencePrefix, p, c, 1, 2, "Prefix for image sequence files");
 		
 		JButton apply = new JButton("Apply");
 		add(apply, p, c, 0, 3, 2, 1);
@@ -778,6 +794,11 @@ public class SwingGUI extends SettingsUI {
 		c.gridx = x;
 		c.gridy = y;
 		f.add(co, c);
+	}
+	
+	private void add(JComponent co, JPanel f, GridBagConstraints c, int x, int y, String tooltip) {
+		co.setToolTipText(tooltip);
+		add(co, f, c, x, y);
 	}
 	
 	private void add(Component co, JPanel f, GridBagConstraints c, int x, int y, int w, int h) {

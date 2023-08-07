@@ -26,19 +26,14 @@ public class SwingVideo implements VideoOutputInterface {
 	private ArrayList<JFrame> frames = new ArrayList<>();	
 	private ImageComponent topImageView;
 	private ImageComponent bottomImageView;
-	private double uiScale;
-	private double topScale;
-	private double bottomScale;
 	private int topFPS = 0;
 	private int bottomFPS = 0;
 	private Timer fpsTimer;
 	
 	private static final Logger logger = Logger.INSTANCE;
 
-	public SwingVideo(StreamingInterface client, Layout layout, int dpi, double topScale, double bottomScale) {
+	public SwingVideo(StreamingInterface client, Layout layout, double topScale, double bottomScale) {
 		this.client = client;
-		this.topScale = topScale;
-		this.bottomScale = bottomScale;
 		
 		networkThread = new NetworkThread(this.client, this);
 		

@@ -132,11 +132,10 @@ public class Main {
 		StreamingInterface client = initialize(ui);
 		
 		Layout layout = ui.getPropEnum(Prop.LAYOUT, Layout.class);
-		int dpi = ui.getPropInt(Prop.DPI);
 		double topScale = ui.getPropDouble(Prop.TOPSCALE);
 		double bottomScale = ui.getPropDouble(Prop.BOTTOMSCALE);
 		
-		new SwingVideo(client, layout, dpi, topScale, bottomScale);
+		new SwingVideo(client, layout, topScale, bottomScale);
 	}
 	
 	public static void initializeFile(SettingsUI ui) {

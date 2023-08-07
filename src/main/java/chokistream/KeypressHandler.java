@@ -25,9 +25,6 @@ public class KeypressHandler implements KeyListener {
 	}
 
 	@Override
-	public void keyTyped(KeyEvent e) {}
-
-	@Override
 	public void keyPressed(KeyEvent e) {
 		// Generic commands
 		if(e.getKeyCode() == KeyEvent.VK_S) {
@@ -102,8 +99,10 @@ public class KeypressHandler implements KeyListener {
 			}
 		}
 	}
-
+	
+	// These methods need to be overridden, but aren't useful.
+	@Override
+	public void keyTyped(KeyEvent e) {}
 	@Override
 	public void keyReleased(KeyEvent e) {}
-
 }
