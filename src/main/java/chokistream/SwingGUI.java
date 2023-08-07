@@ -611,12 +611,12 @@ public class SwingGUI extends SettingsUI {
 		add(new JLabel("QoS"), p, c, 0, 4);
 		
 		qualityNTR = new JTextField();
-		add(qualityNTR, p, c, 1, 1);
+		add(qualityNTR, p, c, 1, 1, "JPEG compression quality (0-100)");
 		priScreen = new JComboBox<>(EnumProp.getLongNames(DSScreen.class));
-		add(priScreen, p, c, 1, 2);
+		add(priScreen, p, c, 1, 2, "Prioritized screen");
 		priFac = new JTextField();
-		add(priFac, p, c, 1, 3);
-		qos = new JTextField();
+		add(priFac, p, c, 1, 3, "Relative prioritization of prioritized screen");
+		qos = new JTextField("QoS value (Set to >100 to disable)");
 		add(qos, p, c, 1, 4);
 		
 		JButton patch = new JButton("Patch NTR");
@@ -699,11 +699,11 @@ public class SwingGUI extends SettingsUI {
 		add(new JLabel("CPU Cap"), p, c, 0, 3);
 		
 		qualityHz = new JTextField();
-		add(qualityHz, p, c, 1, 1);
+		add(qualityHz, p, c, 1, 1, "JPEG compression quality (1-100). Set to 0 to request TARGA.");
 		tgaHz = new JCheckBox();
-		add(tgaHz, p, c, 1, 2);
+		add(tgaHz, p, c, 1, 2, "Request TARGA (lossless) image format.");
 		cpuCapHz = new JTextField();
-		add(cpuCapHz, p, c, 1, 3);
+		add(cpuCapHz, p, c, 1, 3, "CPI usage limiter");
 		
 		tgaHz.addChangeListener(new ChangeListener() {
 			@Override
@@ -744,17 +744,17 @@ public class SwingGUI extends SettingsUI {
 		add(new JLabel("VSync/HSync"), p, c, 0, 6);
 		
 		qualityCHM = new JTextField();
-		add(qualityCHM, p, c, 1, 1);
+		add(qualityCHM, p, c, 1, 1, "JPEG compression quality (1-100). Set to 0 to request TARGA.");
 		tgaCHM = new JCheckBox();
-		add(tgaCHM, p, c, 1, 2);
+		add(tgaCHM, p, c, 1, 2, "Request TARGA (lossless) image format.");
 		cpuCapCHM = new JTextField();
-		add(cpuCapCHM, p, c, 1, 3);
+		add(cpuCapCHM, p, c, 1, 3, "CPU usage limiter");
 		reqScreenCHM = new JComboBox<>(EnumProp.getLongNames(DSScreenBoth.class));
-		add(reqScreenCHM, p, c, 1, 4);
+		add(reqScreenCHM, p, c, 1, 4, "Requested 3DS screen");
 		interlace = new JCheckBox();
-		add(interlace, p, c, 1, 5);
+		add(interlace, p, c, 1, 5, "Request image interlacing for higher apparent FPS.");
 		vsync = new JCheckBox();
-		add(vsync, p, c, 1, 6);
+		add(vsync, p, c, 1, 6, "Request VSync/Hsync for higher apparent FPS.");
 		
 		tgaCHM.addChangeListener(new ChangeListener() {
 			@Override

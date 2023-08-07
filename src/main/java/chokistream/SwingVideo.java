@@ -26,8 +26,6 @@ public class SwingVideo implements VideoOutputInterface {
 	private ArrayList<JFrame> frames = new ArrayList<>();	
 	private ImageComponent topImageView;
 	private ImageComponent bottomImageView;
-	private int topFPS = 0;
-	private int bottomFPS = 0;
 	private Timer fpsTimer;
 	
 	private static final Logger logger = Logger.INSTANCE;
@@ -153,8 +151,8 @@ public class SwingVideo implements VideoOutputInterface {
 		fpsTimer.scheduleAtFixedRate(new TimerTask() {
 			@Override
 			public void run() {
-				topFPS = client.getFrameCount(DSScreenBoth.TOP);
-				bottomFPS = client.getFrameCount(DSScreenBoth.BOTTOM);
+				int topFPS = client.getFrameCount(DSScreenBoth.TOP);
+				int bottomFPS = client.getFrameCount(DSScreenBoth.BOTTOM);
 				
 				if(frames.size() == 2) {
 					frames.get(0).setTitle("Chokistream - Top Screen ("+topFPS+" FPS)");
@@ -190,7 +188,7 @@ public class SwingVideo implements VideoOutputInterface {
 
 	@Override
 	public void kill() {
-		fpsTimer.cancel();
+		if(fpsTimer != null) fpsTimer.cancel();
 		networkThread.stopRunning();
 		try {
 			client.close();
