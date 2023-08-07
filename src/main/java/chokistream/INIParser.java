@@ -41,7 +41,9 @@ public class INIParser {
 			}
 			
 			String[] components = line.split("=");
-			if(components.length != 2) {
+			if(components.length == 1) {
+				components = new String[] {components[0],""};
+			} else if(components.length != 2) {
 				s.close();
 				throw new IniParseException(line, lineNum);
 			}
