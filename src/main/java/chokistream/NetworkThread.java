@@ -24,7 +24,6 @@ public class NetworkThread extends Thread {
 			} catch(SocketException e) {
 				// Sometimes expected, make note of it but just return peacefully
 				Logger.INSTANCE.log("Socket closed, stopping");
-				((JavaFXVideo) output).startNewThread();
 				return;
 			} catch(IOException | InterruptedException e) {
 				output.displayError(e);
