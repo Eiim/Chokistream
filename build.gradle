@@ -10,7 +10,6 @@ plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
     id 'application'
 	id 'eclipse'
-	id 'org.openjfx.javafxplugin' version '0.0.13'
 	id 'maven-publish'
 }
 
@@ -23,11 +22,6 @@ java {
   toolchain {
     languageVersion.set(JavaLanguageVersion.of(17))
   }
-}
-
-javafx {
-    version = "17.0.2"
-    modules = [ 'javafx.controls', 'javafx.swing' ]
 }
 
 dependencies {

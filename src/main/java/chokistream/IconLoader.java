@@ -7,8 +7,6 @@ import java.util.Base64;
 
 import javax.imageio.ImageIO;
 
-import javafx.stage.Stage;
-
 public class IconLoader {
 	
 	public static final Image small16;
@@ -28,14 +26,6 @@ public class IconLoader {
 	}
 	
 	public static final Logger logger = Logger.INSTANCE;
-	
-	public static void applyFavicon(Stage stage) {
-		Image logo16 = get16x();
-		Image logo32 = get32x();
-		Image logo48 = get48x();
-		Image logo64 = get64x();
-		//stage.getIcons().addAll(logo16, logo32, logo48, logo64);
-	}
 	
 	public static Image get16x() {
 		try {

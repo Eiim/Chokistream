@@ -41,7 +41,6 @@ public class Main {
 			if(System.console() == null) {
 				// TODO: make custom console
 			}
-			//App.main(args);
 			new SwingGUI();
 		}
 	}
@@ -114,18 +113,6 @@ public class Main {
     			break;
     	}
     	return client;
-	}
-	
-	public static void initializeJFX(App app, SettingsUI ui) {
-		StreamingInterface client = initialize(ui);
-		
-		Layout layout = ui.getPropEnum(Prop.LAYOUT, Layout.class);
-		int dpi = ui.getPropInt(Prop.DPI);
-		double topScale = ui.getPropDouble(Prop.TOPSCALE);
-		double bottomScale = ui.getPropDouble(Prop.BOTTOMSCALE);
-		InterpolationMode intrp = ui.getPropEnum(Prop.INTRPMODE, InterpolationMode.class);
-		
-		new JavaFXVideo(app, client, layout, dpi, topScale, bottomScale, intrp);
 	}
 	
 	public static void initializeSwing(SettingsUI ui) {
