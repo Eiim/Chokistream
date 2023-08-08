@@ -40,18 +40,12 @@ public class INIParser {
 				break;
 			}
 			
-			String[] components = line.split("=");
-			if(components.length == 1) {
-				components = new String[] {components[0],""};
-			} else if(components.length != 2) {
-				s.close();
+			int eqpos = line.indexOf('=');
+			if(eqpos == -1) {
 				throw new IniParseException(line, lineNum);
 			}
-			String key = components[0].trim();
-			String value = components[1].trim();
-			if(value.startsWith("\"") && value.endsWith("\"")) {
-				value = value.substring(1, value.length()-1);
-			}
+			String key = line.substring(0, eqpos).trim();
+			String value = line.substring(eqpos+1).trim();
 			params.put(key, new ParamData(lineNum, value));
 		}
 		s.close();
@@ -127,6 +121,7 @@ public class INIParser {
 			message = "Failed to parse .ini line "+lineNum+":\n"+line;
 		}
 		
+		@Override
 		public String getMessage() {
 			return message;
 		}
