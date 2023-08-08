@@ -33,8 +33,11 @@ public class ImageComponent extends JComponent {
     }
 	
 	public void updateImage(BufferedImage image) {
-		img = processImage(image);
-		repaint();
+		// Ignore weird images
+		if(image.getWidth() != 240) {
+			img = processImage(image);
+			repaint();
+		}
 	}
 	
 	private BufferedImage processImage(BufferedImage in) {
@@ -46,7 +49,7 @@ public class ImageComponent extends JComponent {
 				try {
 					out.setRGB(i, height-j-1, in.getRGB((int)(j / hscale), (int)(i / vscale)));
 				} catch(ArrayIndexOutOfBoundsException e) {
-					System.out.println(i+" "+j+" "+(int)(j/hscale)+" "+(int)(i/vscale)+" "+in.getWidth()+" "+in.getHeight());
+					//System.out.println(i+" "+j+" "+(int)(j/hscale)+" "+(int)(i/vscale)+" "+in.getWidth()+" "+in.getHeight());
 				}
 			}
 		}
