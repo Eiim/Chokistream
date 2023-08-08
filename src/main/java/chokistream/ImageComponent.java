@@ -34,9 +34,11 @@ public class ImageComponent extends JComponent {
 	
 	public void updateImage(BufferedImage image) {
 		// Ignore weird images
-		if(image.getWidth() != 240) {
+		if(image.getWidth() == 240) {
 			img = processImage(image);
 			repaint();
+		} else {
+			Logger.INSTANCE.log("Unexpected frame dimensions: "+image.getHeight()+"x"+image.getWidth());
 		}
 	}
 	
