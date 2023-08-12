@@ -23,6 +23,9 @@ public class ImageSequenceVideo implements VideoOutputInterface {
 		this.client = client;
 		this.directory = directory;
 		this.prefix = prefix;
+		
+		(new File(directory)).mkdirs();
+		
 		frameCount = 0;
 		networkThread = new NetworkThread(this.client, this);
 		networkThread.start();
