@@ -101,7 +101,7 @@ public class Main {
     			break;
     		case HZMOD:
     			try {
-    				int quality = ui.getPropInt(Prop.QUALITY);
+    				int quality = ui.getPropBoolean(Prop.REQTGA) ? 0 : ui.getPropInt(Prop.QUALITY);
     				int capCpu = ui.getPropInt(Prop.CPUCAP);
     				ColorMode colorMode = ui.getPropEnum(Prop.COLORMODE);
     				

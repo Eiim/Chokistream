@@ -30,7 +30,9 @@ public abstract class SettingsUI {
 		Logger.INSTANCE.log(e.getClass().getSimpleName()+": "+e.getMessage());
 	}
 	
+	// Should be overridden by implementing class
 	public void saveSettings() {}
 	
+	// Should be overridden by implementing class
 	public void loadSettings() {}
 }
