@@ -67,10 +67,10 @@ public class ConfigFileCLI extends SettingsUI {
 	}
 	
 	@Override
-	public <T extends Enum<T> & EnumProp> T getPropEnum(Prop<T> p, Class<T> c) {
+	public <T extends Enum<T> & EnumProp> T getPropEnum(Prop<T> p) {
 		String val = parser.getProperty(p.getShortName());
 		if(val.length() > 0) {
-			return EnumProp.fromLongName(c, val);
+			return EnumProp.fromLongName(p.propClass(), val);
 		} else {
 			return p.getDefault();
 		}

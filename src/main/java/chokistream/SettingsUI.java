@@ -3,7 +3,7 @@ package chokistream;
 import chokistream.props.EnumProp;
 import chokistream.props.Prop;
 
-public class SettingsUI {
+public abstract class SettingsUI {
 	
 	public int getPropInt(Prop<Integer> p) {
 		return p.getDefault();
@@ -21,12 +21,7 @@ public class SettingsUI {
 		return p.getDefault();
 	}
 	
-	/*
-	 * Unfortunately we require a class instance here because of generic erasure. Subclasses use c
-	 * for EnumProp.fromLogName. It'd be nice to find a way around this without making a separate
-	 * method for each type, but I don't think that's possible.
-	 */
-	public <T extends Enum<T> & EnumProp> T getPropEnum(Prop<T> p, Class<T> c) {
+	public <T extends Enum<T> & EnumProp> T getPropEnum(Prop<T> p) {
 		return p.getDefault();
 	}
 	

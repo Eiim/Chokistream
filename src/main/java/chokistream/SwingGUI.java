@@ -41,7 +41,6 @@ import chokistream.props.ConsoleModel;
 import chokistream.props.DSScreen;
 import chokistream.props.DSScreenBoth;
 import chokistream.props.EnumProp;
-import chokistream.props.InterpolationMode;
 import chokistream.props.Layout;
 import chokistream.props.LogLevel;
 import chokistream.props.LogMode;
@@ -183,7 +182,7 @@ public class SwingGUI extends SettingsUI {
 		modSettings.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				switch(getPropEnum(Prop.MOD, Mod.class)) {
+				switch(getPropEnum(Prop.MOD)) {
 				case HZMOD -> hzSettings.setVisible(true);
 				case CHIRUNOMOD -> chmSettings.setVisible(true);
 				case NTR -> ntrSettings.setVisible(true);
@@ -194,7 +193,7 @@ public class SwingGUI extends SettingsUI {
 		outputSettings.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				switch(getPropEnum(Prop.OUTPUTFORMAT, OutputFormat.class)) {
+				switch(getPropEnum(Prop.OUTPUTFORMAT)) {
 				case FILE -> videoSettings.setVisible(true);
 				case SEQUENCE -> sequenceSettings.setVisible(true);
 				case VISUAL -> {}
@@ -206,7 +205,7 @@ public class SwingGUI extends SettingsUI {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				saveSettings();
-				OutputFormat outForm = getPropEnum(Prop.OUTPUTFORMAT, OutputFormat.class);
+				OutputFormat outForm = getPropEnum(Prop.OUTPUTFORMAT);
 		    	switch(outForm) {
 		    		case VISUAL:
 		    			Main.initializeSwing(SwingGUI.this);
@@ -232,7 +231,7 @@ public class SwingGUI extends SettingsUI {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
 				port.setText(
-					switch(getPropEnum(Prop.MOD, Mod.class)) {
+					switch(getPropEnum(Prop.MOD)) {
 						case NTR -> "8000";
 						case HZMOD, CHIRUNOMOD -> "6464";
 					}
@@ -243,14 +242,14 @@ public class SwingGUI extends SettingsUI {
 		logLevel.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
-				logger.setLevel(getPropEnum(Prop.LOGLEVEL, LogLevel.class));
+				logger.setLevel(getPropEnum(Prop.LOGLEVEL));
 			}
 		});
 		
 		logMode.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
-				logger.setMode(getPropEnum(Prop.LOGMODE, LogMode.class));
+				logger.setMode(getPropEnum(Prop.LOGMODE));
 			}
 		});
 		
@@ -292,7 +291,7 @@ public class SwingGUI extends SettingsUI {
 	@Override
 	public int getPropInt(Prop<Integer> p) {
 		if(p.equals(Prop.QUALITY)) {
-			return switch(getPropEnum(Prop.MOD, Mod.class)) {
+			return switch(getPropEnum(Prop.MOD)) {
 				case NTR -> Integer.parseInt(qualityNTR.getText());
 				case HZMOD -> Integer.parseInt(qualityHz.getText());
 				case CHIRUNOMOD -> Integer.parseInt(qualityCHM.getText());
@@ -302,7 +301,7 @@ public class SwingGUI extends SettingsUI {
 		} else if(p.equals(Prop.QOS)) {
 			return Integer.parseInt(qos.getText());
 		} else if(p.equals(Prop.CPUCAP)) {
-			return switch(getPropEnum(Prop.MOD, Mod.class)) {
+			return switch(getPropEnum(Prop.MOD)) {
 				case NTR -> p.getDefault(); // Hopefully never happens
 				case HZMOD -> Integer.parseInt(cpuCapHz.getText());
 				case CHIRUNOMOD -> Integer.parseInt(cpuCapCHM.getText());
@@ -345,7 +344,7 @@ public class SwingGUI extends SettingsUI {
 	@Override
 	public boolean getPropBoolean(Prop<Boolean> p) {
 		if(p.equals(Prop.REQTGA)) {
-			switch(getPropEnum(Prop.MOD, Mod.class)) {
+			switch(getPropEnum(Prop.MOD)) {
 			case CHIRUNOMOD:
 				return tgaCHM.isSelected();
 			case HZMOD:
@@ -363,29 +362,29 @@ public class SwingGUI extends SettingsUI {
 	}
 
 	@Override
-	public <T extends Enum<T> & EnumProp> T getPropEnum(Prop<T> p, Class<T> c) {
+	public <T extends Enum<T> & EnumProp> T getPropEnum(Prop<T> p) {
 		if(p.equals(Prop.MOD)) {
-			return EnumProp.fromLongName(c, mod.getSelectedItem().toString());
+			return EnumProp.fromLongName(p.propClass(), mod.getSelectedItem().toString());
 		} else if(p.equals(Prop.LAYOUT)) {
-			return EnumProp.fromLongName(c, layout.getSelectedItem().toString());
+			return EnumProp.fromLongName(p.propClass(), layout.getSelectedItem().toString());
 		} else if(p.equals(Prop.PRIORITYSCREEN)) {
-			return EnumProp.fromLongName(c, priScreen.getSelectedItem().toString());
+			return EnumProp.fromLongName(p.propClass(), priScreen.getSelectedItem().toString());
 		} else if(p.equals(Prop.REQSCREEN)) {
-			return switch(getPropEnum(Prop.MOD, Mod.class)) {
+			return switch(getPropEnum(Prop.MOD)) {
 				case NTR -> p.getDefault(); // Hopefully never happens
 				case HZMOD -> p.getDefault(); // Hopefully never happens
-				case CHIRUNOMOD -> EnumProp.fromLongName(c, reqScreenCHM.getSelectedItem().toString());
+				case CHIRUNOMOD -> EnumProp.fromLongName(p.propClass(), reqScreenCHM.getSelectedItem().toString());
 			};
 		} else if(p.equals(Prop.COLORMODE)) {
-			return EnumProp.fromLongName(c, colorMode.getSelectedItem().toString());
+			return EnumProp.fromLongName(p.propClass(), colorMode.getSelectedItem().toString());
 		} else if(p.equals(Prop.LOGMODE)) {
-			return EnumProp.fromLongName(c, logMode.getSelectedItem().toString());
+			return EnumProp.fromLongName(p.propClass(), logMode.getSelectedItem().toString());
 		} else if(p.equals(Prop.LOGLEVEL)) {
-			return EnumProp.fromLongName(c, logLevel.getSelectedItem().toString());
+			return EnumProp.fromLongName(p.propClass(), logLevel.getSelectedItem().toString());
 		} else if(p.equals(Prop.OUTPUTFORMAT)) {
-			return EnumProp.fromLongName(c, outputFormat.getSelectedItem().toString());
+			return EnumProp.fromLongName(p.propClass(), outputFormat.getSelectedItem().toString());
 		} else if(p.equals(Prop.VIDEOCODEC)) {
-			return EnumProp.fromLongName(c, videoCodec.getSelectedItem().toString());
+			return EnumProp.fromLongName(p.propClass(), videoCodec.getSelectedItem().toString());
 		} else {
 			return p.getDefault();
 		}
@@ -401,30 +400,30 @@ public class SwingGUI extends SettingsUI {
 		try {
 			INIParser parser = new INIParser(new File("chokistream.ini"));
 			parser.setProp(Prop.IP, getPropString(Prop.IP));
-			parser.setProp(Prop.MOD, getPropEnum(Prop.MOD, Mod.class));
-			parser.setProp(Prop.PRIORITYSCREEN, getPropEnum(Prop.PRIORITYSCREEN, DSScreen.class));
+			parser.setProp(Prop.MOD, getPropEnum(Prop.MOD));
+			parser.setProp(Prop.PRIORITYSCREEN, getPropEnum(Prop.PRIORITYSCREEN));
 			parser.setProp(Prop.PRIORITYFACTOR, getPropInt(Prop.PRIORITYFACTOR));
-			parser.setProp(Prop.LAYOUT, getPropEnum(Prop.LAYOUT, Layout.class));
-			parser.setProp(Prop.COLORMODE, getPropEnum(Prop.COLORMODE, ColorMode.class));
+			parser.setProp(Prop.LAYOUT, getPropEnum(Prop.LAYOUT));
+			parser.setProp(Prop.COLORMODE, getPropEnum(Prop.COLORMODE));
 			parser.setProp(Prop.PORT, getPropInt(Prop.PORT));
 			parser.setProp(Prop.TOPSCALE, getPropDouble(Prop.TOPSCALE));
 			parser.setProp(Prop.BOTTOMSCALE, getPropDouble(Prop.BOTTOMSCALE));
-			parser.setProp(Prop.LOGMODE, getPropEnum(Prop.LOGMODE, LogMode.class));
-			parser.setProp(Prop.LOGLEVEL, getPropEnum(Prop.LOGLEVEL, LogLevel.class));
+			parser.setProp(Prop.LOGMODE, getPropEnum(Prop.LOGMODE));
+			parser.setProp(Prop.LOGLEVEL, getPropEnum(Prop.LOGLEVEL));
 			parser.setProp(Prop.LOGFILE, getPropString(Prop.LOGFILE));
-			parser.setProp(Prop.INTRPMODE, getPropEnum(Prop.INTRPMODE, InterpolationMode.class));
+			parser.setProp(Prop.INTRPMODE, getPropEnum(Prop.INTRPMODE));
 			parser.setProp(Prop.DPI, getPropInt(Prop.DPI));
-			parser.setProp(Prop.OUTPUTFORMAT, getPropEnum(Prop.OUTPUTFORMAT, OutputFormat.class));
-			parser.setProp(Prop.VIDEOCODEC, getPropEnum(Prop.VIDEOCODEC, VideoFormat.class));
+			parser.setProp(Prop.OUTPUTFORMAT, getPropEnum(Prop.OUTPUTFORMAT));
+			parser.setProp(Prop.VIDEOCODEC, getPropEnum(Prop.VIDEOCODEC));
 			parser.setProp(Prop.VIDEOFILE, getPropString(Prop.VIDEOFILE));
 			parser.setProp(Prop.SEQUENCEDIR, getPropString(Prop.SEQUENCEDIR));
 			parser.setProp(Prop.SEQUENCEPREFIX, getPropString(Prop.SEQUENCEPREFIX));
 			parser.setProp(Prop.REQTGA, getPropBoolean(Prop.REQTGA));
 			
-			switch(getPropEnum(Prop.MOD, Mod.class)) {
+			switch(getPropEnum(Prop.MOD)) {
 				case NTR:
 					parser.setProp(Prop.QUALITY, getPropInt(Prop.QUALITY));
-					parser.setProp(Prop.PRIORITYSCREEN, getPropEnum(Prop.PRIORITYSCREEN, DSScreen.class));
+					parser.setProp(Prop.PRIORITYSCREEN, getPropEnum(Prop.PRIORITYSCREEN));
 					parser.setProp(Prop.PRIORITYFACTOR, getPropInt(Prop.PRIORITYFACTOR));
 					parser.setProp(Prop.QOS, getPropInt(Prop.QOS));
 					break;
@@ -435,7 +434,7 @@ public class SwingGUI extends SettingsUI {
 				case CHIRUNOMOD:
 					parser.setProp(Prop.QUALITY, getPropInt(Prop.QUALITY));
 					parser.setProp(Prop.CPUCAP, getPropInt(Prop.CPUCAP));
-					parser.setProp(Prop.REQSCREEN, getPropEnum(Prop.REQSCREEN, DSScreenBoth.class));
+					parser.setProp(Prop.REQSCREEN, getPropEnum(Prop.REQSCREEN));
 					parser.setProp(Prop.INTERLACE, getPropBoolean(Prop.INTERLACE));
 					parser.setProp(Prop.VSYNC, getPropBoolean(Prop.VSYNC));
 					break;

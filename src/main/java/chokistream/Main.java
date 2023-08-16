@@ -30,8 +30,8 @@ public class Main {
 		// Set up logging before anything else
 		SettingsUI ui = new ConfigFileCLI();
 		List<String> argsAL = Arrays.asList(args);
-		LogLevel level = ui.getPropEnum(Prop.LOGLEVEL, LogLevel.class);
-		LogMode mode = ui.getPropEnum(Prop.LOGMODE, LogMode.class);
+		LogLevel level = ui.getPropEnum(Prop.LOGLEVEL);
+		LogMode mode = ui.getPropEnum(Prop.LOGMODE);
 		String logFile = ui.getPropString(Prop.LOGFILE);
     	Logger.INSTANCE.init(mode, level, logFile);
     	
@@ -55,12 +55,12 @@ public class Main {
     	double bottomScale;
     	InterpolationMode intrp;
     	try {
-			mod = ui.getPropEnum(Prop.MOD, Mod.class);
+			mod = ui.getPropEnum(Prop.MOD);
 			ip = ui.getPropString(Prop.IP);
 			port = ui.getPropInt(Prop.PORT);
 			topScale = ui.getPropDouble(Prop.TOPSCALE);
 			bottomScale = ui.getPropDouble(Prop.BOTTOMSCALE);
-			intrp = ui.getPropEnum(Prop.INTRPMODE, InterpolationMode.class);
+			intrp = ui.getPropEnum(Prop.INTRPMODE);
 		} catch (RuntimeException e) {
 			ui.displayError(e);
 			return null;
@@ -72,10 +72,10 @@ public class Main {
     		case NTR:
 				try {
 					int quality = ui.getPropInt(Prop.QUALITY);
-	    			DSScreen screen = ui.getPropEnum(Prop.PRIORITYSCREEN, DSScreen.class);
+	    			DSScreen screen = ui.getPropEnum(Prop.PRIORITYSCREEN);
 	    			int priority = ui.getPropInt(Prop.PRIORITYFACTOR);
 	    			int qos = ui.getPropInt(Prop.QOS);
-	    			ColorMode colorMode = ui.getPropEnum(Prop.COLORMODE, ColorMode.class);
+	    			ColorMode colorMode = ui.getPropEnum(Prop.COLORMODE);
 	    			
 	    			// Initializes connection
 	    			client = new NTRClient(ip, quality, screen, priority, qos, colorMode, port, topScale, bottomScale, intrp);
@@ -87,8 +87,8 @@ public class Main {
     			try {
     				int quality = ui.getPropInt(Prop.QUALITY);
     				int capCpu = ui.getPropInt(Prop.CPUCAP);
-    				ColorMode colorMode = ui.getPropEnum(Prop.COLORMODE, ColorMode.class);
-    				DSScreenBoth reqScreen = ui.getPropEnum(Prop.REQSCREEN, DSScreenBoth.class);
+    				ColorMode colorMode = ui.getPropEnum(Prop.COLORMODE);
+    				DSScreenBoth reqScreen = ui.getPropEnum(Prop.REQSCREEN);
     				boolean reqTGA = ui.getPropBoolean(Prop.REQTGA);
     				boolean interlace = ui.getPropBoolean(Prop.INTERLACE);
     				boolean vsync = ui.getPropBoolean(Prop.VSYNC);
@@ -103,7 +103,7 @@ public class Main {
     			try {
     				int quality = ui.getPropInt(Prop.QUALITY);
     				int capCpu = ui.getPropInt(Prop.CPUCAP);
-    				ColorMode colorMode = ui.getPropEnum(Prop.COLORMODE, ColorMode.class);
+    				ColorMode colorMode = ui.getPropEnum(Prop.COLORMODE);
     				
     				// Initializes connection
     				client = new HZModClient(ip, quality, capCpu, colorMode, port, topScale, bottomScale, intrp);
@@ -118,7 +118,7 @@ public class Main {
 	public static void initializeSwing(SettingsUI ui) {
 		StreamingInterface client = initialize(ui);
 		
-		Layout layout = ui.getPropEnum(Prop.LAYOUT, Layout.class);
+		Layout layout = ui.getPropEnum(Prop.LAYOUT);
 		double topScale = ui.getPropDouble(Prop.TOPSCALE);
 		double bottomScale = ui.getPropDouble(Prop.BOTTOMSCALE);
 		
@@ -128,9 +128,9 @@ public class Main {
 	public static void initializeFile(SettingsUI ui) {
 		StreamingInterface client = initialize(ui);
 		
-		Layout layout = ui.getPropEnum(Prop.LAYOUT, Layout.class);
+		Layout layout = ui.getPropEnum(Prop.LAYOUT);
 		String fileName = ui.getPropString(Prop.VIDEOFILE);
-		VideoFormat vf = ui.getPropEnum(Prop.VIDEOCODEC, VideoFormat.class);
+		VideoFormat vf = ui.getPropEnum(Prop.VIDEOCODEC);
 		new OutputFileVideo(client, layout, fileName+"."+vf.getExtension(), vf);
 	}
 	
