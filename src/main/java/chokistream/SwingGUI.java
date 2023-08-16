@@ -197,6 +197,7 @@ public class SwingGUI extends SettingsUI {
 				switch(getPropEnum(Prop.OUTPUTFORMAT, OutputFormat.class)) {
 				case FILE -> videoSettings.setVisible(true);
 				case SEQUENCE -> sequenceSettings.setVisible(true);
+				case VISUAL -> {}
 				}
 			}
 		});
@@ -344,7 +345,14 @@ public class SwingGUI extends SettingsUI {
 	@Override
 	public boolean getPropBoolean(Prop<Boolean> p) {
 		if(p.equals(Prop.REQTGA)) {
-			return tgaCHM.isSelected(); // Only used for ChirunoMod
+			switch(getPropEnum(Prop.MOD, Mod.class)) {
+			case CHIRUNOMOD:
+				return tgaCHM.isSelected();
+			case HZMOD:
+				return tgaHz.isSelected();
+			default:
+				return p.getDefault(); // Should never happen
+			}
 		} else if(p.equals(Prop.INTERLACE)) {
 			return interlace.isSelected();
 		} else if(p.equals(Prop.VSYNC)) {
