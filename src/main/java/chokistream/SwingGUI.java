@@ -16,7 +16,6 @@ import java.io.IOException;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -518,7 +517,7 @@ public class SwingGUI extends SettingsUI {
 	public void createAbout() {
 		JFrame f = new JFrame();
 		f.setResizable(false);
-		f.setIconImage(IconLoader.get64x());
+		f.setIconImages(IconLoader.getAll());
 		f.setTitle("About");
 		
 		JPanel p = new JPanel();
@@ -526,7 +525,7 @@ public class SwingGUI extends SettingsUI {
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 		f.add(p);
 		
-		JLabel header = new JLabel("Chokistream", new ImageIcon(IconLoader.get64x()), JLabel.LEFT);
+		JLabel header = new JLabel("Chokistream", new LogoIcon(), JLabel.LEFT);
 		header.setFont(new Font("System", Font.BOLD, 60));
 		p.add(header);
 		
@@ -785,7 +784,7 @@ public class SwingGUI extends SettingsUI {
 	
 	private void frameSetup(JFrame f, JPanel p, GridBagConstraints c) {
 		f.setResizable(false);
-		f.setIconImage(IconLoader.get64x());
+		f.setIconImages(IconLoader.getAll());
 		
 		p.setBorder(BorderFactory.createEmptyBorder(5, 10, 7, 10));
 		p.setLayout(new GridBagLayout());

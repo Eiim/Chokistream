@@ -3,7 +3,9 @@ package chokistream;
 import java.awt.Image;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 
@@ -77,5 +79,14 @@ public class IconLoader {
 			logger.log("Error reading favicon!");
 			return small64;
 		}
+	}
+	
+	public static List<Image> getAll() {
+		ArrayList<Image> out = new ArrayList<>(4);
+		out.add(get16x());
+		out.add(get32x());
+		out.add(get48x());
+		out.add(get64x());
+		return out;
 	}
 }

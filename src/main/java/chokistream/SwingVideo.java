@@ -136,7 +136,7 @@ public class SwingVideo implements VideoOutputInterface {
 		for(JFrame f : frames) {
 			f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			f.setResizable(false);
-			f.setIconImage(IconLoader.get64x());
+			f.setIconImages(IconLoader.getAll());
 			f.addWindowListener(new WindowAdapter() {
 			    @Override
 			    public void windowClosing(WindowEvent e) {
