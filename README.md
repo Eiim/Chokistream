@@ -2,23 +2,23 @@
 
 Nintendo 3DS wireless video capture software, compatible with [ChirunoMod](https://github.com/ChainSwordCS/ChirunoMod), [BootNTR](https://github.com/44670/BootNTR) and [HzMod](https://chainswordcs.com/horizon-by-sono.html) and the only cross-platform video capture software to support HzMod.
 
-A from-scratch re-implementation of [Snickerstream](https://github.com/RattletraPM/Snickerstream), with planned TARGA support from [TGAHz](https://github.com/ChainSwordCS/TGAHz-Parsing) and [HorizonScreen](hps://github.com/gamingaddictionz03/HorizonM)
+A from-scratch re-implementation of [Snickerstream](https://github.com/RattletraPM/Snickerstream), with TARGA support in part from [TGAHz](https://github.com/ChainSwordCS/TGAHz-Parsing) and [HorizonScreen](hps://github.com/gamingaddictionz03/HorizonM)
 
 Notable features:
  * Only client to support ChirunoMod!
- * Supports Windows, Linux, and Mac (builds may not be available for all platforms for all releases)
+ * Pure Java - works on essentially any platform. Tested on Windows and Linux, and lightly tested on Mac and FreeBSD.
+   * Versions < 2.0 support Windows, Linux, and Mac, with OS-specific builds. Builds may not be available for all platforms for all releases.
  * TGA (lossless compression) support for HzMod, the only application other than HorizonScreen to do so!
  * Various display output options to get it looking just right on your monitor
- * No monitor? No problem! Chokistream can run entirely headless and stream straight to a video file. (currently very buggy)
- * Color correction modes to fix whatever weirdness HzMod may throw your way
+ * No monitor? No problem! Chokistream can run entirely headless and stream straight to a video file (currently very buggy), or output frames to image files.
  * Dual-Screen HzMod support for version 2017-05-05 (one of two dual-screen versions)
 
 Plus even more planned:
- * NFC patching for NTR using various patch types (a single patch is currently implemented)
  * Better controls and control options
- * More HzMod TGA support
+ * Better CLI
+ * More and better video file streaming
 
-Currently under development by [Eiim](https://github.com/Eiim). Previously developed by [herronjo](https://github.com/herronjo) and [ChainSwordCS](https://github.com/ChainSwordCS).
+Currently under development by [Eiim](https://github.com/Eiim) and [ChainSwordCS](https://github.com/ChainSwordCS). Previously developed by [herronjo](https://github.com/herronjo).
 
 ## Getting Started
 
