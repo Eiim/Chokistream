@@ -169,6 +169,15 @@ public class HZModClient implements StreamingInterface {
 				bottomFormat = TGAPixelFormat.fromInt(packet.data[8] & 0x07);
 				logger.log("Set top TGA pixel format to "+topFormat, LogLevel.VERBOSE);
 				logger.log("Set bottom TGA pixel format to "+bottomFormat, LogLevel.VERBOSE);
+				
+				// Log to console if a "Stride" value is unexpected. (debug)
+				int topStride = (packet.data[4]&0xff) + ((packet.data[5]&0xff)*0x100) + ((packet.data[6]&0xff)*0x10000) + ((packet.data[7]&0xff)*0x1000000);
+				if(topStride / topFormat.bytes != 240)
+					logger.log("Warning: Unexpected \"Stride\" for top screen. stride="+topStride+"; possible-width="+(topStride/topFormat.bytes), LogLevel.VERBOSE);
+				int botStride = (packet.data[12]&0xff) + ((packet.data[13]&0xff)*0x100) + ((packet.data[14]&0xff)*0x10000) + ((packet.data[15]&0xff)*0x1000000);
+				if(botStride / bottomFormat.bytes != 240)
+					logger.log("Warning: Unexpected \"Stride\" for bottom screen. stride="+botStride+"; possible-width="+(botStride/bottomFormat.bytes), LogLevel.VERBOSE);
+				
 			} else if(packet.type == 0x01) {
 				// Might as well respect disconnect packets
 				logger.log("Recieved disconnect packet, closing");
@@ -176,8 +185,20 @@ public class HZModClient implements StreamingInterface {
 			}
 		}
 		
-		// First two bytes is pixel offset (actually four, but other two are never used)
-		int offset = (packet.data[0] & 0xff) + ((packet.data[1] & 0xff) << 8);
+		int offset;
+		
+		if (packet.type == TARGA_PACKET) {
+			offset = (packet.data[10] & 0xff) + ((packet.data[11] & 0xff) << 8); // origin_y
+		} else { // JPEG
+			// First two bytes is pixel offset (actually four, but other two are never used)
+			offset = (packet.data[0] & 0xff) + ((packet.data[1] & 0xff) << 8);
+		}
+		
+		logger.log("offset="+offset, LogLevel.EXTREME);
+		
+		if(offset < 0 || offset > 720) {
+			offset = 0;
+		}
 		
 		// Values >= 400 indicate bottom screen
 		DSScreen screen = offset >= 400 ? DSScreen.BOTTOM : DSScreen.TOP;
@@ -185,8 +206,13 @@ public class HZModClient implements StreamingInterface {
 		// If bottom screen, subtract 400 to get actual offset
 		offset %= 400;
 		
-		// First 8 bytes are header, trim them off for the image data
-		byte[] data = Arrays.copyOfRange(packet.data, 8, packet.data.length);
+		// Trim extra header (added by HzMod) if necessary
+		int packetDataOffset = 0;
+		if (packet.type == JPEG_PACKET) {
+			packetDataOffset = 8;
+		}
+		
+		byte[] data = Arrays.copyOfRange(packet.data, packetDataOffset, packet.data.length);
 		
 		BufferedImage image = null;
 		
@@ -206,7 +232,7 @@ public class HZModClient implements StreamingInterface {
 			if(image.getHeight() == 320) {
 				bottomFrames++;
 				lastBottomImage = image;
-			} else if(image.getHeight() > 1) {
+			} else if(image.getWidth() > 1) {
 				if(image.getHeight() + offset == 320) bottomFrames++;
 				image = addFractional(lastBottomImage, image, offset);
 				lastBottomImage = image;
@@ -219,7 +245,7 @@ public class HZModClient implements StreamingInterface {
 			if(image.getHeight() == 400) {
 				topFrames++;
 				lastTopImage = image;
-			} else if(image.getHeight() > 1) {
+			} else if(image.getWidth() > 1) {
 				if(image.getHeight() + offset == 400) topFrames++;
 				image = addFractional(lastTopImage, image, offset);
 				lastTopImage = image;
@@ -261,6 +287,7 @@ public class HZModClient implements StreamingInterface {
 	 */
 	private BufferedImage addFractional(BufferedImage oldIm, BufferedImage newIm, int offset) {
 		int height = newIm.getHeight();
+		logger.log("addFractional: height="+height, LogLevel.EXTREME);
 		for(int row = 0; row < height; row++) {
 			for(int col = 0; col < 240; col++) {
 				try {

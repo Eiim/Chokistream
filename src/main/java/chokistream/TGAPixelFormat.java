@@ -27,4 +27,21 @@ public enum TGAPixelFormat {
 				return RGB8;
 		}
 	}
+	
+	public static int toInt(TGAPixelFormat pf) {
+		switch(pf) {
+			case RGBA8:
+				return 0;
+			case RGB8:
+				return 1;
+			case RGB565:
+				return 2;
+			case RGB5A1:
+				return 3;
+			case RGBA4:
+				return 4;
+			default:
+				return -1;
+		}
+	}
 }
