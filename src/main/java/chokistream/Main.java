@@ -135,7 +135,9 @@ public class Main {
 			Layout layout = ui.getPropEnum(Prop.LAYOUT);
 			String fileName = ui.getPropString(Prop.VIDEOFILE);
 			VideoFormat vf = ui.getPropEnum(Prop.VIDEOCODEC);
-			new OutputFileVideo(client, layout, fileName+"."+vf.getExtension(), vf);
+			double topScale = ui.getPropDouble(Prop.TOPSCALE);
+			double bottomScale = ui.getPropDouble(Prop.BOTTOMSCALE);
+			new OutputFileVideo(client, layout, fileName+"."+vf.getExtension(), vf, topScale, bottomScale);
 		}
 	}
 	

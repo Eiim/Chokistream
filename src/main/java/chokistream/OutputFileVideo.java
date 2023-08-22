@@ -22,9 +22,12 @@ public class OutputFileVideo implements VideoOutputInterface {
 	private long prevNanos;
 	private static final Logger logger = Logger.INSTANCE;
 	private boolean done;
+	private double topScale, bottomScale;
 	
-	public OutputFileVideo(StreamingInterface client, Layout layout, String file, VideoFormat vf) {
+	public OutputFileVideo(StreamingInterface client, Layout layout, String file, VideoFormat vf, double topScale, double bottomScale) {
 		this.client = client;
+		this.topScale = topScale;
+		this.bottomScale = bottomScale;
 		// Maybe move this down?
 		networkThread = new NetworkThread(this.client, this);
 		
@@ -60,7 +63,7 @@ public class OutputFileVideo implements VideoOutputInterface {
 				prevNanos += (frames * 16666667l); // Nanos of the frame boundary
 				// We can get a 1-width frame on connection with some HzMod versions, which we can't render to video. Fix that.
 				if(f.image.getWidth() == 1) {
-					f.image = new BufferedImage(400, 240, BufferedImage.TYPE_INT_RGB);
+					f.image = new BufferedImage((int)(400*topScale), (int)(240*topScale), BufferedImage.TYPE_INT_RGB);
 				}
 				try {
 					for(int i = 0; i < frames; i++) {
