@@ -81,6 +81,7 @@ public class Main {
 	    			client = new NTRClient(ip, quality, screen, priority, qos, colorMode, port, topScale, bottomScale, intrp);
 				} catch (Exception e) {
 					ui.displayError(e);
+					return null;
 				}
 				break;
     		case CHIRUNOMOD:
@@ -97,6 +98,7 @@ public class Main {
     				client = new ChirunoModClient(ip, quality, reqTGA, interlace, vsync, capCpu, colorMode, port, reqScreen, topScale, bottomScale, intrp);
     			} catch (Exception e) {
     				ui.displayError(e);
+    				return null;
     			}
     			break;
     		case HZMOD:
@@ -109,6 +111,7 @@ public class Main {
     				client = new HZModClient(ip, quality, capCpu, colorMode, port, topScale, bottomScale, intrp);
     			} catch (Exception e) {
     				ui.displayError(e);
+    				return null;
     			}
     			break;
     	}
@@ -117,27 +120,31 @@ public class Main {
 	
 	public static void initializeSwing(SettingsUI ui) {
 		StreamingInterface client = initialize(ui);
-		
-		Layout layout = ui.getPropEnum(Prop.LAYOUT);
-		double topScale = ui.getPropDouble(Prop.TOPSCALE);
-		double bottomScale = ui.getPropDouble(Prop.BOTTOMSCALE);
-		
-		new SwingVideo(client, layout, topScale, bottomScale);
+		if(client != null) {
+			Layout layout = ui.getPropEnum(Prop.LAYOUT);
+			double topScale = ui.getPropDouble(Prop.TOPSCALE);
+			double bottomScale = ui.getPropDouble(Prop.BOTTOMSCALE);
+			
+			new SwingVideo(client, layout, topScale, bottomScale);
+		}
 	}
 	
 	public static void initializeFile(SettingsUI ui) {
 		StreamingInterface client = initialize(ui);
-		
-		Layout layout = ui.getPropEnum(Prop.LAYOUT);
-		String fileName = ui.getPropString(Prop.VIDEOFILE);
-		VideoFormat vf = ui.getPropEnum(Prop.VIDEOCODEC);
-		new OutputFileVideo(client, layout, fileName+"."+vf.getExtension(), vf);
+		if(client != null) {
+			Layout layout = ui.getPropEnum(Prop.LAYOUT);
+			String fileName = ui.getPropString(Prop.VIDEOFILE);
+			VideoFormat vf = ui.getPropEnum(Prop.VIDEOCODEC);
+			new OutputFileVideo(client, layout, fileName+"."+vf.getExtension(), vf);
+		}
 	}
 	
 	public static void initializeSequence(SettingsUI ui) {
 		StreamingInterface client = initialize(ui);
-		// Temporary until we have a different property
-		String filename = ui.getPropString(Prop.VIDEOFILE);
-		new ImageSequenceVideo(client, filename, "");
+		if(client != null) {
+			// Temporary until we have a different property
+			String filename = ui.getPropString(Prop.VIDEOFILE);
+			new ImageSequenceVideo(client, filename, "");
+		}
 	}
 }
