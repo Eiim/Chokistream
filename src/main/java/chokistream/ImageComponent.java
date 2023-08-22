@@ -34,7 +34,7 @@ public class ImageComponent extends JComponent {
 	
 	public void updateImage(BufferedImage image) {
 		// Ignore weird images
-		if(image.getWidth() == 240) {
+		if(image.getWidth() == height) {
 			img = processImage(image);
 			repaint();
 		} else {
