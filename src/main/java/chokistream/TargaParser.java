@@ -71,7 +71,7 @@ public class TargaParser {
 				break;
 		}
 		
-		// this is broken somehow, but the issue seems to be self-contained
+		// iirc log output is bugged, but otherwise this seems to work as intended
 		if(!errorTgaInvalidBpp) {
 			if(tgaReportedFormat != format) {
 				if(tgaReportedFormat == TGAPixelFormat.RGBA8 && format == TGAPixelFormat.RGB8) {
