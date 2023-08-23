@@ -35,7 +35,6 @@ public class LogoIcon implements Icon {
 		g2.setColor(Color.decode("#561f00"));
 		g2.fill(new Ellipse2D.Double(25, 25, 220, 220));
 		
-		Path2D.Float p = new Path2D.Float(Path2D.WIND_EVEN_ODD);
 		g2.setColor(Color.WHITE);
 		parseCurves(g2, cOutline);
 		parseCurves(g2, sOutline);

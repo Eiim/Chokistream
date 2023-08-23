@@ -225,6 +225,11 @@ public class ChirunoModClient implements StreamingInterface {
 			image = ColorHotfix.doColorHotfix(image, colorMode, false);
 		}
 		
+		// Fix odd images in some CHM versions
+		if(image.getWidth() == 256) {
+			image = image.getSubimage(0, 0, 240, image.getHeight());
+		}
+		
 		// Interlace with last frame, if applicable.
 		if((packet.subtypeA & INTERLACE_MASK) > 0) {
 			if((packet.subtypeA & PARITY_MASK) == 0) {

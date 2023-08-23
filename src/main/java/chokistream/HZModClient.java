@@ -228,6 +228,11 @@ public class HZModClient implements StreamingInterface {
 		
 		logger.log(screen.getLongName()+":"+image.getWidth()+","+image.getHeight(), LogLevel.VERBOSE);
 		
+		// Fix odd images in some games
+		if(image.getWidth() == 256) {
+			image = image.getSubimage(0, 0, 240, image.getHeight());
+		}
+		
 		if(screen == DSScreen.BOTTOM) {
 			if(image.getHeight() == 320) {
 				bottomFrames++;
