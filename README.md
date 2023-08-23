@@ -35,4 +35,4 @@ No other requirements. Run `gradlew build` in Windows Command Prompt or `./gradl
 Besides GitHub issues:
  * Layout doesn't work for file streaming or image sequence
  * Error "The muxer track has finished muxing" when ending file streaming. This is perfectly safe.
- * Top frames in 24bpp games are broken for ChirunoMod v0.2 in JPEG mode. This is a ChirunoMod bug, not fixable on this side.
+ * Top frames in certain (mostly 24bpp) games are broken for ChirunoMod v0.2 in JPEG mode. This is a ChirunoMod bug, not fixable on this side.
