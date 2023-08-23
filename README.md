@@ -29,3 +29,10 @@ See the [Using Chokistream](https://github.com/Eiim/Chokistream/wiki/Using-Choki
 Written in Java 17 with Gradle 7.5, requires Java 17 to be installed :)
 
 No other requirements. Run `gradlew build` in Windows Command Prompt or `./gradlew build` in a Unix terminal. The jar is built to `build/libs/chokistream.jar`.
+
+## Known issues
+
+Besides GitHub issues:
+ * Layout doesn't work for file streaming or image sequence
+ * Error "The muxer track has finished muxing" when ending file streaming. This is perfectly safe.
+ * Top frames in 24bpp games are broken for ChirunoMod v0.2 in JPEG mode. This is a ChirunoMod bug, not fixable on this side.
