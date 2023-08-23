@@ -114,7 +114,7 @@ public class SwingVideo implements VideoOutputInterface {
 			break;
 		} case VERTICAL_INV: {
 			JFrame f = new JFrame();
-			f.setLayout(new BoxLayout(f.getContentPane(), BoxLayout.X_AXIS));
+			f.setLayout(new BoxLayout(f.getContentPane(), BoxLayout.Y_AXIS));
 			bottomImageView = new ImageComponent(DSScreen.BOTTOM, bottomScale);
 			bottomImageView.setAlignmentX(Component.CENTER_ALIGNMENT);
 			f.add(bottomImageView);
