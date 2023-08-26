@@ -13,7 +13,6 @@ public class Prop<T> {
 	public static final Prop<Integer> QUALITY = new Prop<>("quality", "Quality", 70, Integer.class);
 	public static final Prop<Boolean> REQTGA = new Prop<>("tga", "Request TGA?", false, Boolean.class); // ChirunoMod only
 	public static final Prop<Boolean> INTERLACE = new Prop<>("interlace", "Interlace?", false, Boolean.class);
-	public static final Prop<Boolean> VSYNC = new Prop<>("vsync", "VSync/HSync", false, Boolean.class);
 	public static final Prop<DSScreen> PRIORITYSCREEN = new Prop<>("priorityScreen", "Priority Screen", DSScreen.TOP, DSScreen.class);
 	public static final Prop<Integer> PRIORITYFACTOR = new Prop<>("priority", "Priority Factor", 8, Integer.class);
 	public static final Prop<Integer> QOS = new Prop<>("qos", "QoS", 26, Integer.class);

@@ -88,7 +88,6 @@ public class SwingGUI extends SettingsUI {
 	private JComboBox<String> reqScreenCHM;
 	private JCheckBox tgaCHM;
 	private JCheckBox interlace;
-	private JCheckBox vsync;
 	
 	// NTR settings
 	private JFrame ntrSettings;
@@ -353,8 +352,6 @@ public class SwingGUI extends SettingsUI {
 			}
 		} else if(p.equals(Prop.INTERLACE)) {
 			return interlace.isSelected();
-		} else if(p.equals(Prop.VSYNC)) {
-			return vsync.isSelected();
 		} else {
 			return p.getDefault();
 		}
@@ -435,7 +432,6 @@ public class SwingGUI extends SettingsUI {
 					parser.setProp(Prop.CPUCAP, getPropInt(Prop.CPUCAP));
 					parser.setProp(Prop.REQSCREEN, getPropEnum(Prop.REQSCREEN));
 					parser.setProp(Prop.INTERLACE, getPropBoolean(Prop.INTERLACE));
-					parser.setProp(Prop.VSYNC, getPropBoolean(Prop.VSYNC));
 					break;
 			}
 		} catch (IOException | IniParseException e) {
@@ -470,7 +466,6 @@ public class SwingGUI extends SettingsUI {
 			setTextDefault(parser, Prop.CPUCAP, cpuCapCHM);
 			setValueDefault(parser, Prop.REQSCREEN, reqScreenCHM);
 			setCheckedDefault(parser, Prop.INTERLACE, interlace);
-			setCheckedDefault(parser, Prop.VSYNC, vsync);
 			
 			setTextDefault(parser, Prop.QUALITY, qualityNTR);
 			setValueDefault(parser, Prop.PRIORITYSCREEN, priScreen);
@@ -747,7 +742,6 @@ public class SwingGUI extends SettingsUI {
 		add(new JLabel("CPU Cap"), p, c, 0, 3);
 		add(new JLabel("Requested Screen"), p, c, 0, 4);
 		add(new JLabel("Interlace?"), p, c, 0, 5);
-		add(new JLabel("VSync/HSync"), p, c, 0, 6);
 		
 		qualityCHM = new JTextField();
 		add(qualityCHM, p, c, 1, 1, "JPEG compression quality (1-100). Set to 0 to request TARGA.");
@@ -759,8 +753,6 @@ public class SwingGUI extends SettingsUI {
 		add(reqScreenCHM, p, c, 1, 4, "Requested 3DS screen");
 		interlace = new JCheckBox();
 		add(interlace, p, c, 1, 5, "Request image interlacing for higher apparent FPS.");
-		vsync = new JCheckBox();
-		add(vsync, p, c, 1, 6, "Request VSync/Hsync for higher apparent FPS.");
 		
 		tgaCHM.addChangeListener(new ChangeListener() {
 			@Override
@@ -770,7 +762,7 @@ public class SwingGUI extends SettingsUI {
 		});
 		
 		JButton apply = new JButton("Apply");
-		add(apply, p, c, 0, 7, 2, 1);
+		add(apply, p, c, 0, 6, 2, 1);
 		apply.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

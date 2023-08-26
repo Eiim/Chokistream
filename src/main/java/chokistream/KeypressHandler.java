@@ -45,56 +45,47 @@ public class KeypressHandler implements KeyListener {
 			}
 		} else if(e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
 			output.kill();
-			// TODO: reopen
 		}
 		
 		// Client-specific commands
 		if(client instanceof HZModClient) {
 			HZModClient c = (HZModClient) client;
 			
-			if(e.getKeyCode() == KeyEvent.VK_UP) {
-				if(c.quality < 100) {
-					c.quality++;
-					logger.log("Increasing quality to "+c.quality, LogLevel.VERBOSE);
-					try {
-						c.sendQuality(c.quality);
-					} catch (IOException e1) {
-						output.displayError(e1);
-					}
+			if(e.getKeyCode() == KeyEvent.VK_UP && c.quality < 100) {
+				c.quality++;
+				logger.log("Increasing quality to "+c.quality, LogLevel.VERBOSE);
+				try {
+					c.sendQuality(c.quality);
+				} catch (IOException e1) {
+					output.displayError(e1);
 				}
-			} else if(e.getKeyCode() == KeyEvent.VK_DOWN) {
-				if(c.quality > 0) {
-					c.quality--;
-					logger.log("Decreasing quality to "+c.quality, LogLevel.VERBOSE);
-					try {
-						c.sendQuality(c.quality);
-					} catch (IOException e1) {
-						output.displayError(e1);
-					}
+			} else if(e.getKeyCode() == KeyEvent.VK_DOWN && c.quality > 0) {
+				c.quality--;
+				logger.log("Decreasing quality to "+c.quality, LogLevel.VERBOSE);
+				try {
+					c.sendQuality(c.quality);
+				} catch (IOException e1) {
+					output.displayError(e1);
 				}
 			}
 		} else if(client instanceof ChirunoModClient) {
 			ChirunoModClient c = (ChirunoModClient) client;
 			
-			if(e.getKeyCode() == KeyEvent.VK_UP) {
-				if(c.quality < 100) {
-					c.quality++;
-					logger.log("Increasing quality to "+c.quality, LogLevel.VERBOSE);
-					try {
-						c.sendQuality(c.quality);
-					} catch (IOException e1) {
-						output.displayError(e1);
-					}
+			if(e.getKeyCode() == KeyEvent.VK_UP && c.quality < 100) {
+				c.quality++;
+				logger.log("Increasing quality to "+c.quality, LogLevel.VERBOSE);
+				try {
+					c.sendQuality(c.quality);
+				} catch (IOException e1) {
+					output.displayError(e1);
 				}
-			} else if(e.getKeyCode() == KeyEvent.VK_DOWN) {
-				if(c.quality > 0) {
-					c.quality--;
-					logger.log("Decreasing quality to "+c.quality, LogLevel.VERBOSE);
-					try {
-						c.sendQuality(c.quality);
-					} catch (IOException e1) {
-						output.displayError(e1);
-					}
+			} else if(e.getKeyCode() == KeyEvent.VK_DOWN && c.quality > 0) {
+				c.quality--;
+				logger.log("Decreasing quality to "+c.quality, LogLevel.VERBOSE);
+				try {
+					c.sendQuality(c.quality);
+				} catch (IOException e1) {
+					output.displayError(e1);
 				}
 			}
 		}

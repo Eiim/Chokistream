@@ -4,6 +4,9 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
+/*
+ * Standalone helper class to convert a subset of SVG path curve data to a custom format used in LogoIcon.java
+ */
 public class DToDumb {
 
 	public static void main(String[] args) {

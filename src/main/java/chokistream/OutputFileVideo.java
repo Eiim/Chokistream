@@ -22,7 +22,8 @@ public class OutputFileVideo implements VideoOutputInterface {
 	private long prevNanos;
 	private static final Logger logger = Logger.INSTANCE;
 	private boolean done;
-	private double topScale, bottomScale;
+	private double topScale;
+	private double bottomScale;
 	
 	public OutputFileVideo(StreamingInterface client, Layout layout, String file, VideoFormat vf, double topScale, double bottomScale) {
 		this.client = client;

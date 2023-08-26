@@ -92,10 +92,9 @@ public class Main {
     				DSScreenBoth reqScreen = ui.getPropEnum(Prop.REQSCREEN);
     				boolean reqTGA = ui.getPropBoolean(Prop.REQTGA);
     				boolean interlace = ui.getPropBoolean(Prop.INTERLACE);
-    				boolean vsync = ui.getPropBoolean(Prop.VSYNC);
     				
     				// Initializes connection
-    				client = new ChirunoModClient(ip, quality, reqTGA, interlace, vsync, capCpu, colorMode, port, reqScreen, topScale, bottomScale, intrp);
+    				client = new ChirunoModClient(ip, quality, reqTGA, interlace, capCpu, colorMode, port, reqScreen, topScale, bottomScale, intrp);
     			} catch (Exception e) {
     				ui.displayError(e);
     				return null;

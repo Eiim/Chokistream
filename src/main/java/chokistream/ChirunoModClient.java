@@ -33,7 +33,6 @@ public class ChirunoModClient implements StreamingInterface {
 	public int quality;
 	private BufferedImage lastTopImage;
 	private BufferedImage lastBottomImage;
-	private boolean vsync;
 	
 	private int topFrames;
 	private int bottomFrames;
@@ -56,7 +55,7 @@ public class ChirunoModClient implements StreamingInterface {
 	 * @param capCPU Cap CPU cycles.
 	 * @param colorMode The color filter (option to enable hotfixColors).
 	 */
-	public ChirunoModClient(String host, int quality, boolean reqTGA, boolean interlace, boolean vsync, int capCPU, ColorMode receivedColorMode,
+	public ChirunoModClient(String host, int quality, boolean reqTGA, boolean interlace, int capCPU, ColorMode receivedColorMode,
 			int port, DSScreenBoth reqScreen, double topScale, double bottomScale, InterpolationMode intrp) throws UnknownHostException, IOException {
 		// Connect to TCP port and set up client
 		client = new Socket(host, port);
@@ -69,7 +68,6 @@ public class ChirunoModClient implements StreamingInterface {
 		this.bottomScale = bottomScale;
 		this.intrp = intrp;
 		this.quality = quality;
-		this.vsync = vsync;
 		
 		lastTopImage = new BufferedImage(240, 400, BufferedImage.TYPE_INT_RGB);
 		lastBottomImage = new BufferedImage(240, 320, BufferedImage.TYPE_INT_RGB);
