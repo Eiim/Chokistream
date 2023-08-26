@@ -64,7 +64,7 @@ public class ChirunoModClient implements StreamingInterface {
 		in = client.getInputStream();
 		out = client.getOutputStream();
 		
-		colorMode = receivedColorMode;
+		this.colorMode = receivedColorMode;
 		this.topScale = topScale;
 		this.bottomScale = bottomScale;
 		this.intrp = intrp;
@@ -88,18 +88,18 @@ public class ChirunoModClient implements StreamingInterface {
 	
 	public void sendLimitCPU(int limitCPU) throws IOException {
 		// Creates the limit CPU packet to the 3DS
-		logger.log("Sending CPU limit packet", LogLevel.VERBOSE);
+		logger.log("Sending CPU limit packet of "+limitCPU, LogLevel.VERBOSE);
 		out.write((new Packet((byte)0x04, (byte)0x02, new byte[] {(byte)limitCPU})).pack);
 	}
 	
 	public void sendQuality(int quality) throws IOException {
 		// Creates the quality packet to the 3DS
-		logger.log("Sending quality packet", LogLevel.VERBOSE);
+		logger.log("Sending quality packet of "+quality, LogLevel.VERBOSE);
 		out.write((new Packet((byte)0x04, (byte)0x01, new byte[] {(byte)quality})).pack);
 	}
 	
 	public void sendScreen(DSScreenBoth screen) throws IOException {
-		logger.log("Sending screen packet", LogLevel.VERBOSE);
+		logger.log("Sending screen packet of "+screen.getLongName(), LogLevel.VERBOSE);
 		byte scr = switch(screen) {
 			case TOP -> 0x01;
 			case BOTTOM -> 0x02;
@@ -109,24 +109,22 @@ public class ChirunoModClient implements StreamingInterface {
 	}
 	
 	public void sendImageType(boolean isTGA) throws IOException {
-		logger.log("Sending image type packet", LogLevel.VERBOSE);
+		logger.log("Sending image type packet of "+(isTGA ? "TGA" : "JPEG"), LogLevel.VERBOSE);
 		byte imtype = isTGA ? (byte)0x01 : (byte)0x00;
 		out.write((new Packet((byte)0x04, (byte)0x04, new byte[] {imtype})).pack);	
 	}
 	
 	public void sendInterlace(boolean interlace) throws IOException {
-		logger.log("Sending interlace packet", LogLevel.VERBOSE);
+		logger.log("Sending interlace packet of "+interlace, LogLevel.VERBOSE);
 		byte intl = interlace ? (byte)0x01 : (byte)0x00;
 		out.write((new Packet((byte)0x04, (byte)0x05, new byte[] {intl})).pack);	
 	}
 	
 	public void sendInit() throws IOException {
-		// This is really just 02 00 00 00 00
 		logger.log("Sending init packet", LogLevel.VERBOSE);
 		out.write((new Packet((byte)0x02, (byte)0x00, new byte[] {})).pack);
 	}
 	
-	// We don't really have a use for this yet but might as well support it
 	public void sendDisconnect() throws IOException {
 		logger.log("Sending disconnect packet", LogLevel.VERBOSE);
 		out.write((new Packet((byte)0x03, (byte)0x00, new byte[] {})).pack);
@@ -140,6 +138,7 @@ public class ChirunoModClient implements StreamingInterface {
 
 	@Override
 	public void close() throws IOException {
+		sendDisconnect();
 		in.close();
 		out.close();
 		client.close();
@@ -170,11 +169,11 @@ public class ChirunoModClient implements StreamingInterface {
 	@Override
 	public Frame getFrame() throws IOException {
 		Frame returnFrame = null;
-		Packet packet = new Packet();
-		boolean lastFrame = true;
 		
-		// I'd kinda like to refactor this loop but it works for now
-		while (packet.type != 0x01) { // 0x01 is Image packet
+		// We currently loop through received packets until we get an image packet, which we then process
+		// A long term answer is probably true asynchronous programming with callbacks
+		do {
+			Packet packet = new Packet();
 			packet = getPacket();
 			String pType = switch(packet.type) {
 				case 0x01 -> "Image";
@@ -189,7 +188,7 @@ public class ChirunoModClient implements StreamingInterface {
 			logger.log(packet.data, LogLevel.EXTREME);
 			
 			if(packet.type == 0x03) {
-				// Might at a well respect disconnect packets
+				// Might as well respect disconnect packets
 				logger.log("Recieved disconnect packet, closing");
 				close();
 			} else if(packet.type == (byte)0xFF) {
@@ -205,15 +204,23 @@ public class ChirunoModClient implements StreamingInterface {
 						logger.log(new String(packet.data, StandardCharsets.UTF_8), LogLevel.REGULAR);
 						break;
 					default:
-						// Don't log for now
+						// Log unknown format as binary
+						logger.log(packet.data, LogLevel.REGULAR);
 				}
+			} else if(packet.type == 0x01) {
+				// Image packet
+				returnFrame = processImagePacket(packet);
 			}
-		}
+		} while(returnFrame == null); // If we get a null frame, try again
 		
-		// Whoa, we have a sane way to do screen detection now? How crazy!
-		DSScreen screen = (packet.subtypeA & SCREEN_MASK) > 0 ? DSScreen.BOTTOM : DSScreen.TOP;
-		
+		return returnFrame;
+	}
+	
+	private Frame processImagePacket(Packet packet) throws IOException {
 		BufferedImage image = null;
+		boolean lastFrame = true;
+		
+		DSScreen screen = (packet.subtypeA & SCREEN_MASK) > 0 ? DSScreen.BOTTOM : DSScreen.TOP;
 		
 		if ((packet.subtypeA & TGA_MASK) == 0) { // JPEG mode
 			WritableInputStream imageData = new WritableInputStream(packet.data, true);
@@ -228,6 +235,15 @@ public class ChirunoModClient implements StreamingInterface {
 		// Fix odd images in some CHM versions
 		if(image.getWidth() == 256) {
 			image = image.getSubimage(0, 0, 240, image.getHeight());
+		}
+		
+		// Check if image dimensions are as expected
+		int expWidth = (packet.subtypeA & INTERLACE_MASK) > 0 ? 120 : 240;
+		int expHeight = (packet.subtypeA & SCREEN_MASK) > 0 ? 320 : 400;
+		expHeight = (packet.subtypeB & FRACTIONAL_MASK) > 0 ? expHeight/8 : expHeight;
+		if(image.getHeight() != expHeight || image.getWidth() != expWidth) {
+			logger.log("Recieved incorrect dimensions! Expected "+expWidth+"x"+expHeight+", got "+image.getWidth()+"x"+image.getHeight());
+			return null;
 		}
 		
 		// Interlace with last frame, if applicable.
@@ -273,15 +289,8 @@ public class ChirunoModClient implements StreamingInterface {
 			}
 		}
 		
-		if(lastFrame || !vsync) {
-			image = Interpolator.scale(image, intrp, screen == DSScreen.BOTTOM ? bottomScale : topScale);
-			returnFrame = new Frame(screen, image);
-			
-			return returnFrame;
-		} else {
-			return getFrame(); // Should never stack above 8 (16 if interlaced partial, please never do that), so this is probably fine
-		}
-		
+		image = Interpolator.scale(image, intrp, screen == DSScreen.BOTTOM ? bottomScale : topScale);
+		return new Frame(screen, image);
 	}
 	
 	/* 

@@ -15,39 +15,39 @@ import chokistream.props.Prop;
 import chokistream.props.VideoFormat;
 
 /**
- * This is a wrapper class for App.
- * JavaFX normally runs as a module and hooks into the main class, but this configuration
- * would prevent us from building a jar with JavaFX included on the classpath. You'd instead
- * need to run a custom JDK or some such on the machine, which obviously isn't an option.
- * Instead, we use this as a wrapper, disconnected from JavaFX, which allows it to be loaded
- * properly, so we can compile a nice standalone jar. This apparently isn't supported but works.
- * 
- * We now can also parse CLI flags here to run headless using SettingsUI and OutputFileVideo.
+ * Determines the UI to use and initializes it
  */
 public class Main {
 	public static void main(String[] args) {
 		
 		// Set up logging before anything else
 		SettingsUI ui = new ConfigFileCLI();
-		List<String> argsAL = Arrays.asList(args);
 		LogLevel level = ui.getPropEnum(Prop.LOGLEVEL);
 		LogMode mode = ui.getPropEnum(Prop.LOGMODE);
 		String logFile = ui.getPropString(Prop.LOGFILE);
     	Logger.INSTANCE.init(mode, level, logFile);
     	
+    	List<String> argsAL = Arrays.asList(args);
 		if(argsAL.contains("--console") || argsAL.contains("-c")) {
-			initializeFile(ui);
-		} else {
-			if(System.console() == null) {
-				// TODO: make custom console
+			switch(ui.getPropEnum(Prop.OUTPUTFORMAT)) {
+			case FILE:
+				initializeFile(ui);
+				break;
+			case SEQUENCE:
+				initializeSequence(ui);
+				break;
+			default:
+				Logger.INSTANCE.log("Output format not supported from console!");
+				break;
 			}
+		} else {
 			new SwingGUI();
 		}
 	}
 	
 	private static StreamingInterface initialize(SettingsUI ui) {
 		// These are universal, so get these first and then sort out the rest by mod.
-    	// Technically quality could be here.
+		// Quality could be here except the logic is different in CHM.
     	Mod mod;
     	String ip;
     	int port;
@@ -124,7 +124,6 @@ public class Main {
 			Layout layout = ui.getPropEnum(Prop.LAYOUT);
 			double topScale = ui.getPropDouble(Prop.TOPSCALE);
 			double bottomScale = ui.getPropDouble(Prop.BOTTOMSCALE);
-			
 			new SwingVideo(client, layout, topScale, bottomScale);
 		}
 	}
@@ -144,9 +143,8 @@ public class Main {
 	public static void initializeSequence(SettingsUI ui) {
 		StreamingInterface client = initialize(ui);
 		if(client != null) {
-			// Temporary until we have a different property
-			String filename = ui.getPropString(Prop.VIDEOFILE);
-			new ImageSequenceVideo(client, filename, "");
+			String dir = ui.getPropString(Prop.SEQUENCEDIR);
+			new ImageSequenceVideo(client, dir, ui.getPropString(Prop.SEQUENCEPREFIX));
 		}
 	}
 }

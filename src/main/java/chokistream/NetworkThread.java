@@ -18,7 +18,7 @@ public class NetworkThread extends Thread {
 			try {
 				Frame f = input.getFrame();
 				// This isn't perfect, but it should drastically reduce the frequency of attempting to encode extra frames
-				if(active) {
+				if(active && f != null) {
 					output.renderFrame(f);
 				}
 			} catch(SocketException e) {
