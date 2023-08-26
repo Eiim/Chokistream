@@ -542,8 +542,8 @@ public class SwingGUI extends SettingsUI {
 		header.setFont(new Font("System", Font.PLAIN, 20));
 		add(header, p, c, 0, 0, 2, 1);
 		
-		add(new JLabel("Video Codec"), p, c, 0, 1);
-		add(new JLabel("Video File"), p, c, 0, 2);
+		add(new JLabel(Prop.VIDEOCODEC.getLongName()), p, c, 0, 1);
+		add(new JLabel(Prop.VIDEOFILE.getLongName()), p, c, 0, 2);
 		
 		videoCodec = new JComboBox<String>(EnumProp.getLongNames(VideoFormat.class));;
 		add(videoCodec, p, c, 1, 1, "Codec for video file output");
@@ -574,8 +574,8 @@ public class SwingGUI extends SettingsUI {
 		header.setFont(new Font("System", Font.PLAIN, 20));
 		add(header, p, c, 0, 0, 2, 1);
 		
-		add(new JLabel("Images Directory"), p, c, 0, 1);
-		add(new JLabel("Image Prefix"), p, c, 0, 2);
+		add(new JLabel(Prop.SEQUENCEDIR.getLongName()), p, c, 0, 1);
+		add(new JLabel(Prop.SEQUENCEPREFIX.getLongName()), p, c, 0, 2);
 		
 		sequenceDir = new JTextField();
 		add(sequenceDir, p, c, 1, 1, "Directory for image sequences");
@@ -606,10 +606,10 @@ public class SwingGUI extends SettingsUI {
 		header.setFont(new Font("System", Font.PLAIN, 20));
 		add(header, p, c, 0, 0, 2, 1);
 		
-		add(new JLabel("Quality"), p, c, 0, 1);
-		add(new JLabel("Priority Screen"), p, c, 0, 2);
-		add(new JLabel("Priority Factor"), p, c, 0, 3);
-		add(new JLabel("QoS"), p, c, 0, 4);
+		add(new JLabel(Prop.QUALITY.getLongName()), p, c, 0, 1);
+		add(new JLabel(Prop.PRIORITYSCREEN.getLongName()), p, c, 0, 2);
+		add(new JLabel(Prop.PRIORITYFACTOR.getLongName()), p, c, 0, 3);
+		add(new JLabel(Prop.QOS.getLongName()), p, c, 0, 4);
 		
 		qualityNTR = new JTextField();
 		add(qualityNTR, p, c, 1, 1, "JPEG compression quality (0-100)");
@@ -695,9 +695,9 @@ public class SwingGUI extends SettingsUI {
 		header.setFont(new Font("System", Font.PLAIN, 20));
 		add(header, p, c, 0, 0, 2, 1);
 		
-		add(new JLabel("Quality"), p, c, 0, 1);
-		add(new JLabel("Request TGA?"), p, c, 0, 2);
-		add(new JLabel("CPU Cap"), p, c, 0, 3);
+		add(new JLabel(Prop.QUALITY.getLongName()), p, c, 0, 1);
+		add(new JLabel(Prop.REQTGA.getLongName()), p, c, 0, 2);
+		add(new JLabel(Prop.CPUCAP.getLongName()), p, c, 0, 3);
 		
 		qualityHz = new JTextField();
 		add(qualityHz, p, c, 1, 1, "JPEG compression quality (1-100). Set to 0 to request TARGA.");
