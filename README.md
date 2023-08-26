@@ -24,6 +24,12 @@ Currently under development by [Eiim](https://github.com/Eiim) and [ChainSwordCS
 
 See the [Using Chokistream](https://github.com/Eiim/Chokistream/wiki/Using-Chokistream) wiki page.
 
+## Supported OSs
+As we're pure Java 17 SE, a very broad range of OSs should work. We have different tiers of support:
+* Windows and Linux - we develop on these, so we continuously test on them. However, we don't do every test on both, so there may still be OS-specific bugs. Please report these!
+* Mac OS and FreeBSD - @herronjo has run Chokistream on these and it seemed fine, but they're not really tested. Can probably fix OS-specific bugs if they occur.
+* Haiku, others - untested but theoretically should work fine. Let us know about OS-specific bugs, but they won't be a high priority.
+
 ## Build Instructions
 
 Written in Java 17 with Gradle 7.5, requires Java 17 to be installed :)
