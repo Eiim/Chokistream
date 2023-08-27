@@ -1,11 +1,11 @@
 package chokistream;
 
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
-import java.util.Arrays;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -39,8 +39,10 @@ public class NTRUDPThread extends Thread {
 	 */
 	private AtomicBoolean shouldDie = new AtomicBoolean(false);
 	
-	WritableInputStream priorityInputStream = new WritableInputStream();
-	WritableInputStream secondaryInputStream = new WritableInputStream();
+	//WritableInputStream priorityInputStream = new WritableInputStream();
+	//WritableInputStream secondaryInputStream = new WritableInputStream();
+	byte[] priorityImageData = new byte[0];
+	byte[] secondaryImageData = new byte[0];
 	private BufferedImage priorityImage;
 	private BufferedImage secondaryImage;
 	private byte priorityExpectedFrame = 0;
@@ -101,15 +103,20 @@ public class NTRUDPThread extends Thread {
 				
 				if (priorityExpectedFrame == currentFrame && priorityExpectedPacket == currentPacket && activeScreen == currentScreen) {
 					// Priority screen
-					byte[] dataToWrite = Arrays.copyOfRange(data, 4, data.length);
-					priorityInputStream.write(dataToWrite);
+					
+					byte[] newData = new byte[priorityImageData.length+data.length-4];
+					System.arraycopy(priorityImageData, 0, newData, 0, priorityImageData.length);
+					System.arraycopy(data, 4, newData, priorityImageData.length, data.length-4);
+					priorityImageData = newData;
+					
 					priorityExpectedPacket++;
 					
 					// Received a complete image, render
 					if (isLastPacket) {
-						priorityInputStream.markFinishedWriting();
-						priorityImage = ImageIO.read(priorityInputStream.getInputStream());
-						priorityInputStream = new WritableInputStream();
+						
+						priorityImage = ImageIO.read(new ByteArrayInputStream(priorityImageData));
+						priorityImageData = new byte[0];
+						
 						if (colorMode != ColorMode.REGULAR) {
 							priorityImage = ColorHotfix.doColorHotfix(priorityImage, colorMode, false);
 						}
@@ -125,21 +132,26 @@ public class NTRUDPThread extends Thread {
 					}
 				} else if (currentScreen == activeScreen) {
 					// Unexpected priority packet or frame
-					priorityInputStream = new WritableInputStream();
+					priorityImageData = new byte[0];
 					priorityImage = null;
 					priorityExpectedFrame = 0;
                     priorityExpectedPacket = 0;
 				} else if(secondaryExpectedPacket == currentPacket) {
 					// Secondary screen
-					byte[] dataToWrite = Arrays.copyOfRange(data, 4, data.length);
-					secondaryInputStream.write(dataToWrite);
+					
+					byte[] newData = new byte[secondaryImageData.length+data.length-4];
+					System.arraycopy(secondaryImageData, 0, newData, 0, secondaryImageData.length);
+					System.arraycopy(data, 4, newData, secondaryImageData.length, data.length-4);
+					secondaryImageData = newData;
+					
 					secondaryExpectedPacket++;
 					
 					// Received a complete image, render
 					if (isLastPacket) {
-						secondaryInputStream.markFinishedWriting();
-						secondaryImage = ImageIO.read(secondaryInputStream.getInputStream());
-						secondaryInputStream = new WritableInputStream();
+						
+						secondaryImage = ImageIO.read(new ByteArrayInputStream(secondaryImageData));
+						secondaryImageData = new byte[0];
+						
 						if (colorMode != ColorMode.REGULAR) {
 							secondaryImage = ColorHotfix.doColorHotfix(secondaryImage, colorMode, false);
 						}
@@ -155,7 +167,7 @@ public class NTRUDPThread extends Thread {
 					}
 				} else {
 					// Unexpected secondary packet or frame
-					secondaryInputStream = new WritableInputStream();
+					secondaryImageData = new byte[0];
 					secondaryImage = null;
 					secondaryExpectedFrame = 0;
                     secondaryExpectedPacket = 0;
