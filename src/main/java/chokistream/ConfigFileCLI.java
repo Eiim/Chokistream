@@ -10,11 +10,13 @@ import chokistream.props.Prop;
 public class ConfigFileCLI extends SettingsUI {
 	INIParser parser;
 	
+	// Logger doesn't exist yet, so we have to use System.out.printlns instead.
 	public ConfigFileCLI() {
 		File f = new File("chokistream.ini");
 		if(!f.exists()) {
 			try {
 				f.createNewFile();
+				System.out.println("Created new chokistream.ini");
 			} catch (IOException e) {
 				System.out.println("Failed to create chokistream.ini");
 			}

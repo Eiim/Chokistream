@@ -1,6 +1,7 @@
 package chokistream;
 
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -217,16 +218,13 @@ public class HZModClient implements StreamingInterface {
 		BufferedImage image = null;
 		
 		if (packet.type == JPEG_PACKET) {
-			WritableInputStream imageData = new WritableInputStream(data, true);
-			image = ImageIO.read(imageData.getInputStream());
+			image = ImageIO.read(new ByteArrayInputStream(data));
 			// For some reason the red and blue channels are swapped. Fix it.
 			image = ColorHotfix.doColorHotfix(image, colorMode, true);
 		} else if (packet.type == TARGA_PACKET) {
 			image = TargaParser.parseBytes(data, screen, screen == DSScreen.BOTTOM ? bottomFormat : topFormat);
 			image = ColorHotfix.doColorHotfix(image, colorMode, false);
 		}
-		
-		logger.log(screen.getLongName()+":"+image.getWidth()+","+image.getHeight(), LogLevel.VERBOSE);
 		
 		// Fix odd images in some games
 		if(image.getWidth() == 256) {
@@ -267,7 +265,7 @@ public class HZModClient implements StreamingInterface {
 	}
 	
 	@Override
-	public int getFrameCount(DSScreenBoth screens) {
+	public int framesSinceLast(DSScreenBoth screens) {
 		switch(screens) {
 			case TOP:
 				int f = topFrames;

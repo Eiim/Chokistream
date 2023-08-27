@@ -9,6 +9,7 @@ import java.util.TreeSet;
 import chokistream.props.LogLevel;
 import chokistream.props.LogMode;
 
+// Using enum as a way to do a singleton. I don't remember why this was preferred over a static field exactly but there was some reason.
 public enum Logger {
 	INSTANCE;
 	
@@ -37,7 +38,6 @@ public enum Logger {
 		} else {
 			mode = m;
 		}
-		
 	}
 	
 	public void setLevel(LogLevel l) {

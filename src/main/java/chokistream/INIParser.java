@@ -1,7 +1,6 @@
 package chokistream;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.HashMap;
@@ -21,12 +20,9 @@ public class INIParser {
 	public INIParser(File f) throws IOException, IniParseException {
 		file = f;
 		Scanner s;
-		try {
-			s = new Scanner(file);
-		} catch(FileNotFoundException e) {
-			file.createNewFile();
-			s = new Scanner(file);
-		}
+		file.createNewFile();
+		s = new Scanner(file);
+		
 		int lineNum = 0;
 		while(s.hasNextLine()) {
 			String line = s.nextLine().trim();
@@ -42,12 +38,14 @@ public class INIParser {
 			
 			int eqpos = line.indexOf('=');
 			if(eqpos == -1) {
+				s.close();
 				throw new IniParseException(line, lineNum);
 			}
 			String key = line.substring(0, eqpos).trim();
 			String value = line.substring(eqpos+1).trim();
 			params.put(key, new ParamData(lineNum, value));
 		}
+		
 		s.close();
 		totalLines = lineNum;
 	}

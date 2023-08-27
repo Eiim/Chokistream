@@ -17,9 +17,6 @@ import chokistream.props.DSScreen;
 import chokistream.props.InterpolationMode;
 import chokistream.props.LogLevel;
 
-/**
- * 
- */
 public class NTRUDPThread extends Thread {
 	
 	/**
@@ -108,6 +105,7 @@ public class NTRUDPThread extends Thread {
 					priorityInputStream.write(dataToWrite);
 					priorityExpectedPacket++;
 					
+					// Received a complete image, render
 					if (isLastPacket) {
 						priorityInputStream.markFinishedWriting();
 						priorityImage = ImageIO.read(priorityInputStream.getInputStream());
@@ -137,6 +135,7 @@ public class NTRUDPThread extends Thread {
 					secondaryInputStream.write(dataToWrite);
 					secondaryExpectedPacket++;
 					
+					// Received a complete image, render
 					if (isLastPacket) {
 						secondaryInputStream.markFinishedWriting();
 						secondaryImage = ImageIO.read(secondaryInputStream.getInputStream());

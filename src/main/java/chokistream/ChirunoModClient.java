@@ -1,6 +1,7 @@
 package chokistream;
 
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -221,8 +222,7 @@ public class ChirunoModClient implements StreamingInterface {
 		DSScreen screen = (packet.subtypeA & SCREEN_MASK) > 0 ? DSScreen.BOTTOM : DSScreen.TOP;
 		
 		if ((packet.subtypeA & TGA_MASK) == 0) { // JPEG mode
-			WritableInputStream imageData = new WritableInputStream(packet.data, true);
-			image = ImageIO.read(imageData.getInputStream());
+			image = ImageIO.read(new ByteArrayInputStream(packet.data));
 			// For some reason the red and blue channels are swapped. Fix it.
 			image = ColorHotfix.doColorHotfix(image, colorMode, true);
 		} else { // TGA mode
@@ -325,7 +325,7 @@ public class ChirunoModClient implements StreamingInterface {
 	}
 
 	@Override
-	public int getFrameCount(DSScreenBoth screens) {
+	public int framesSinceLast(DSScreenBoth screens) {
 		switch(screens) {
 			case TOP:
 				int f = topFrames;

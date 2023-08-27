@@ -151,8 +151,8 @@ public class SwingVideo implements VideoOutputInterface {
 		fpsTimer.scheduleAtFixedRate(new TimerTask() {
 			@Override
 			public void run() {
-				int topFPS = client.getFrameCount(DSScreenBoth.TOP);
-				int bottomFPS = client.getFrameCount(DSScreenBoth.BOTTOM);
+				int topFPS = client.framesSinceLast(DSScreenBoth.TOP);
+				int bottomFPS = client.framesSinceLast(DSScreenBoth.BOTTOM);
 				
 				if(frames.size() == 2) {
 					frames.get(0).setTitle("Chokistream - Top Screen ("+topFPS+" FPS)");

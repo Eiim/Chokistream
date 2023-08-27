@@ -149,7 +149,7 @@ public class SwingGUI extends SettingsUI {
 		add(new JLabel(Prop.OUTPUTFORMAT.getLongName()), p, c, 3, 5);
 		
 		colorMode = new JComboBox<String>(EnumProp.getLongNames(ColorMode.class));
-		add(colorMode, p, c, 4, 0, "HzMod color correction options");
+		add(colorMode, p, c, 4, 0, "Color correction options");
 		port = new JTextField();
 		add(port, p, c, 4, 1, "3DS port, usually leave as default");
 		logMode = new JComboBox<String>(EnumProp.getLongNames(LogMode.class));
@@ -300,9 +300,9 @@ public class SwingGUI extends SettingsUI {
 			return Integer.parseInt(qos.getText());
 		} else if(p.equals(Prop.CPUCAP)) {
 			return switch(getPropEnum(Prop.MOD)) {
-				case NTR -> p.getDefault(); // Hopefully never happens
 				case HZMOD -> Integer.parseInt(cpuCapHz.getText());
 				case CHIRUNOMOD -> Integer.parseInt(cpuCapCHM.getText());
+				default -> p.getDefault(); // Hopefully never happens
 			};
 		} else if(p.equals(Prop.PORT)) {
 			return Integer.parseInt(port.getText());
@@ -342,14 +342,11 @@ public class SwingGUI extends SettingsUI {
 	@Override
 	public boolean getPropBoolean(Prop<Boolean> p) {
 		if(p.equals(Prop.REQTGA)) {
-			switch(getPropEnum(Prop.MOD)) {
-			case CHIRUNOMOD:
-				return tgaCHM.isSelected();
-			case HZMOD:
-				return tgaHz.isSelected();
-			default:
-				return p.getDefault(); // Should never happen
-			}
+			return switch(getPropEnum(Prop.MOD)) {
+				case CHIRUNOMOD ->  tgaCHM.isSelected();
+				case HZMOD -> tgaHz.isSelected();
+				default -> p.getDefault(); // Should never happen
+			};
 		} else if(p.equals(Prop.INTERLACE)) {
 			return interlace.isSelected();
 		} else {
@@ -367,9 +364,8 @@ public class SwingGUI extends SettingsUI {
 			return EnumProp.fromLongName(p.propClass(), priScreen.getSelectedItem().toString());
 		} else if(p.equals(Prop.REQSCREEN)) {
 			return switch(getPropEnum(Prop.MOD)) {
-				case NTR -> p.getDefault(); // Hopefully never happens
-				case HZMOD -> p.getDefault(); // Hopefully never happens
 				case CHIRUNOMOD -> EnumProp.fromLongName(p.propClass(), reqScreenCHM.getSelectedItem().toString());
+				default -> p.getDefault(); // Hopefully never happens
 			};
 		} else if(p.equals(Prop.COLORMODE)) {
 			return EnumProp.fromLongName(p.propClass(), colorMode.getSelectedItem().toString());
@@ -617,7 +613,7 @@ public class SwingGUI extends SettingsUI {
 		add(priScreen, p, c, 1, 2, "Prioritized screen");
 		priFac = new JTextField();
 		add(priFac, p, c, 1, 3, "Relative prioritization of prioritized screen");
-		qos = new JTextField("QoS value (Set to >100 to disable)");
+		qos = new JTextField("Packet QoS value (Set to >100 to disable)");
 		add(qos, p, c, 1, 4);
 		
 		JButton patch = new JButton("Patch NTR");

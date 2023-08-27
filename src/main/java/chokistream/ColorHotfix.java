@@ -7,15 +7,12 @@ import chokistream.props.ColorMode;
 public class ColorHotfix {
 	
 	private static int hzModSwapRedBlue(int currentPixelColor) {
+		// Assume full alpha because it always should be
 		//int newAlphaIdk = ((currentPixelColor&0b11111111000000000000000000000000) >>> 24);
 		int newRedPixel = ((currentPixelColor&0b00000000000000000000000011111111)); //bitwise AND
 		int newGrnPixel = ((currentPixelColor&0b00000000000000001111111100000000) >>> 8); //bit-shift right (unsigned)
 		int newBluPixel = ((currentPixelColor&0b00000000111111110000000000000000) >>> 16);
 		return 0xFF000000 +  ((newRedPixel)<<16) + ((newGrnPixel)<<8) + (newBluPixel);
-	}
-	
-	private static int reverseEightBits(int a) {
-		return (a&0b1)*128 + (a&0b10)*32 + (a&0b100)*8 + (a&0b1000)*2 + (a&0b10000)/2 + (a&0b100000)/8 + (a&0b1000000)/32 + (a&0b10000000)/128;
 	}
 	
 	private static int makeGrayscale(int currentPixelColor) {
@@ -52,7 +49,7 @@ public class ColorHotfix {
 		//
 		//newBluPixel = newBluPixel%128 + 80;
 		//
-		//newBluPixel = ReverseEightBits(newBluPixel);
+		//newBluPixel = reverseEightBits(newBluPixel);
 		//
 		//newBluPixel = newBluPixel%128 + 64*((newBluPixel&0b10000000)>>>7);
 		//
@@ -64,6 +61,13 @@ public class ColorHotfix {
 		
 		return 0xFF000000 + ((newRedPixel&0xFF)<<16) + ((newGrnPixel&0xFF)<<8) + (newBluPixel&0xFF);
 	}
+	
+	/* Old helper function used in commented-out code above
+	private static int reverseEightBits(int a) {
+		return (a&0b1)*128 + (a&0b10)*32 + (a&0b100)*8 + (a&0b1000)*2 + (a&0b10000)/2 + (a&0b100000)/8 + (a&0b1000000)/32 + (a&0b10000000)/128;
+	}
+	*/
+	
 	/*
 	 *
 	 * Old logic for VcBlueShift
@@ -91,11 +95,6 @@ public class ColorHotfix {
 	 * newBluPixel = (int)((newBluPixel/256.0) * 0x48) + newBluPixel;
 	 */
 	
-	
-	
-	/*
-	 * Possible clients: "NTR","HzMod"... (Case Insensitive)
-	 */
 	public static BufferedImage doColorHotfix(BufferedImage hotfixImage, ColorMode colorMode, boolean swapRB) {
 		try {
 			int currentPixelColor = 0;

@@ -21,8 +21,10 @@ public interface StreamingInterface {
 	public Frame getFrame() throws InterruptedException, IOException;
 	
 	/**
-	 * Gets the number of frames recieved since the last call.
-	 * @return The number of frames
+	 * Gets the number of frames received since the last call.
+	 * Implementations can choose how to count frames currently being processed. As such, this method shouldn't be relied upon for precision.
+	 * @param screens Which screen to get the frame count for. If TOP or BOTTOM, get just frames for that screen. If BOTH, get combined frames.
+	 * @return The number of frames.
 	 */
-	public int getFrameCount(DSScreenBoth screens);
+	public int framesSinceLast(DSScreenBoth screens);
 }

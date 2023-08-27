@@ -1,5 +1,7 @@
 package chokistream;
 
+import java.util.NoSuchElementException;
+
 public enum TGAPixelFormat {
 	RGBA8(4),
 	RGB8(3),
@@ -13,10 +15,17 @@ public enum TGAPixelFormat {
 		bytes = b;
 	}
 	
+	/**
+	 * Get pixel format corresponding to HzMod/ChirunoMod code
+	 * @param pf HzMod/ChirunoMod integer code
+	 * @return corresponding TGA pixel format
+	 */
 	public static TGAPixelFormat fromInt(int pf) {
 		switch(pf) {
 			case 0:
 				return RGBA8;
+			case 1:
+				return RGB8;
 			case 2:
 				return RGB565;
 			case 3:
@@ -24,12 +33,17 @@ public enum TGAPixelFormat {
 			case 4:
 				return RGBA4;
 			default:
-				return RGB8;
+				// Unknown code. Throw exception, because if we try for a fallback it will probably just make the inevitable crash harder to debug.
+				throw new NoSuchElementException("TGA format code "+pf+" not recognized");
 		}
 	}
 	
-	public static int toInt(TGAPixelFormat pf) {
-		switch(pf) {
+	/**
+	 * Get HzMod/ChirunoMod integer code for a certain TGA format
+	 * @return int HzMod/ChirunoMod integer code
+	 */
+	public int toInt() {
+		switch(this) {
 			case RGBA8:
 				return 0;
 			case RGB8:
@@ -44,4 +58,6 @@ public enum TGAPixelFormat {
 				return -1;
 		}
 	}
+	
+	
 }

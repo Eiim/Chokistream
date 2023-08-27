@@ -96,6 +96,7 @@ public class NTRClient implements StreamingInterface {
 		return f;
 	}
 	
+	// Probably doesn't work right now. Need to look at other implementations.
 	public static void sendNFCPatch(String host, int port, byte[] addr, ConsoleModel model) throws UnknownHostException, IOException {
 		byte[] binaryPacketPatch = new byte[11 + addr.length];
 		binaryPacketPatch[0] = (byte) 0x81;
@@ -112,7 +113,7 @@ public class NTRClient implements StreamingInterface {
 	}
 	
 	@Override
-	public int getFrameCount(DSScreenBoth screens) {
+	public int framesSinceLast(DSScreenBoth screens) {
 		switch(screens) {
 			case TOP:
 				int f = topFrames;
