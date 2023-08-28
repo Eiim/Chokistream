@@ -8,15 +8,17 @@ Notable features:
  * Only client to support ChirunoMod!
  * Pure Java - works on essentially any platform. Tested on Windows and Linux, and lightly tested on Mac and FreeBSD.
    * Versions < 2.0 support Windows, Linux, and Mac, with OS-specific builds. Builds may not be available for all platforms for all releases.
- * TGA (lossless compression) support for HzMod, the only application other than HorizonScreen to do so!
- * Various display output options to get it looking just right on your monitor
- * No monitor? No problem! Chokistream can run entirely headless and stream straight to a video file (currently very buggy), or output frames to image files.
+ * TGA (lossless compression) support for HzMod, the only application other than HorizonScreen with such!
  * Dual-Screen HzMod support for version 2017-05-05 (one of two dual-screen versions)
+ * Various display output options to get it looking just right on your monitor
+ * Chokistream can also run entirely headless and stream straight to a video file, or output frames to image files.
 
 Plus even more planned:
  * Better controls and control options
+ * Better video file streaming and image sequences
+ * Better NTR support
  * Better CLI
- * More and better video file streaming
+ * And more!
 
 Currently under development by [Eiim](https://github.com/Eiim) and [ChainSwordCS](https://github.com/ChainSwordCS). Previously developed by [herronjo](https://github.com/herronjo).
 
@@ -41,4 +43,5 @@ No other requirements. Run `gradlew build` in Windows Command Prompt or `./gradl
 Besides GitHub issues:
  * Layout doesn't work for file streaming or image sequence
  * Error "The muxer track has finished muxing" when ending file streaming. This is perfectly safe.
- * Top frames in certain (mostly 24bpp) games are broken for ChirunoMod v0.2 in JPEG mode. This is a ChirunoMod bug, not fixable on this side.
+ * Similarly, "Socket closed" error when closing NTR is perfectly safe.
+ * Bug with incorrectly-sized frames in ChirunoMod v0.2.1. This will be fixed in v2.0.1.
