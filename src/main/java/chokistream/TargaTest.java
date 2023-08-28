@@ -19,6 +19,7 @@ public class TargaTest {
 		Logger.INSTANCE.init(LogMode.CONSOLE, LogLevel.EXTREME, "");
 		Scanner s = new Scanner(System.in);
 		FileInputStream fis = new FileInputStream(s.nextLine());
+		s.close();
 		BufferedImage im = TargaParser.parseBytes(fis.readAllBytes(), DSScreen.BOTTOM, TGAPixelFormat.RGB8);
 		JFrame f = new JFrame();
 		JLabel l = new JLabel(new ImageIcon(im));

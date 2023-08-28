@@ -28,6 +28,7 @@ public class OutputFileVideo implements VideoOutputInterface {
 	
 	public OutputFileVideo(StreamingInterface client, Layout layout, String file, VideoFormat vf, InterpolationMode intrp, double topScale, double bottomScale) {
 		this.client = client;
+		this.intrp = intrp;
 		this.topScale = topScale;
 		this.bottomScale = bottomScale;
 		// Maybe move this down?

@@ -27,6 +27,9 @@ public class ImageSequenceVideo implements VideoOutputInterface {
 		this.client = client;
 		this.directory = directory;
 		this.prefix = prefix;
+		this.intrp = intrp;
+		this.topScale = topScale;
+		this.bottomScale = bottomScale;
 		
 		(new File(directory)).mkdirs();
 		
