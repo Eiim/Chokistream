@@ -93,11 +93,9 @@ public enum Logger {
 	 * @param l The log level of the message
 	 */
 	public void logOnce(String message, LogLevel l) {
-		if(level.getLevelDouble() >= l.getLevelDouble()) {
-			if(!onceLogged.contains(message)) {
-				onceLogged.add(message);
-				log(message, l);
-			}
+		if(level.getLevelDouble() >= l.getLevelDouble() && !onceLogged.contains(message)) {
+			onceLogged.add(message);
+			log(message, l);
 		}
 	}
 	

@@ -243,7 +243,8 @@ public class ChirunoModClient implements StreamingInterface {
 			return null;
 		}
 		
-		lastFrame = (!interlace || parity == 1) && (!fractional || (fraction+1)*image.getHeight() == 400);
+		// Check if this is the end of the frame (if interlacing, is it the second interlace? if fractional, is it the last fraction?)
+		lastFrame = (!interlace || parity == 1) && (!fractional || fraction == 7);
 		
 		BufferedImage base = screen == DSScreen.TOP ? lastTopImage : lastBottomImage;
 		image = ImageManipulator.adjust(base, image, interlace, parity, image.getHeight() * fraction, colorMode, rbSwap);
