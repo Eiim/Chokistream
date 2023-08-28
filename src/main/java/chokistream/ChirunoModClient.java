@@ -219,11 +219,9 @@ public class ChirunoModClient implements StreamingInterface {
 		if ((packet.subtypeA & TGA_MASK) == 0) { // JPEG mode
 			image = ImageIO.read(new ByteArrayInputStream(packet.data));
 			// For some reason the red and blue channels are swapped. Fix it.
-			//image = ColorHotfix.doColorHotfix(image, colorMode, true);
 			rbSwap = true;
 		} else { // TGA mode
 			image = TargaParser.parseBytes(packet.data, screen, TGAPixelFormat.fromInt(packet.subtypeA & FORMAT_MASK));
-			//image = ColorHotfix.doColorHotfix(image, colorMode, false);
 		}
 		
 		// Fix odd images in some CHM versions
@@ -231,19 +229,19 @@ public class ChirunoModClient implements StreamingInterface {
 			image = image.getSubimage(0, 0, 240, image.getHeight());
 		}
 		
+		boolean interlace = (packet.subtypeA & INTERLACE_MASK) > 0; // Whether or not the image is interlaced
+		int parity = (packet.subtypeA & PARITY_MASK) / PARITY_MASK; // Interlace parity, ignored for non-interlaced images
+		boolean fractional = (packet.subtypeB & FRACTIONAL_MASK) > 0; // Whether or not the image is fractional
+		int fraction = fractional ? (packet.subtypeB & FRACTION_MASK) : 0; // Which fraction of the screen this is
+		
 		// Check if image dimensions are as expected
-		int expWidth = (packet.subtypeA & INTERLACE_MASK) > 0 ? 120 : 240;
-		int expHeight = (packet.subtypeA & SCREEN_MASK) > 0 ? 320 : 400;
-		expHeight = (packet.subtypeB & FRACTIONAL_MASK) > 0 ? expHeight/8 : expHeight;
+		int expWidth = interlace ? 120 : 240;
+		int expHeight = screen == DSScreen.BOTTOM ? 320 : 400;
+		expHeight = fractional ? expHeight/8 : expHeight;
 		if(image.getHeight() != expHeight || image.getWidth() != expWidth) {
 			logger.log("Recieved incorrect dimensions! Expected "+expWidth+"x"+expHeight+", got "+image.getWidth()+"x"+image.getHeight());
 			return null;
 		}
-		
-		boolean interlace = (packet.subtypeA & INTERLACE_MASK) > 0; // Whether or not the image is interlaced
-		int parity = packet.subtypeA & PARITY_MASK; // Interlace parity, ignored for non-interlaced images
-		boolean fractional = (packet.subtypeB & FRACTIONAL_MASK) > 0; // Whether or not the image is fractional
-		int fraction = fractional ? (packet.subtypeB & FRACTION_MASK) : 0; // Which fraction of the screen this is
 		
 		lastFrame = (!interlace || parity == 1) && (!fractional || (fraction+1)*image.getHeight() == 400);
 		
