@@ -8,18 +8,22 @@ import java.util.Arrays;
 import javax.imageio.ImageIO;
 
 import chokistream.props.DSScreen;
+import chokistream.props.InterpolationMode;
 
 public class ImageSequenceVideo implements VideoOutputInterface {
 	
 	private StreamingInterface client;
 	private NetworkThread networkThread;
+	private InterpolationMode intrp;
+	private double topScale;
+	private double bottomScale;
 	private static final Logger logger = Logger.INSTANCE;
 	private boolean done;
 	private int frameCount;
 	private String directory;
 	private String prefix;
 	
-	public ImageSequenceVideo(StreamingInterface client, String directory, String prefix) {
+	public ImageSequenceVideo(StreamingInterface client, String directory, String prefix, InterpolationMode intrp, double topScale, double bottomScale) {
 		this.client = client;
 		this.directory = directory;
 		this.prefix = prefix;
@@ -51,7 +55,8 @@ public class ImageSequenceVideo implements VideoOutputInterface {
 			String formattedFrame = String.format("%04d", frameCount);
 			File out = new File(directory + File.separator + prefix + formattedFrame + postfix + ".png");
 			try {
-				ImageIO.write(orient(frame.image), "PNG", out);
+				BufferedImage im = Interpolator.scale(frame.image, intrp, frame.screen == DSScreen.TOP ? topScale : bottomScale);
+				ImageIO.write(im, "PNG", out);
 				logger.log("Wrote "+out.getCanonicalPath());
 			} catch (IOException e) {
 				displayError(e);
@@ -74,17 +79,5 @@ public class ImageSequenceVideo implements VideoOutputInterface {
 		} catch (IOException e) {
 			displayError(e);
 		}	
-	}
-	
-	private static BufferedImage orient(BufferedImage in) {
-		int origWidth = in.getWidth();
-		int origHeight = in.getHeight();
-		BufferedImage out = new BufferedImage(origHeight, origWidth, in.getType());
-		for(int i = 0; i < origWidth; i++) {
-			for(int j = 0; j < origHeight; j++) {
-				out.setRGB(j, origWidth-i-1, in.getRGB(i, j));
-			}
-		}
-		return out;
 	}
 }

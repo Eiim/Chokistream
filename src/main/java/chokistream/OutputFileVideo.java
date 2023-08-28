@@ -10,6 +10,7 @@ import org.jcodec.common.model.Rational;
 import org.jcodec.scale.AWTUtil;
 
 import chokistream.props.DSScreen;
+import chokistream.props.InterpolationMode;
 import chokistream.props.Layout;
 import chokistream.props.VideoFormat;
 
@@ -21,10 +22,11 @@ public class OutputFileVideo implements VideoOutputInterface {
 	private long prevNanos;
 	private static final Logger logger = Logger.INSTANCE;
 	private boolean done;
+	private InterpolationMode intrp;
 	private double topScale;
 	private double bottomScale;
 	
-	public OutputFileVideo(StreamingInterface client, Layout layout, String file, VideoFormat vf, double topScale, double bottomScale) {
+	public OutputFileVideo(StreamingInterface client, Layout layout, String file, VideoFormat vf, InterpolationMode intrp, double topScale, double bottomScale) {
 		this.client = client;
 		this.topScale = topScale;
 		this.bottomScale = bottomScale;
@@ -63,7 +65,7 @@ public class OutputFileVideo implements VideoOutputInterface {
 				prevNanos += (frames * 16666667l); // Nanos of the frame boundary
 				try {
 					for(int i = 0; i < frames; i++) {
-						enc.encodeNativeFrame(AWTUtil.fromBufferedImageRGB(f.image));
+						enc.encodeNativeFrame(AWTUtil.fromBufferedImageRGB(Interpolator.scale(f.image, intrp, topScale)));
 					}
 				} catch (IOException e) {
 					displayError(e);

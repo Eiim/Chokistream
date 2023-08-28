@@ -181,9 +181,9 @@ public class SwingGUI extends SettingsUI {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				switch(getPropEnum(Prop.MOD)) {
-				case HZMOD -> hzSettings.setVisible(true);
-				case CHIRUNOMOD -> chmSettings.setVisible(true);
-				case NTR -> ntrSettings.setVisible(true);
+					case HZMOD -> hzSettings.setVisible(true);
+					case CHIRUNOMOD -> chmSettings.setVisible(true);
+					case NTR -> ntrSettings.setVisible(true);
 				}
 			}
 		});
@@ -192,9 +192,9 @@ public class SwingGUI extends SettingsUI {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				switch(getPropEnum(Prop.OUTPUTFORMAT)) {
-				case FILE -> videoSettings.setVisible(true);
-				case SEQUENCE -> sequenceSettings.setVisible(true);
-				case VISUAL -> {}
+					case FILE -> videoSettings.setVisible(true);
+					case SEQUENCE -> sequenceSettings.setVisible(true);
+					default -> {}
 				}
 			}
 		});
@@ -205,15 +205,9 @@ public class SwingGUI extends SettingsUI {
 				saveSettings();
 				OutputFormat outForm = getPropEnum(Prop.OUTPUTFORMAT);
 		    	switch(outForm) {
-		    		case VISUAL:
-		    			Main.initializeSwing(SwingGUI.this);
-		    			break;
-		    		case FILE:
-		    			Main.initializeFile(SwingGUI.this);
-		    			break;
-		    		case SEQUENCE:
-		    			Main.initializeSequence(SwingGUI.this);
-		    			break;
+		    		case VISUAL -> Main.initializeSwing(SwingGUI.this);
+		    		case FILE -> Main.initializeFile(SwingGUI.this);
+		    		case SEQUENCE -> Main.initializeSequence(SwingGUI.this);
 		    	}
 			}
 		});

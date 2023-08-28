@@ -16,7 +16,6 @@ import javax.imageio.ImageIO;
 import chokistream.props.ColorMode;
 import chokistream.props.DSScreen;
 import chokistream.props.DSScreenBoth;
-import chokistream.props.InterpolationMode;
 import chokistream.props.LogLevel;
 
 /**
@@ -28,9 +27,6 @@ public class ChirunoModClient implements StreamingInterface {
 	private InputStream in = null;
 	private OutputStream out = null;
 	private ColorMode colorMode;
-	private double topScale;
-	private double bottomScale;
-	private InterpolationMode intrp;
 	public int quality;
 	private BufferedImage lastTopImage;
 	private BufferedImage lastBottomImage;
@@ -57,7 +53,7 @@ public class ChirunoModClient implements StreamingInterface {
 	 * @param colorMode The color filter (option to enable hotfixColors).
 	 */
 	public ChirunoModClient(String host, int quality, boolean reqTGA, boolean interlace, int capCPU, ColorMode receivedColorMode,
-			int port, DSScreenBoth reqScreen, double topScale, double bottomScale, InterpolationMode intrp) throws UnknownHostException, IOException {
+			int port, DSScreenBoth reqScreen) throws UnknownHostException, IOException {
 		// Connect to TCP port and set up client
 		client = new Socket(host, port);
 		client.setTcpNoDelay(true);
@@ -65,13 +61,10 @@ public class ChirunoModClient implements StreamingInterface {
 		out = client.getOutputStream();
 		
 		this.colorMode = receivedColorMode;
-		this.topScale = topScale;
-		this.bottomScale = bottomScale;
-		this.intrp = intrp;
 		this.quality = quality;
 		
-		lastTopImage = new BufferedImage(240, 400, BufferedImage.TYPE_INT_RGB);
-		lastBottomImage = new BufferedImage(240, 320, BufferedImage.TYPE_INT_RGB);
+		lastTopImage = new BufferedImage(400, 240, BufferedImage.TYPE_INT_RGB);
+		lastBottomImage = new BufferedImage(320, 240, BufferedImage.TYPE_INT_RGB);
 		
 		if (capCPU > 0) {
 			sendLimitCPU(capCPU);
@@ -221,13 +214,16 @@ public class ChirunoModClient implements StreamingInterface {
 		
 		DSScreen screen = (packet.subtypeA & SCREEN_MASK) > 0 ? DSScreen.BOTTOM : DSScreen.TOP;
 		
+		boolean rbSwap = false;
+		
 		if ((packet.subtypeA & TGA_MASK) == 0) { // JPEG mode
 			image = ImageIO.read(new ByteArrayInputStream(packet.data));
 			// For some reason the red and blue channels are swapped. Fix it.
-			image = ColorHotfix.doColorHotfix(image, colorMode, true);
+			//image = ColorHotfix.doColorHotfix(image, colorMode, true);
+			rbSwap = true;
 		} else { // TGA mode
 			image = TargaParser.parseBytes(packet.data, screen, TGAPixelFormat.fromInt(packet.subtypeA & FORMAT_MASK));
-			image = ColorHotfix.doColorHotfix(image, colorMode, false);
+			//image = ColorHotfix.doColorHotfix(image, colorMode, false);
 		}
 		
 		// Fix odd images in some CHM versions
@@ -244,33 +240,15 @@ public class ChirunoModClient implements StreamingInterface {
 			return null;
 		}
 		
-		// Interlace with last frame, if applicable.
-		if((packet.subtypeA & INTERLACE_MASK) > 0) {
-			if((packet.subtypeA & PARITY_MASK) == 0) {
-				lastFrame = false;
-			}
-			if(screen == DSScreen.TOP) {
-				image = interlace(lastTopImage, image, (packet.subtypeA & PARITY_MASK)/PARITY_MASK);
-			}  else {
-				image = interlace(lastBottomImage, image, (packet.subtypeA & PARITY_MASK)/PARITY_MASK);
-			}
-		}
+		boolean interlace = (packet.subtypeA & INTERLACE_MASK) > 0; // Whether or not the image is interlaced
+		int parity = packet.subtypeA & PARITY_MASK; // Interlace parity, ignored for non-interlaced images
+		boolean fractional = (packet.subtypeB & FRACTIONAL_MASK) > 0; // Whether or not the image is fractional
+		int fraction = fractional ? (packet.subtypeB & FRACTION_MASK) : 0; // Which fraction of the screen this is
 		
-		// Do fractional screen, if applicable.
-		if((packet.subtypeB & FRACTIONAL_MASK) > 0) {
-			if(screen == DSScreen.TOP) {
-				if(((packet.subtypeB & FRACTION_MASK)+1)*image.getHeight() < 400) {
-					lastFrame = false;
-				}
-				image = addFractional(lastTopImage, image, (packet.subtypeB & FRACTION_MASK));
-			}  else {
-				if(((packet.subtypeB & FRACTION_MASK)+1)*image.getHeight() < 400) {
-					lastFrame = false;
-				}
-				image = addFractional(lastBottomImage, image, (packet.subtypeB & FRACTION_MASK));
-			}
-			logger.log("Screen fraction: "+(packet.subtypeB & FRACTION_MASK), LogLevel.VERBOSE);
-		}
+		lastFrame = (!interlace || parity == 1) && (!fractional || (fraction+1)*image.getHeight() == 400);
+		
+		BufferedImage base = screen == DSScreen.TOP ? lastTopImage : lastBottomImage;
+		image = ImageManipulator.adjust(base, image, interlace, parity, image.getHeight() * fraction, colorMode, rbSwap);
 		
 		if(screen == DSScreen.TOP) {
 			lastTopImage = image;
@@ -287,41 +265,7 @@ public class ChirunoModClient implements StreamingInterface {
 			}
 		}
 		
-		image = Interpolator.scale(image, intrp, screen == DSScreen.BOTTOM ? bottomScale : topScale);
 		return new Frame(screen, image);
-	}
-	
-	/* 
-	 * It's really the *columns* of the image that are interlaced, which correspond to the *rows* of the screen.
-	 */
-	private BufferedImage interlace(BufferedImage oldIm, BufferedImage newIm, int parity) {
-		int height = oldIm.getHeight();
-		for(int col = 0; col < 120; col++) {
-			for(int row = 0; row < height; row++) {
-				oldIm.setRGB(col*2+parity, row, newIm.getRGB(col, row));
-			}
-		}
-		return oldIm;
-	}
-	
-	/*
-	 * It's really split by *rows* of the image, which correspond to *columns* of the screen.
-	 */
-	private BufferedImage addFractional(BufferedImage oldIm, BufferedImage newIm, int frac) {
-		int height = newIm.getHeight();
-		int offset = height*frac;
-		for(int row = 0; row < height; row++) {
-			for(int col = 0; col < 240; col++) {
-				try {
-					oldIm.setRGB(col, offset+row, newIm.getRGB(col, row));
-				} catch(Exception e) {
-					logger.log("Failed to get/set pixel.\nGet location:"+
-								col+","+row+" in "+newIm.getWidth()+","+newIm.getHeight()+"\nSet location:"+
-								col+","+(offset+row)+" in "+oldIm.getWidth()+","+oldIm.getHeight(), LogLevel.VERBOSE);
-				}
-			}
-		}
-		return oldIm;
 	}
 
 	@Override

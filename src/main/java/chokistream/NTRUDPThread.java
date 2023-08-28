@@ -14,7 +14,6 @@ import javax.imageio.ImageIO;
 
 import chokistream.props.ColorMode;
 import chokistream.props.DSScreen;
-import chokistream.props.InterpolationMode;
 import chokistream.props.LogLevel;
 
 public class NTRUDPThread extends Thread {
@@ -51,9 +50,6 @@ public class NTRUDPThread extends Thread {
 	private byte secondaryExpectedPacket = 0;
 	private DSScreen activeScreen = DSScreen.TOP;
 	private ColorMode colorMode;
-	private double topScale;
-	private double bottomScale;
-	private InterpolationMode intrp;
 	
 	private static final Logger logger = Logger.INSTANCE;
 	
@@ -61,13 +57,10 @@ public class NTRUDPThread extends Thread {
 	 * Create an NTRUDPThread.
 	 * @throws SocketException
 	 */
-	NTRUDPThread(DSScreen screen, ColorMode colorMode, double topScale, double bottomScale, InterpolationMode intrp) throws SocketException {
+	NTRUDPThread(DSScreen screen, ColorMode colorMode) throws SocketException {
 		activeScreen = screen;
 		socket = new DatagramSocket(8001);
 		this.colorMode = colorMode;
-		this.topScale = topScale;
-		this.bottomScale = bottomScale;
-		this.intrp = intrp;
 	}
 	
 	public Frame getFrame() throws InterruptedException {
@@ -117,14 +110,8 @@ public class NTRUDPThread extends Thread {
 						priorityImage = ImageIO.read(new ByteArrayInputStream(priorityImageData));
 						priorityImageData = new byte[0];
 						
-						if (colorMode != ColorMode.REGULAR) {
-							priorityImage = ColorHotfix.doColorHotfix(priorityImage, colorMode, false);
-						}
-						if(currentScreen == DSScreen.TOP) {
-							priorityImage = Interpolator.scale(priorityImage, intrp, topScale);
-						} else {
-							priorityImage = Interpolator.scale(priorityImage, intrp, bottomScale);
-						}
+						priorityImage = ImageManipulator.adjust(priorityImage, colorMode, false);
+						
 						frameBuffer.add(new Frame(currentScreen, priorityImage));
 						priorityImage = null;
 						priorityExpectedFrame = 0;
@@ -152,14 +139,8 @@ public class NTRUDPThread extends Thread {
 						secondaryImage = ImageIO.read(new ByteArrayInputStream(secondaryImageData));
 						secondaryImageData = new byte[0];
 						
-						if (colorMode != ColorMode.REGULAR) {
-							secondaryImage = ColorHotfix.doColorHotfix(secondaryImage, colorMode, false);
-						}
-						if(currentScreen == DSScreen.TOP) {
-							secondaryImage = Interpolator.scale(secondaryImage, intrp, topScale);
-						} else {
-							secondaryImage = Interpolator.scale(secondaryImage, intrp, bottomScale);
-						}
+						secondaryImage = ImageManipulator.adjust(secondaryImage, colorMode, false);
+						
 						frameBuffer.add(new Frame(currentScreen, secondaryImage));
 						secondaryImage = null;
 						secondaryExpectedFrame = 0;

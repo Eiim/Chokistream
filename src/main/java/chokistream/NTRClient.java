@@ -10,7 +10,6 @@ import chokistream.props.ColorMode;
 import chokistream.props.ConsoleModel;
 import chokistream.props.DSScreen;
 import chokistream.props.DSScreenBoth;
-import chokistream.props.InterpolationMode;
 import chokistream.props.LogLevel;
 
 /**
@@ -40,13 +39,12 @@ public class NTRClient implements StreamingInterface {
 	 * @throws UnknownHostException 
 	 * @throws InterruptedException 
 	 */
-	public NTRClient(String host, int quality, DSScreen screen, int priority, int qos, ColorMode colorMode, int port,
-			double topScale, double bottomScale, InterpolationMode intrp) throws UnknownHostException, IOException, InterruptedException {
+	public NTRClient(String host, int quality, DSScreen screen, int priority, int qos, ColorMode colorMode, int port) throws UnknownHostException, IOException, InterruptedException {
 		// Connect to TCP port and set up client
 		Socket client = new Socket(host, port);
 		client.setTcpNoDelay(true);
 		OutputStream out = client.getOutputStream();
-		thread = new NTRUDPThread(screen, colorMode, topScale, bottomScale, intrp);
+		thread = new NTRUDPThread(screen, colorMode);
 		thread.start();
 		
 		// Creates and sends the initialization packet to the 3DS

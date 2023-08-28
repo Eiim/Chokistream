@@ -103,19 +103,7 @@ public class ColorHotfix {
 			while (currentH < hotfixImage.getHeight()) {
 				while (currentW < hotfixImage.getWidth()) {
 					currentPixelColor = hotfixImage.getRGB(currentW, currentH);
-					//currentPixelColor = hotfixImageInput.getPixelReader().getArgb(currentW, currentH);
-					
-					// If the client is HzMod, then always swap Red and Blue first. Then proceed to extra processing.
-					if (swapRB) {
-						currentPixelColor = hzModSwapRedBlue(currentPixelColor);
-					}
-					
-					if (colorMode == ColorMode.VC_BLUE_SHIFT) {
-						currentPixelColor = vcBlueShift(currentPixelColor);
-					} else if (colorMode == ColorMode.GRAYSCALE) {
-						currentPixelColor = makeGrayscale(currentPixelColor);
-					}
-					hotfixImage.setRGB(currentW, currentH, currentPixelColor);
+					hotfixImage.setRGB(currentW, currentH, hotfixPixel(currentPixelColor, colorMode, swapRB));
 					currentW++;
 				}
 				currentW = 0;
@@ -126,6 +114,19 @@ public class ColorHotfix {
 			e.printStackTrace();
 			return new BufferedImage(400, 240, BufferedImage.TYPE_INT_RGB);
 		}
+	}
+	
+	public static int hotfixPixel(int in, ColorMode colorMode, boolean swapRB) {
+		int ret = in;
+		
+		// If the client is HzMod, then always swap Red and Blue first. Then proceed to extra processing.
+		if(swapRB) ret = hzModSwapRedBlue(in);
+		
+		return switch(colorMode) {
+			case GRAYSCALE -> makeGrayscale(in);
+			case REGULAR -> ret;
+			case VC_BLUE_SHIFT -> vcBlueShift(in);
+		};
 	}
 	
 }

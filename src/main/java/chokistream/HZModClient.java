@@ -15,7 +15,6 @@ import javax.imageio.ImageIO;
 import chokistream.props.ColorMode;
 import chokistream.props.DSScreen;
 import chokistream.props.DSScreenBoth;
-import chokistream.props.InterpolationMode;
 import chokistream.props.LogLevel;
 
 /**
@@ -30,9 +29,6 @@ public class HZModClient implements StreamingInterface {
 	private InputStream in = null;
 	private OutputStream out = null;
 	private ColorMode colorMode;
-	private double topScale;
-	private double bottomScale;
-	private InterpolationMode intrp;
 	public int quality;
 	private TGAPixelFormat topFormat = TGAPixelFormat.RGB8;
 	private TGAPixelFormat bottomFormat = TGAPixelFormat.RGB8;
@@ -51,8 +47,7 @@ public class HZModClient implements StreamingInterface {
 	 * @param capCPU Cap CPU cycles.
 	 * @param colorMode The color filter (option to enable hotfixColors).
 	 */
-	public HZModClient(String host, int quality, int capCPU, ColorMode receivedColorMode, int port,
-			double topScale, double bottomScale, InterpolationMode intrp) throws UnknownHostException, IOException {
+	public HZModClient(String host, int quality, int capCPU, ColorMode receivedColorMode, int port) throws UnknownHostException, IOException {
 		// Connect to TCP port and set up client
 		client = new Socket(host, port);
 		client.setTcpNoDelay(true);
@@ -60,9 +55,6 @@ public class HZModClient implements StreamingInterface {
 		out = client.getOutputStream();
 		
 		colorMode = receivedColorMode;
-		this.topScale = topScale;
-		this.bottomScale = bottomScale;
-		this.intrp = intrp;
 		this.quality = quality;
 		
 		lastTopImage = new BufferedImage(240, 400, BufferedImage.TYPE_INT_RGB);
@@ -216,14 +208,14 @@ public class HZModClient implements StreamingInterface {
 		byte[] data = Arrays.copyOfRange(packet.data, packetDataOffset, packet.data.length);
 		
 		BufferedImage image = null;
+		boolean rbSwap = false;
 		
 		if (packet.type == JPEG_PACKET) {
 			image = ImageIO.read(new ByteArrayInputStream(data));
 			// For some reason the red and blue channels are swapped. Fix it.
-			image = ColorHotfix.doColorHotfix(image, colorMode, true);
+			rbSwap = true;
 		} else if (packet.type == TARGA_PACKET) {
 			image = TargaParser.parseBytes(data, screen, screen == DSScreen.BOTTOM ? bottomFormat : topFormat);
-			image = ColorHotfix.doColorHotfix(image, colorMode, false);
 		}
 		
 		// Fix odd images in some games
@@ -232,34 +224,28 @@ public class HZModClient implements StreamingInterface {
 		}
 		
 		if(screen == DSScreen.BOTTOM) {
-			if(image.getHeight() == 320) {
+			if(image.getHeight() == 320) { // Full screen
 				bottomFrames++;
-				lastBottomImage = image;
-			} else if(image.getWidth() > 1) {
+				lastBottomImage = ImageManipulator.adjust(image, colorMode, rbSwap);
+			} else if(image.getWidth() > 1) { // Fractional
 				if(image.getHeight() + offset == 320) bottomFrames++;
-				image = addFractional(lastBottomImage, image, offset);
-				lastBottomImage = image;
+				lastBottomImage = ImageManipulator.adjust(lastBottomImage, image, false, 0, offset, colorMode, rbSwap);;
 			} else {
 				// 1-wide frame, use the last one instead
-				image = lastBottomImage;
 			}
-			image = Interpolator.scale(image, intrp, bottomScale);
+			returnFrame = new Frame(DSScreen.BOTTOM, lastBottomImage);
 		} else {
-			if(image.getHeight() == 400) {
+			if(image.getHeight() == 400) { // Full screen
 				topFrames++;
-				lastTopImage = image;
-			} else if(image.getWidth() > 1) {
+				lastTopImage = ImageManipulator.adjust(image, colorMode, rbSwap);
+			} else if(image.getWidth() > 1) { // Fractional
 				if(image.getHeight() + offset == 400) topFrames++;
-				image = addFractional(lastTopImage, image, offset);
-				lastTopImage = image;
+				lastTopImage = ImageManipulator.adjust(lastTopImage, image, false, 0, offset, colorMode, rbSwap);
 			} else {
 				// 1-wide frame, use the last one instead
-				image = lastTopImage;
 			}
-			image = Interpolator.scale(image, intrp, topScale);
+			returnFrame = new Frame(DSScreen.TOP, lastTopImage);
 		}
-		
-		returnFrame = new Frame(screen, image);
 		
 		return returnFrame;
 	}

@@ -7,6 +7,7 @@ import java.awt.image.BufferedImage;
 import javax.swing.JComponent;
 
 import chokistream.props.DSScreen;
+import chokistream.props.InterpolationMode;
 
 public class ImageComponent extends JComponent {
 
@@ -15,11 +16,15 @@ public class ImageComponent extends JComponent {
 	
 	private BufferedImage img;
 	private DSScreen screen;
+	private InterpolationMode intrp;
 	private int width;
 	private int height;
+	private double scale;
 
-	public ImageComponent(DSScreen screen, double scale) {
+	public ImageComponent(DSScreen screen, double scale, InterpolationMode intrp) {
 		this.screen = screen;
+		this.intrp = intrp;
+		this.scale = scale;
 		width = (int)((screen == DSScreen.TOP ? 400 : 320) * scale);
 		height = (int) (240 * scale);
 		img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
@@ -33,29 +38,8 @@ public class ImageComponent extends JComponent {
     }
 	
 	public void updateImage(BufferedImage image) {
-		// Ignore weird images
-		if(image.getWidth() == height) {
-			img = processImage(image);
-			repaint();
-		} else {
-			Logger.INSTANCE.log("Unexpected frame dimensions: "+image.getHeight()+"x"+image.getWidth());
-		}
-	}
-	
-	private BufferedImage processImage(BufferedImage in) {
-		BufferedImage out = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-		double hscale = (double)width / in.getHeight();
-		double vscale = (double)height / in.getWidth();
-		for(int i = 0; i < width; i++) {
-			for(int j = 0; j < height; j++) {
-				try {
-					out.setRGB(i, height-j-1, in.getRGB((int)(j / hscale), (int)(i / vscale)));
-				} catch(ArrayIndexOutOfBoundsException e) {
-					//System.out.println(i+" "+j+" "+(int)(j/hscale)+" "+(int)(i/vscale)+" "+in.getWidth()+" "+in.getHeight());
-				}
-			}
-		}
-		return out;
+		img = Interpolator.scale(image, intrp, scale);
+		repaint();
 	}
 	
 	public BufferedImage getImage() {

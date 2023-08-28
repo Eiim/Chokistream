@@ -51,16 +51,10 @@ public class Main {
     	Mod mod;
     	String ip;
     	int port;
-    	double topScale;
-    	double bottomScale;
-    	InterpolationMode intrp;
     	try {
 			mod = ui.getPropEnum(Prop.MOD);
 			ip = ui.getPropString(Prop.IP);
 			port = ui.getPropInt(Prop.PORT);
-			topScale = ui.getPropDouble(Prop.TOPSCALE);
-			bottomScale = ui.getPropDouble(Prop.BOTTOMSCALE);
-			intrp = ui.getPropEnum(Prop.INTRPMODE);
 		} catch (RuntimeException e) {
 			ui.displayError(e);
 			return null;
@@ -78,7 +72,7 @@ public class Main {
 	    			ColorMode colorMode = ui.getPropEnum(Prop.COLORMODE);
 	    			
 	    			// Initializes connection
-	    			client = new NTRClient(ip, quality, screen, priority, qos, colorMode, port, topScale, bottomScale, intrp);
+	    			client = new NTRClient(ip, quality, screen, priority, qos, colorMode, port);
 				} catch (Exception e) {
 					ui.displayError(e);
 					return null;
@@ -94,7 +88,7 @@ public class Main {
     				boolean interlace = ui.getPropBoolean(Prop.INTERLACE);
     				
     				// Initializes connection
-    				client = new ChirunoModClient(ip, quality, reqTGA, interlace, capCpu, colorMode, port, reqScreen, topScale, bottomScale, intrp);
+    				client = new ChirunoModClient(ip, quality, reqTGA, interlace, capCpu, colorMode, port, reqScreen);
     			} catch (Exception e) {
     				ui.displayError(e);
     				return null;
@@ -107,7 +101,7 @@ public class Main {
     				ColorMode colorMode = ui.getPropEnum(Prop.COLORMODE);
     				
     				// Initializes connection
-    				client = new HZModClient(ip, quality, capCpu, colorMode, port, topScale, bottomScale, intrp);
+    				client = new HZModClient(ip, quality, capCpu, colorMode, port);
     			} catch (Exception e) {
     				ui.displayError(e);
     				return null;
@@ -121,9 +115,10 @@ public class Main {
 		StreamingInterface client = initialize(ui);
 		if(client != null) {
 			Layout layout = ui.getPropEnum(Prop.LAYOUT);
+			InterpolationMode intrp = ui.getPropEnum(Prop.INTRPMODE);
 			double topScale = ui.getPropDouble(Prop.TOPSCALE);
 			double bottomScale = ui.getPropDouble(Prop.BOTTOMSCALE);
-			new SwingVideo(client, layout, topScale, bottomScale);
+			new SwingVideo(client, layout, topScale, bottomScale, intrp);
 		}
 	}
 	
@@ -133,9 +128,10 @@ public class Main {
 			Layout layout = ui.getPropEnum(Prop.LAYOUT);
 			String fileName = ui.getPropString(Prop.VIDEOFILE);
 			VideoFormat vf = ui.getPropEnum(Prop.VIDEOCODEC);
+			InterpolationMode intrp = ui.getPropEnum(Prop.INTRPMODE);
 			double topScale = ui.getPropDouble(Prop.TOPSCALE);
 			double bottomScale = ui.getPropDouble(Prop.BOTTOMSCALE);
-			new OutputFileVideo(client, layout, fileName+"."+vf.getExtension(), vf, topScale, bottomScale);
+			new OutputFileVideo(client, layout, fileName+"."+vf.getExtension(), vf, intrp, topScale, bottomScale);
 		}
 	}
 	
@@ -143,7 +139,11 @@ public class Main {
 		StreamingInterface client = initialize(ui);
 		if(client != null) {
 			String dir = ui.getPropString(Prop.SEQUENCEDIR);
-			new ImageSequenceVideo(client, dir, ui.getPropString(Prop.SEQUENCEPREFIX));
+			String prefix = ui.getPropString(Prop.SEQUENCEPREFIX);
+			InterpolationMode intrp = ui.getPropEnum(Prop.INTRPMODE);
+			double topScale = ui.getPropDouble(Prop.TOPSCALE);
+			double bottomScale = ui.getPropDouble(Prop.BOTTOMSCALE);
+			new ImageSequenceVideo(client, dir, prefix, intrp, topScale, bottomScale);
 		}
 	}
 }
