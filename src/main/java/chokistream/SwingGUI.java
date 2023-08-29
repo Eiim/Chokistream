@@ -398,7 +398,6 @@ public class SwingGUI extends SettingsUI {
 			parser.setProp(Prop.LOGLEVEL, getPropEnum(Prop.LOGLEVEL));
 			parser.setProp(Prop.LOGFILE, getPropString(Prop.LOGFILE));
 			parser.setProp(Prop.INTRPMODE, getPropEnum(Prop.INTRPMODE));
-			parser.setProp(Prop.DPI, getPropInt(Prop.DPI));
 			parser.setProp(Prop.OUTPUTFORMAT, getPropEnum(Prop.OUTPUTFORMAT));
 			parser.setProp(Prop.VIDEOCODEC, getPropEnum(Prop.VIDEOCODEC));
 			parser.setProp(Prop.VIDEOFILE, getPropString(Prop.VIDEOFILE));

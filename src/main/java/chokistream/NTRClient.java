@@ -12,9 +12,6 @@ import chokistream.props.DSScreen;
 import chokistream.props.DSScreenBoth;
 import chokistream.props.LogLevel;
 
-/**
- * 
- */
 public class NTRClient implements StreamingInterface {
 	
 	/**

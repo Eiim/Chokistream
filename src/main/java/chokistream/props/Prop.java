@@ -1,7 +1,5 @@
 package chokistream.props;
 
-import java.awt.Toolkit;
-
 /*
  * An enum for all the different user-specifiable properties we use.
  * Hopefully maintainable than previous, more intuitive solution, which duplicated a lot of code.
@@ -27,7 +25,6 @@ public class Prop<T> {
 	public static final Prop<LogLevel> LOGLEVEL = new Prop<>("logLevel", "Log Level", LogLevel.REGULAR, LogLevel.class);
 	public static final Prop<String> LOGFILE = new Prop<>("logFile", "Log File", "chokistream.log", String.class);
 	public static final Prop<InterpolationMode> INTRPMODE = new Prop<>("interpolationMode", "Interpolation Mode", InterpolationMode.NONE, InterpolationMode.class);
-	public static final Prop<Integer> DPI = new Prop<>("dpi", "DPI", Toolkit.getDefaultToolkit().getScreenResolution(), Integer.class);
 	public static final Prop<OutputFormat> OUTPUTFORMAT = new Prop<>("outputFormat", "Output Format", OutputFormat.VISUAL, OutputFormat.class);
 	public static final Prop<VideoFormat> VIDEOCODEC = new Prop<>("codec", "Video Codec", VideoFormat.PRORES, VideoFormat.class);
 	public static final Prop<String> VIDEOFILE = new Prop<>("videoFile", "Video File", "out", String.class);
