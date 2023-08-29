@@ -60,8 +60,6 @@ public class Main {
 			return null;
 		}
     	
-    	StreamingInterface client = null;
-    	
     	switch(mod) {
     		case NTR:
 				try {
@@ -72,12 +70,11 @@ public class Main {
 	    			ColorMode colorMode = ui.getPropEnum(Prop.COLORMODE);
 	    			
 	    			// Initializes connection
-	    			client = new NTRClient(ip, quality, screen, priority, qos, colorMode, port);
+	    			return new NTRClient(ip, quality, screen, priority, qos, colorMode, port);
 				} catch (Exception e) {
 					ui.displayError(e);
 					return null;
 				}
-				break;
     		case CHIRUNOMOD:
     			try {
     				int quality = ui.getPropInt(Prop.QUALITY);
@@ -88,12 +85,11 @@ public class Main {
     				boolean interlace = ui.getPropBoolean(Prop.INTERLACE);
     				
     				// Initializes connection
-    				client = new ChirunoModClient(ip, quality, reqTGA, interlace, capCpu, colorMode, port, reqScreen);
+    				return new ChirunoModClient(ip, quality, reqTGA, interlace, capCpu, colorMode, port, reqScreen);
     			} catch (Exception e) {
     				ui.displayError(e);
     				return null;
     			}
-    			break;
     		case HZMOD:
     			try {
     				int quality = ui.getPropBoolean(Prop.REQTGA) ? 0 : ui.getPropInt(Prop.QUALITY);
@@ -101,14 +97,13 @@ public class Main {
     				ColorMode colorMode = ui.getPropEnum(Prop.COLORMODE);
     				
     				// Initializes connection
-    				client = new HZModClient(ip, quality, capCpu, colorMode, port);
+    				return new HZModClient(ip, quality, capCpu, colorMode, port);
     			} catch (Exception e) {
     				ui.displayError(e);
     				return null;
     			}
-    			break;
     	}
-    	return client;
+    	return null; // Shouldn't ever get here
 	}
 	
 	public static void initializeSwing(SettingsUI ui) {
