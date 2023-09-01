@@ -91,18 +91,47 @@ public class NTRClient implements StreamingInterface {
 		return f;
 	}
 	
-	// Probably doesn't work right now. Need to look at other implementations.
-	public static void sendNFCPatch(String host, int port, byte[] addr, ConsoleModel model) throws UnknownHostException, IOException {
-		byte[] binaryPacketPatch = new byte[11 + addr.length];
-		binaryPacketPatch[0] = (byte) 0x81;
-		binaryPacketPatch[1] = 0x0A;
-		binaryPacketPatch[4] = (byte) ((model == ConsoleModel.N3DS) ? 0x1A : 0x19);
-		binaryPacketPatch[binaryPacketPatch.length - 2] = 0x70;
-		binaryPacketPatch[binaryPacketPatch.length - 1] = 0x47;
+	public static void sendNFCPatch(String host, int port, byte[] addr) throws UnknownHostException, IOException {
+		byte[] pak = new byte[84+2];
+		
+		// magic number / secret code (dumb)
+		pak[3] = 0x12;
+		pak[2] = 0x34;
+		pak[1] = 0x56;
+		pak[0] = 0x78;
+		
+		// currentSeq (?)
+		pak[4] = (byte) 0xc0;
+		pak[5] = 0x5d;
+		
+		// type
+		pak[8] = 0x01;
+		
+		// command
+		pak[12] = 0x0a;
+		
+		// "args" section
+		
+		// pid
+		pak[16] = 0x1a;
+		
+		// address
+		pak[20] = addr[0];
+		pak[21] = addr[1];
+		pak[22] = addr[2];
+		pak[23] = addr[3];
+		
+		// length of data section (written in two places, for some reason)
+		pak[24] = 0x02;
+		pak[80] = 0x02;
+		
+		// data section
+		pak[84] = 0x70;
+		pak[85] = 0x47;
 		
 		Socket patchClient = new Socket(host, port);
 		OutputStream patchOut = patchClient.getOutputStream();
-		patchOut.write(binaryPacketPatch);
+		patchOut.write(pak);
 		patchOut.close();
 		patchClient.close();
 	}

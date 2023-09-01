@@ -95,7 +95,7 @@ public class SwingGUI extends SettingsUI {
 	private JTextField priFac;
 	private JTextField qos;
 	
-	// NTR patch screen
+	// NFC Patch screen
 	private JFrame ntrPatch;
 	
 	private static final Logger logger = Logger.INSTANCE;
@@ -635,36 +635,35 @@ public class SwingGUI extends SettingsUI {
 		JPanel p = new JPanel();
 		GridBagConstraints c = new GridBagConstraints();
 		frameSetup(ntrPatch, p, c);
-		ntrPatch.setTitle("NTR Patch");
+		ntrPatch.setTitle("NFC Patch");
 		
-		JLabel header = new JLabel("NTR Patch");
+		JLabel header = new JLabel("NFC Patch");
 		header.setFont(new Font("System", Font.PLAIN, 20));
 		add(header, p, c, 0, 0, 2, 1);
 		
-		JButton n3ds = new JButton("New 3DS");
+		JButton n3ds = new JButton(">= 11.4");
 		add(n3ds, p, c, 0, 1);
 		n3ds.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
     				ntrPatch.setVisible(false);
-    				JOptionPane.showMessageDialog(f, "NTR patch isn't implemented yet, check back soon!", "Error", JOptionPane.ERROR_MESSAGE);
-					//NTRClient.sendNFCPatch(getPropString(Prop.IP), getPropInt(Prop.PORT), null, ConsoleModel.N3DS);
-				} catch (RuntimeException ex) {
+					NTRClient.sendNFCPatch(getPropString(Prop.IP), getPropInt(Prop.PORT), new byte[]{0x00, 0x5b, 0x10, 0x00});
+				} catch (IOException | RuntimeException ex) {
 					displayError(ex);
 				}
 			}
 		});
 		
-		JButton o3ds = new JButton("Old 3DS");
+		JButton o3ds = new JButton("<= 11.3");
 		add(o3ds, p, c, 1, 1);
 		o3ds.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
     				ntrPatch.setVisible(false);
-    				JOptionPane.showMessageDialog(f, "NTR patch isn't implemented yet, check back soon!", "Error", JOptionPane.ERROR_MESSAGE);
-				} catch (RuntimeException ex) {
+    				NTRClient.sendNFCPatch(getPropString(Prop.IP), getPropInt(Prop.PORT), new byte[]{(byte)0xe4, 0x5a, 0x10, 0x00});
+				} catch (IOException | RuntimeException ex) {
 					displayError(ex);
 				}
 			}
