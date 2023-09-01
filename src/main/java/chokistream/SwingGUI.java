@@ -36,7 +36,6 @@ import com.formdev.flatlaf.FlatLightLaf;
 
 import chokistream.INIParser.IniParseException;
 import chokistream.props.ColorMode;
-import chokistream.props.ConsoleModel;
 import chokistream.props.DSScreen;
 import chokistream.props.DSScreenBoth;
 import chokistream.props.EnumProp;
@@ -649,8 +648,9 @@ public class SwingGUI extends SettingsUI {
 			public void actionPerformed(ActionEvent e) {
 				try {
     				ntrPatch.setVisible(false);
-					NTRClient.sendNFCPatch(getPropString(Prop.IP), getPropInt(Prop.PORT), null, ConsoleModel.N3DS);
-				} catch (IOException | RuntimeException ex) {
+    				JOptionPane.showMessageDialog(f, "NTR patch isn't implemented yet, check back soon!", "Error", JOptionPane.ERROR_MESSAGE);
+					//NTRClient.sendNFCPatch(getPropString(Prop.IP), getPropInt(Prop.PORT), null, ConsoleModel.N3DS);
+				} catch (RuntimeException ex) {
 					displayError(ex);
 				}
 			}
@@ -663,8 +663,8 @@ public class SwingGUI extends SettingsUI {
 			public void actionPerformed(ActionEvent e) {
 				try {
     				ntrPatch.setVisible(false);
-					NTRClient.sendNFCPatch(getPropString(Prop.IP), getPropInt(Prop.PORT), null, ConsoleModel.O3DS);
-				} catch (IOException | RuntimeException ex) {
+    				JOptionPane.showMessageDialog(f, "NTR patch isn't implemented yet, check back soon!", "Error", JOptionPane.ERROR_MESSAGE);
+				} catch (RuntimeException ex) {
 					displayError(ex);
 				}
 			}
