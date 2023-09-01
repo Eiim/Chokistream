@@ -44,4 +44,3 @@ Besides GitHub issues:
  * Layout doesn't work for file streaming or image sequence
  * Error "The muxer track has finished muxing" when ending file streaming. This is perfectly safe.
  * Similarly, "Socket closed" error when closing NTR is perfectly safe.
- * Bug with incorrectly-sized frames in ChirunoMod v0.2.1. This will be fixed in v2.0.1.
