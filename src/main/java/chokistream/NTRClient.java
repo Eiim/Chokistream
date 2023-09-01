@@ -7,7 +7,6 @@ import java.net.UnknownHostException;
 import java.util.concurrent.TimeUnit;
 
 import chokistream.props.ColorMode;
-import chokistream.props.ConsoleModel;
 import chokistream.props.DSScreen;
 import chokistream.props.DSScreenBoth;
 import chokistream.props.LogLevel;
@@ -59,7 +58,7 @@ public class NTRClient implements StreamingInterface {
 		initializationPacket[20] = (byte) quality;
 		// Nobody has any clue why, but NTR expects double the QoS value
 		initializationPacket[26] = (byte) (qos*2);
-		logger.log("Sending initialization packet", LogLevel.EXTREME);
+		logger.log("Sending initialization packet", LogLevel.VERBOSE);
 		logger.log(initializationPacket, LogLevel.EXTREME);
 		out.write(initializationPacket);
 		
@@ -131,6 +130,7 @@ public class NTRClient implements StreamingInterface {
 		
 		Socket patchClient = new Socket(host, port);
 		OutputStream patchOut = patchClient.getOutputStream();
+		logger.log("Sending NFC Patch", LogLevel.VERBOSE);
 		patchOut.write(pak);
 		patchOut.close();
 		patchClient.close();
