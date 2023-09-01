@@ -618,7 +618,7 @@ public class SwingGUI extends SettingsUI {
 		});
 		
 		JButton apply = new JButton("Apply");
-		add(apply, p, c, 0, 5, 2, 1);
+		add(apply, p, c, 0, 6, 2, 1);
 		apply.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
