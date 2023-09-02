@@ -46,11 +46,14 @@ public class ChirunoModClient implements StreamingInterface {
 	private static final Logger logger = Logger.INSTANCE;
 
 	/**
-	 * Create an HZModClient.
-	 * @param host The host or IP to connect to.
-	 * @param quality The quality to stream at.
-	 * @param capCPU Cap CPU cycles.
-	 * @param colorMode The color filter (option to enable hotfixColors).
+	 * Create a ChirunoModClient.
+	 * @param host The host or IP to connect to
+	 * @param quality The quality to stream at
+	 * @param reqTGA Whether to request TGA frames
+	 * @param capCPU Cap CPU cycles
+	 * @param colorMode The color filter for hotfixing colors
+	 * @param port The 3DS port
+	 * @param reqScreen The 3DS screen to request
 	 */
 	public ChirunoModClient(String host, int quality, boolean reqTGA, boolean interlace, int capCPU, ColorMode receivedColorMode,
 			int port, DSScreenBoth reqScreen) throws UnknownHostException, IOException {

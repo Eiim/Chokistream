@@ -136,9 +136,10 @@ public class Main {
 			String dir = ui.getPropString(Prop.SEQUENCEDIR);
 			String prefix = ui.getPropString(Prop.SEQUENCEPREFIX);
 			InterpolationMode intrp = ui.getPropEnum(Prop.INTRPMODE);
+			Layout layout = ui.getPropEnum(Prop.LAYOUT);
 			double topScale = ui.getPropDouble(Prop.TOPSCALE);
 			double bottomScale = ui.getPropDouble(Prop.BOTTOMSCALE);
-			new ImageSequenceVideo(client, dir, prefix, intrp, topScale, bottomScale);
+			new ImageSequenceVideo(client, dir, prefix, intrp, layout, topScale, bottomScale);
 		}
 	}
 }

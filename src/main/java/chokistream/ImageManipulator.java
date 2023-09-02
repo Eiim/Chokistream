@@ -57,5 +57,57 @@ public class ImageManipulator {
 		}
 		return base;
 	}
+	
+	public static BufferedImage combineVert(BufferedImage top, BufferedImage bottom) {
+		BufferedImage out = new BufferedImage(Math.max(top.getWidth(), bottom.getWidth()), top.getHeight()+bottom.getHeight(), top.getType());
+		
+		int tx = (out.getWidth() - top.getWidth())/2;
+		int by = top.getHeight();
+		int bx = (out.getWidth() - bottom.getWidth())/2;
+		
+		int tw = top.getWidth();
+		int th = top.getHeight();
+		for(int i = 0; i < tw;  i++) {
+			for(int j = 0; j < th; j++) {
+				out.setRGB(i+tx, j, top.getRGB(i, j));
+			}
+		}
+		
+		int bw = bottom.getWidth();
+		int bh = bottom.getHeight();
+		for(int i = 0; i < bw;  i++) {
+			for(int j = 0; j < bh; j++) {
+				out.setRGB(i+bx, j+by, bottom.getRGB(i, j));
+			}
+		}
+		
+		return out;
+	}
+	
+	public static BufferedImage combineHoriz(BufferedImage left, BufferedImage right) {
+		BufferedImage out = new BufferedImage(left.getWidth()+right.getWidth(), Math.max(left.getHeight(), right.getHeight()), left.getType());
+		
+		int ly = (out.getHeight() - left.getHeight())/2;
+		int rx = left.getWidth();
+		int ry = (out.getHeight() - right.getHeight())/2;
+		
+		int lw = left.getWidth();
+		int lh = left.getHeight();
+		for(int i = 0; i < lw;  i++) {
+			for(int j = 0; j < lh; j++) {
+				out.setRGB(i, j+ly, left.getRGB(i, j));
+			}
+		}
+		
+		int rw = right.getWidth();
+		int rh = right.getHeight();
+		for(int i = 0; i < rw;  i++) {
+			for(int j = 0; j < rh; j++) {
+				out.setRGB(i+rx, j+ry, right.getRGB(i, j));
+			}
+		}
+		
+		return out;
+	}
 
 }
