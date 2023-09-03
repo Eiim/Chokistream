@@ -21,7 +21,9 @@ public class OutputFileVideo implements VideoOutputInterface {
 	private StreamingInterface client;
 	private NetworkThread networkThread;
 	private SequenceEncoder enc;
+	private SequenceEncoder bottomEnc;
 	private long prevNanos;
+	private long prevBottomNanos; // For separate screen
 	private static final Logger logger = Logger.INSTANCE;
 	private boolean done;
 	private InterpolationMode intrp;
@@ -31,7 +33,7 @@ public class OutputFileVideo implements VideoOutputInterface {
 	private BufferedImage lastBottomFrame;
 	private Layout layout;
 	
-	public OutputFileVideo(StreamingInterface client, Layout layout, String file, VideoFormat vf, InterpolationMode intrp, double topScale, double bottomScale) {
+	public OutputFileVideo(StreamingInterface client, Layout layout, String filename, String extension, VideoFormat vf, InterpolationMode intrp, double topScale, double bottomScale) {
 		this.client = client;
 		this.intrp = intrp;
 		this.topScale = topScale;
@@ -43,12 +45,23 @@ public class OutputFileVideo implements VideoOutputInterface {
 		networkThread = new NetworkThread(this.client, this);
 		
 		try {
-			enc = new SequenceEncoder(NIOUtils.writableChannel(new File(file)), 
+			String f = (layout == Layout.SEPARATE) ? filename+"_top" : filename;
+			enc = new SequenceEncoder(NIOUtils.writableChannel(new File(f+"."+extension)), 
 					Rational.R1(60), vf.getFormat(), vf.getCodec(), null);
 		} catch (IOException e) {
 			displayError(e);
 		}
 		prevNanos = System.nanoTime();
+		prevBottomNanos = prevNanos;
+		
+		if(layout == Layout.SEPARATE) {
+			try {
+				bottomEnc = new SequenceEncoder(NIOUtils.writableChannel(new File(filename+"_bottom."+extension)), 
+						Rational.R1(60), vf.getFormat(), vf.getCodec(), null);
+			} catch (IOException e) {
+				displayError(e);
+			}
+		}
 		
 		networkThread.start();
 		
@@ -69,9 +82,16 @@ public class OutputFileVideo implements VideoOutputInterface {
 	public void renderFrame(Frame f) {
 		if(done) return;
 		
-		long newNanos = System.nanoTime();
-		int frames = (int) (Math.round(newNanos-prevNanos)/16666667f);
-		prevNanos += (frames * 16666667l); // Nanos of the frame boundary
+		int frames;
+		if(layout == Layout.SEPARATE && f.screen == DSScreen.BOTTOM) {
+			long newNanos = System.nanoTime();
+			frames = (int) (Math.round(newNanos-prevBottomNanos)/16666667f);
+			prevBottomNanos += (frames * 16666667l); // Nanos of the frame boundary
+		} else {
+			long newNanos = System.nanoTime();
+			frames = (int) (Math.round(newNanos-prevNanos)/16666667f);
+			prevNanos += (frames * 16666667l); // Nanos of the frame boundary
+		}
 		
 		if(f.screen == DSScreen.TOP) {
 			lastTopFrame = Interpolator.scale(f.image, intrp, topScale);
@@ -79,23 +99,43 @@ public class OutputFileVideo implements VideoOutputInterface {
 			lastBottomFrame = Interpolator.scale(f.image, intrp, bottomScale);
 		}
 		
-		Picture p = null;
-		p = switch(layout) {
-			case TOP_ONLY -> AWTUtil.fromBufferedImageRGB(lastTopFrame);
-			case BOTTOM_ONLY -> AWTUtil.fromBufferedImageRGB(lastBottomFrame);
-			case HORIZONTAL -> AWTUtil.fromBufferedImageRGB(ImageManipulator.combineHoriz(lastTopFrame, lastBottomFrame));
-			case HORIZONTAL_INV -> AWTUtil.fromBufferedImageRGB(ImageManipulator.combineHoriz(lastBottomFrame, lastTopFrame));
-			case VERTICAL -> AWTUtil.fromBufferedImageRGB(ImageManipulator.combineVert(lastTopFrame, lastBottomFrame));
-			case VERTICAL_INV -> AWTUtil.fromBufferedImageRGB(ImageManipulator.combineHoriz(lastBottomFrame, lastTopFrame));
-			default -> throw new IllegalArgumentException("Separate mode not supported yet");
-		};
-		
-		try {
-			for(int i = 0; i < frames; i++) {
-				enc.encodeNativeFrame(p);
+		if(layout == Layout.SEPARATE) {
+			if(f.screen == DSScreen.TOP) {
+				try {
+					for(int i = 0; i < frames; i++) {
+						enc.encodeNativeFrame(AWTUtil.fromBufferedImageRGB(lastTopFrame));
+					}
+				} catch (IOException e) {
+					displayError(e);
+				}
+			} else {
+				try {
+					for(int i = 0; i < frames; i++) {
+						bottomEnc.encodeNativeFrame(AWTUtil.fromBufferedImageRGB(lastBottomFrame));
+					}
+				} catch (IOException e) {
+					displayError(e);
+				}
 			}
-		} catch (IOException e) {
-			displayError(e);
+		} else {
+			Picture p = null;
+			p = switch(layout) {
+				case TOP_ONLY -> AWTUtil.fromBufferedImageRGB(lastTopFrame);
+				case BOTTOM_ONLY -> AWTUtil.fromBufferedImageRGB(lastBottomFrame);
+				case HORIZONTAL -> AWTUtil.fromBufferedImageRGB(ImageManipulator.combineHoriz(lastTopFrame, lastBottomFrame));
+				case HORIZONTAL_INV -> AWTUtil.fromBufferedImageRGB(ImageManipulator.combineHoriz(lastBottomFrame, lastTopFrame));
+				case VERTICAL -> AWTUtil.fromBufferedImageRGB(ImageManipulator.combineVert(lastTopFrame, lastBottomFrame));
+				case VERTICAL_INV -> AWTUtil.fromBufferedImageRGB(ImageManipulator.combineHoriz(lastBottomFrame, lastTopFrame));
+				default -> throw new IllegalArgumentException("Mode "+layout.getLongName()+" not supported yet"); // Should be impossible
+			};
+			
+			try {
+				for(int i = 0; i < frames; i++) {
+					enc.encodeNativeFrame(p);
+				}
+			} catch (IOException e) {
+				displayError(e);
+			}
 		}
 	}
 	
@@ -108,6 +148,8 @@ public class OutputFileVideo implements VideoOutputInterface {
 			client.close();
 			// Finish up video output
 			enc.finish();
+			if(bottomEnc != null) bottomEnc.finish();
+			
 			done = true;
 		} catch (IOException e) {
 			displayError(e);

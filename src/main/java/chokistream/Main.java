@@ -126,7 +126,7 @@ public class Main {
 			InterpolationMode intrp = ui.getPropEnum(Prop.INTRPMODE);
 			double topScale = ui.getPropDouble(Prop.TOPSCALE);
 			double bottomScale = ui.getPropDouble(Prop.BOTTOMSCALE);
-			new OutputFileVideo(client, layout, fileName+"."+vf.getExtension(), vf, intrp, topScale, bottomScale);
+			new OutputFileVideo(client, layout, fileName, vf.getExtension(), vf, intrp, topScale, bottomScale);
 		}
 	}
 	
