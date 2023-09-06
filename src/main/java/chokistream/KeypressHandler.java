@@ -7,6 +7,7 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
+import chokistream.props.Controls;
 import chokistream.props.LogLevel;
 
 public class KeypressHandler implements KeyListener {
@@ -15,19 +16,21 @@ public class KeypressHandler implements KeyListener {
 	private StreamingInterface client;
 	private ImageComponent topImageView;
 	private ImageComponent bottomImageView;
+	private ChokiKeybinds ck;
 	private static final Logger logger = Logger.INSTANCE;
 	
-	public KeypressHandler(SwingVideo sv, StreamingInterface si, ImageComponent top, ImageComponent bottom) {
+	public KeypressHandler(SwingVideo sv, StreamingInterface si, ImageComponent top, ImageComponent bottom, ChokiKeybinds keybinds) {
 		output = sv;
 		client = si;
 		topImageView = top;
 		bottomImageView = bottom;
+		ck = keybinds;
 	}
 
 	@Override
 	public void keyPressed(KeyEvent e) {
 		// Generic commands
-		if(e.getKeyCode() == KeyEvent.VK_S) {
+		if(e.getKeyCode() == ck.get(Controls.SCREENSHOT)) {
 			try {
 				// Only take the screenshots if the image exists - mostly for HzMod, but perhaps
 				// also if the images just haven't come yet because we're still initializing
@@ -43,7 +46,7 @@ public class KeypressHandler implements KeyListener {
 			} catch (IOException e1) {
 				output.displayError(e1);
 			}
-		} else if(e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
+		} else if(e.getKeyCode() == ck.get(Controls.RETURN)) {
 			output.kill();
 		}
 		
@@ -51,7 +54,7 @@ public class KeypressHandler implements KeyListener {
 		if(client instanceof HZModClient) {
 			HZModClient c = (HZModClient) client;
 			
-			if(e.getKeyCode() == KeyEvent.VK_UP && c.quality < 100) {
+			if(e.getKeyCode() == ck.get(Controls.QUALITY_UP) && c.quality < 100) {
 				c.quality++;
 				logger.log("Increasing quality to "+c.quality, LogLevel.VERBOSE);
 				try {
@@ -59,7 +62,7 @@ public class KeypressHandler implements KeyListener {
 				} catch (IOException e1) {
 					output.displayError(e1);
 				}
-			} else if(e.getKeyCode() == KeyEvent.VK_DOWN && c.quality > 0) {
+			} else if(e.getKeyCode() == ck.get(Controls.QUALITY_DOWN) && c.quality > 0) {
 				c.quality--;
 				logger.log("Decreasing quality to "+c.quality, LogLevel.VERBOSE);
 				try {
@@ -71,7 +74,7 @@ public class KeypressHandler implements KeyListener {
 		} else if(client instanceof ChirunoModClient) {
 			ChirunoModClient c = (ChirunoModClient) client;
 			
-			if(e.getKeyCode() == KeyEvent.VK_UP && c.quality < 100) {
+			if(e.getKeyCode() == ck.get(Controls.QUALITY_UP) && c.quality < 100) {
 				c.quality++;
 				logger.log("Increasing quality to "+c.quality, LogLevel.VERBOSE);
 				try {
@@ -79,7 +82,7 @@ public class KeypressHandler implements KeyListener {
 				} catch (IOException e1) {
 					output.displayError(e1);
 				}
-			} else if(e.getKeyCode() == KeyEvent.VK_DOWN && c.quality > 0) {
+			} else if(e.getKeyCode() == ck.get(Controls.QUALITY_DOWN) && c.quality > 0) {
 				c.quality--;
 				logger.log("Decreasing quality to "+c.quality, LogLevel.VERBOSE);
 				try {

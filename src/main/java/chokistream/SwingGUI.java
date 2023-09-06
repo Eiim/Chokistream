@@ -98,6 +98,9 @@ public class SwingGUI extends SettingsUI {
 	// NFC Patch screen
 	private JFrame ntrPatch;
 	
+	// Controls
+	private JFrame controls;
+	
 	private static final Logger logger = Logger.INSTANCE;
 	
 	private static final String ABOUT_TEXT = "<html>Made by Eiim, herronjo, and ChainSwordCS.<br>"
@@ -374,6 +377,13 @@ public class SwingGUI extends SettingsUI {
 			return p.getDefault();
 		}
 	}
+	
+	/*
+	 * Just use defaults for now
+	 */
+	public ChokiKeybinds getKeybinds() {
+		return ChokiKeybinds.getDefaults();
+	}
 
 	@Override
 	public void displayError(Exception e) {
@@ -470,6 +480,15 @@ public class SwingGUI extends SettingsUI {
 		}
 	}
 	
+	public void saveControls() {
+		try {
+			INIParser parser = new INIParser(new File("chokistream.ini"));
+			
+		} catch(IOException | IniParseException e) {
+			displayError(e);
+		}
+	}
+	
 	private static void setTextDefault(INIParser parser, Prop<?> p, JTextField tf) {
 		String val = parser.getProp(p);
 		if(val.length() > 0) {
@@ -517,6 +536,33 @@ public class SwingGUI extends SettingsUI {
 		
 		f.pack();
 		f.setVisible(true);
+	}
+	
+	public void createControls() {
+		controls = new JFrame();
+		JPanel p = new JPanel();
+		GridBagConstraints c = new GridBagConstraints();
+		frameSetup(controls, p, c);
+		controls.setTitle("Controls");
+		
+		JLabel header = new JLabel("Controls");
+		header.setFont(new Font("System", Font.PLAIN, 20));
+		add(header, p, c, 0, 0, 2, 1);
+		
+		add(new JLabel(Prop.VIDEOCODEC.getLongName()), p, c, 0, 1);
+		add(new JLabel(Prop.VIDEOFILE.getLongName()), p, c, 0, 2);
+		
+		JButton apply = new JButton("Apply");
+		add(apply, p, c, 0, 3, 2, 1);
+		apply.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				saveControls();
+				controls.setVisible(false);
+			}
+		});
+		
+		controls.pack();
 	}
 	
 	public void createVideoSettings() {

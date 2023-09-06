@@ -31,7 +31,7 @@ public class SwingVideo implements VideoOutputInterface {
 	
 	private static final Logger logger = Logger.INSTANCE;
 
-	public SwingVideo(StreamingInterface client, Layout layout, double topScale, double bottomScale, InterpolationMode intrp) {
+	public SwingVideo(StreamingInterface client, Layout layout, double topScale, double bottomScale, InterpolationMode intrp, ChokiKeybinds kb) {
 		this.client = client;
 		
 		networkThread = new NetworkThread(this.client, this);
@@ -132,7 +132,7 @@ public class SwingVideo implements VideoOutputInterface {
 			return;
 		}}
 		
-		KeyListener kl = new KeypressHandler(this, client, topImageView, bottomImageView);
+		KeyListener kl = new KeypressHandler(this, client, topImageView, bottomImageView, kb);
 		
 		for(JFrame f : frames) {
 			f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

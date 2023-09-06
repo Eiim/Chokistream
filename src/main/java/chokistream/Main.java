@@ -113,7 +113,8 @@ public class Main {
 			InterpolationMode intrp = ui.getPropEnum(Prop.INTRPMODE);
 			double topScale = ui.getPropDouble(Prop.TOPSCALE);
 			double bottomScale = ui.getPropDouble(Prop.BOTTOMSCALE);
-			new SwingVideo(client, layout, topScale, bottomScale, intrp);
+			ChokiKeybinds ck = ChokiKeybinds.getDefaults();
+			new SwingVideo(client, layout, topScale, bottomScale, intrp, ck);
 		}
 	}
 	
