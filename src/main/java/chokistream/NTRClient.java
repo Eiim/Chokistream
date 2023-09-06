@@ -36,40 +36,16 @@ public class NTRClient implements StreamingInterface {
 	 * @throws InterruptedException 
 	 */
 	public NTRClient(String host, int quality, DSScreen screen, int priority, int qos, ColorMode colorMode, int port) throws UnknownHostException, IOException, InterruptedException {
-		// Connect to TCP port and set up client
-		Socket client = new Socket(host, port);
-		client.setTcpNoDelay(true);
-		OutputStream out = client.getOutputStream();
+		sendInitPacket(host, port, screen, priority, quality, qos);
+		
 		thread = new NTRUDPThread(screen, colorMode);
 		thread.start();
-		
-		// Creates and sends the initialization packet to the 3DS
-		byte[] initializationPacket = new byte[84];
-		initializationPacket[0] = 0x78;
-		initializationPacket[1] = 0x56;
-		initializationPacket[2] = 0x34;
-		initializationPacket[3] = 0x12;
-		initializationPacket[4] = (byte) 0xb8;
-		initializationPacket[5] = 0x0b;
-		initializationPacket[12] = (byte) 0x85;
-		initializationPacket[13] = 0x03;
-		initializationPacket[16] = (byte) priority;
-		initializationPacket[17] = (byte) ((screen == DSScreen.TOP) ? 0x01 : 0x00);
-		initializationPacket[20] = (byte) quality;
-		// Nobody has any clue why, but NTR expects double the QoS value
-		initializationPacket[26] = (byte) (qos*2);
-		logger.log("Sending initialization packet", LogLevel.VERBOSE);
-		logger.log(initializationPacket, LogLevel.EXTREME);
-		out.write(initializationPacket);
-		
-		// NTR expects us to disconnect
-		client.close();
-		
+
 		// Give NTR some time to think
 		TimeUnit.SECONDS.sleep(3);
 		
 		// NTR expects us to reconnect, so we will. And then disconnect again!
-		client = new Socket(host, 8000);
+		Socket client = new Socket(host, 8000);
 		client.close();
 	}
 
@@ -90,52 +66,6 @@ public class NTRClient implements StreamingInterface {
 		return f;
 	}
 	
-	public static void sendNFCPatch(String host, int port, byte[] addr) throws UnknownHostException, IOException {
-		byte[] pak = new byte[84+2];
-		
-		// magic number / secret code (dumb)
-		pak[3] = 0x12;
-		pak[2] = 0x34;
-		pak[1] = 0x56;
-		pak[0] = 0x78;
-		
-		// currentSeq (?)
-		pak[4] = (byte) 0xc0;
-		pak[5] = 0x5d;
-		
-		// type
-		pak[8] = 0x01;
-		
-		// command
-		pak[12] = 0x0a;
-		
-		// "args" section
-		
-		// pid
-		pak[16] = 0x1a;
-		
-		// address
-		pak[20] = addr[0];
-		pak[21] = addr[1];
-		pak[22] = addr[2];
-		pak[23] = addr[3];
-		
-		// length of data section (written in two places, for some reason)
-		pak[24] = 0x02;
-		pak[80] = 0x02;
-		
-		// data section
-		pak[84] = 0x70;
-		pak[85] = 0x47;
-		
-		Socket patchClient = new Socket(host, port);
-		OutputStream patchOut = patchClient.getOutputStream();
-		logger.log("Sending NFC Patch", LogLevel.VERBOSE);
-		patchOut.write(pak);
-		patchOut.close();
-		patchClient.close();
-	}
-	
 	@Override
 	public int framesSinceLast(DSScreenBoth screens) {
 		switch(screens) {
@@ -154,6 +84,159 @@ public class NTRClient implements StreamingInterface {
 				return f3;
 			default:
 				return 0; // Should never happen
+		}
+	}
+	
+	public static void sendNFCPatch(String host, int port, int chooseAddr) {
+		int seq = 24000; // 0x5DC0
+		int type = 1;
+		int cmd = 10; // 0x0a
+		
+		int[] args = new int[3];
+		
+		args[0] = 26; // pid; 0x1A
+		args[1] = switch(chooseAddr) { // addr
+			case 0:
+				yield 0x00105AE4; // Sys ver. < 11.4
+			default:
+				yield 0x00105B00; // Sys ver. >= 11.4
+		};
+		
+		byte[] exdata = {0x70,0x47};
+		
+		args[2] = exdata.length;
+		
+		try {
+			sendPacket(host, port, type, cmd, args, exdata, seq);
+			logger.log("NFC Patch sent!");
+		} catch(IOException e) {
+			e.printStackTrace();
+			logger.log("NFC Patch failed to send");
+		}
+	}
+	
+	public static void sendInitPacket(String host, int port, DSScreen screen, int priority, int quality, int qos) {
+		int seq = 3000; // 0x0BB8
+		int type = 0;
+		int cmd = 901; //0x0385
+		
+		int[] args = new int[16];
+		
+		args[0] = ((screen == DSScreen.TOP)? 1 : 0) << 8 | (priority % 256);
+		args[1] = quality;
+		args[2] = qos*2; // Nobody has any clue why, but NTR expects double the QoS value
+		
+		try {
+		logger.log("Sending init packet", LogLevel.VERBOSE);
+		sendPacket(host, port, type, cmd, args, new byte[0], seq);
+		} catch(IOException e) {
+			e.printStackTrace();
+			logger.log("Init packet failed to send");
+		}
+		
+		return;
+	}
+	
+	public static void sendPacket(String host, int port, int type, int cmd, int[] args, byte[] exdata) throws UnknownHostException, IOException {
+		try {
+			sendPacket(host, port, type, cmd, args, exdata, 0);
+		} catch(IOException e) {
+			throw e;
+		}
+		return;
+	}
+	
+	public static void sendPacket(String host, int port, int type, int cmd, int[] args, byte[] exdata, int seq) throws UnknownHostException, IOException {
+		int dataLen = exdata.length;
+		
+		byte[] pak = new byte[84+dataLen];
+		
+		copyByteArray(intToBytes(0x12345678), pak, 0);
+		
+		copyByteArray(intToBytes(seq), pak, 4);
+		copyByteArray(intToBytes(type), pak, 8);
+		copyByteArray(intToBytes(cmd), pak, 12);
+		
+		// arguments
+		int argmax = args.length;
+		if(argmax > 16)
+			argmax = 16;
+		for(int i = 0; i < argmax; i++) {
+			copyByteArray(intToBytes(args[i]), pak, i*4+16);
+		}
+		
+		copyByteArray(intToBytes(dataLen), pak, 80);
+		copyByteArray(exdata, pak, 84);
+		
+		logger.log("Sending packet to NTR...", LogLevel.EXTREME);
+		logger.log(pak, LogLevel.EXTREME);
+		
+		Socket mySoc = new Socket(host, port);
+		//mySoc.setTcpNoDelay(true);
+		OutputStream myOut = mySoc.getOutputStream();
+		myOut.write(pak);
+		myOut.close();
+		mySoc.close();
+		return;
+	}
+	
+	/**
+	 * Converts 4 bytes of an array to a 32-bit integer. Big-endian.
+	 * 
+	 * @param dat	byte array
+	 * @param i		starting index / offset in the byte array
+	 * @return		32-bit integer
+	 */
+	public static int bytesToInt(byte[] dat, int i) {
+		try {
+			return dat[i+3]<<24 | dat[i+2]>>8 & 0xff00 | dat[i+1]<<8 & 0xff0000 | dat[i]>>>24;
+		}
+		catch(ArrayIndexOutOfBoundsException e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+	
+	/**
+	 * Converts 4 bytes of an array to a 32-bit integer. Big-endian.
+	 * 
+	 * @param dat	byte array
+	 * @return		32-bit integer
+	 */
+	public static int bytesToInt(byte[] dat) {
+		return bytesToInt(dat, 0);
+	}
+	
+	/**
+	 * Convert a 32-bit integer to an array of 4 bytes. Big-endian.
+	 * 
+	 * @param num	integer to convert
+	 * @return		array of 4 bytes
+	 */
+	public static byte[] intToBytes(int num) {
+		byte[] data = new byte[4];
+		data[0] = (byte)(num & 0xff);
+		data[1] = (byte)(num>>>8 & 0xff);
+		data[2] = (byte)(num>>>16 & 0xff);
+		data[3] = (byte)(num>>>24 & 0xff);
+		return data;
+	}
+	
+	/**
+	 * Copies all values from source byte array to destination byte array, starting at a given index in the destination byte array.
+	 * 
+	 * @param src	source byte array
+	 * @param dst	destination byte array
+	 * @param i		starting index / offset of the destination byte array.
+	 */
+	public static void copyByteArray(byte[] src, byte[] dst, int i) {
+		try {
+			for(int j = 0; j < src.length ; j++) {
+				dst[i+j] = src[j];
+			}
+		}
+		catch(ArrayIndexOutOfBoundsException e) {
+			e.printStackTrace();
 		}
 	}
 }

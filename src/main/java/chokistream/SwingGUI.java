@@ -96,7 +96,7 @@ public class SwingGUI extends SettingsUI {
 	private JTextField qos;
 	
 	// NFC Patch screen
-	private JFrame ntrPatch;
+	private JFrame nfcPatch;
 	
 	// Controls
 	private JFrame controls;
@@ -274,7 +274,7 @@ public class SwingGUI extends SettingsUI {
 		
 		createHzModSettings();
 		createNTRSettings();
-		createNTRPatch();
+		createNFCPatch();
 		createCHMSettings();
 		createVideoSettings();
 		createSequenceSettings();
@@ -659,7 +659,7 @@ public class SwingGUI extends SettingsUI {
 		patch.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				ntrPatch.setVisible(true);
+				nfcPatch.setVisible(true);
 			}
 		});
 		
@@ -676,46 +676,46 @@ public class SwingGUI extends SettingsUI {
 		ntrSettings.pack();
 	}
 	
-	public void createNTRPatch() {
-		ntrPatch = new JFrame();
+	public void createNFCPatch() {
+		nfcPatch = new JFrame();
 		JPanel p = new JPanel();
 		GridBagConstraints c = new GridBagConstraints();
-		frameSetup(ntrPatch, p, c);
-		ntrPatch.setTitle("NFC Patch");
+		frameSetup(nfcPatch, p, c);
+		nfcPatch.setTitle("NFC Patch");
 		
 		JLabel header = new JLabel("NFC Patch");
 		header.setFont(new Font("System", Font.PLAIN, 20));
 		add(header, p, c, 0, 0, 2, 1);
 		
-		JButton n3ds = new JButton(">= 11.4");
-		add(n3ds, p, c, 0, 1);
-		n3ds.addActionListener(new ActionListener() {
+		JButton latest = new JButton(">= 11.4");
+		add(latest, p, c, 0, 1);
+		latest.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
-    				ntrPatch.setVisible(false);
-					NTRClient.sendNFCPatch(getPropString(Prop.IP), getPropInt(Prop.PORT), new byte[]{0x00, 0x5b, 0x10, 0x00});
-				} catch (IOException | RuntimeException ex) {
+    				nfcPatch.setVisible(false);
+					NTRClient.sendNFCPatch(getPropString(Prop.IP), getPropInt(Prop.PORT), 1);
+				} catch (RuntimeException ex) {
 					displayError(ex);
 				}
 			}
 		});
 		
-		JButton o3ds = new JButton("<= 11.3");
-		add(o3ds, p, c, 1, 1);
-		o3ds.addActionListener(new ActionListener() {
+		JButton pre11_4 = new JButton("< 11.4");
+		add(pre11_4, p, c, 1, 1);
+		pre11_4.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
-    				ntrPatch.setVisible(false);
-    				NTRClient.sendNFCPatch(getPropString(Prop.IP), getPropInt(Prop.PORT), new byte[]{(byte)0xe4, 0x5a, 0x10, 0x00});
-				} catch (IOException | RuntimeException ex) {
+    				nfcPatch.setVisible(false);
+    				NTRClient.sendNFCPatch(getPropString(Prop.IP), getPropInt(Prop.PORT), 0);
+				} catch (RuntimeException ex) {
 					displayError(ex);
 				}
 			}
 		});
 		
-		ntrPatch.pack();
+		nfcPatch.pack();
 	}
 	
 	public void createHzModSettings() {
