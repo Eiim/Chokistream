@@ -24,6 +24,8 @@ Currently under development by [Eiim](https://github.com/Eiim) and [ChainSwordCS
 
 ## Getting Started
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/1da81b4293cc4f58bffef064fd59b6f6)](https://app.codacy.com/gh/Eiim/Chokistream?utm_source=github.com&utm_medium=referral&utm_content=Eiim/Chokistream&utm_campaign=Badge_Grade)
+
 See the [Using Chokistream](https://github.com/Eiim/Chokistream/wiki/Using-Chokistream) wiki page. See [Options](https://github.com/Eiim/Chokistream/wiki/Options)for more comprehensive documentation.
 
 ## Supported OSs
