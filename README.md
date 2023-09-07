@@ -1,5 +1,7 @@
 ![Chokistream](banner.svg)
 
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/19617caaedb14f799e8d0c3595119386)](https://app.codacy.com/gh/Eiim/Chokistream/dashboard)
+
 Nintendo 3DS wireless video capture software, compatible with [ChirunoMod](https://github.com/ChainSwordCS/ChirunoMod), [BootNTR](https://github.com/44670/BootNTR) and [HzMod](https://chainswordcs.com/horizon-by-sono.html) and the only cross-platform video capture software to support HzMod.
 
 A from-scratch re-implementation of [Snickerstream](https://github.com/RattletraPM/Snickerstream), with TARGA support in part from [TGAHz](https://github.com/ChainSwordCS/TGAHz-Parsing) and [HorizonScreen](hps://github.com/gamingaddictionz03/HorizonM)
