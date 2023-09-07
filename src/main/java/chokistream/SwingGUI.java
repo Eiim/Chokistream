@@ -105,12 +105,12 @@ public class SwingGUI extends SettingsUI {
 	
 	private static final String ABOUT_TEXT = "<html>Made by Eiim, herronjo, and ChainSwordCS.<br>"
 								+ "<br>"
-								+ "This software and its source code are provided under the GPL-3.0 License.  See LICENSE for the full license.<br>"
+								+ "This software and its source code are licensed under GPLv2 or later, unless otherwise mentioned. NTRClient.java is licensed under GPLv2-only. See LICENSE for the full license.<br>"
 								+ "<br>"
 								+ "Chokistream was made possible by the use and reference of several projects. Special thanks to:<br>"
 								+ " * RattletraPM for Snickerstream<br>"
 								+ " * Sono for HzMod<br>"
-								+ " * Cell9/44670 for BootNTR<br>"
+								+ " * Cell9/44670 for BootNTR and NTRClient<br>"
 								+ " * Nanquitas for BootNTRSelector<br>"
 								+ " * toolboc for UWPStreamer<br>"
 								+ " * All other open-source contributors";
