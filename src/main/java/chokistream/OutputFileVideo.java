@@ -85,11 +85,11 @@ public class OutputFileVideo implements VideoOutputInterface {
 		int frames;
 		if(layout == Layout.SEPARATE && f.screen == DSScreen.BOTTOM) {
 			long newNanos = System.nanoTime();
-			frames = (int) (Math.round(newNanos-prevBottomNanos)/16666667f);
+			frames = Math.round((newNanos-prevBottomNanos)/16666667f);
 			prevBottomNanos += (frames * 16666667l); // Nanos of the frame boundary
 		} else {
 			long newNanos = System.nanoTime();
-			frames = (int) (Math.round(newNanos-prevNanos)/16666667f);
+			frames = Math.round((newNanos-prevNanos)/16666667f);
 			prevNanos += (frames * 16666667l); // Nanos of the frame boundary
 		}
 		

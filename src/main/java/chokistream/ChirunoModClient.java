@@ -168,8 +168,7 @@ public class ChirunoModClient implements StreamingInterface {
 		// We currently loop through received packets until we get an image packet, which we then process
 		// A long term answer is probably true asynchronous programming with callbacks
 		do {
-			Packet packet = new Packet();
-			packet = getPacket();
+			Packet packet = getPacket();
 			String pType = switch(packet.type) {
 				case 0x01 -> "Image";
 				case 0x02 -> "Init (unexpected!)";
@@ -294,7 +293,7 @@ public class ChirunoModClient implements StreamingInterface {
 	/**
 	 * Represents a packet received from HzMod
 	 */
-	private class Packet {
+	private static class Packet {
 		public byte type;
 		public byte subtypeA;
 		public byte subtypeB;

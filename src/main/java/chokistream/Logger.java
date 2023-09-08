@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.TreeSet;
 
 import chokistream.props.LogLevel;
@@ -56,10 +57,8 @@ public enum Logger {
 	
 	private void initFile() {
 		try {
-			if(!logFile.exists()) {
-				logFile.createNewFile();
-			}
-			fileWriter = new PrintWriter(new FileWriter(logFile));
+			logFile.createNewFile();
+			fileWriter = new PrintWriter(new FileWriter(logFile, StandardCharsets.UTF_8));
 		} catch (IOException e) {
 			System.err.println("Failed to write to log file "+logFile.getPath());
 		}

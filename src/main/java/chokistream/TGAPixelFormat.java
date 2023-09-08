@@ -9,7 +9,7 @@ public enum TGAPixelFormat {
 	RGB5A1(2),
 	RGBA4(2);
 	
-	public int bytes;
+	public final int bytes;
 	
 	private TGAPixelFormat(int b) {
 		bytes = b;

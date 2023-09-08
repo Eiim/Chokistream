@@ -274,7 +274,7 @@ public class HZModClient implements StreamingInterface {
 	/**
 	 * Represents a packet received from HzMod
 	 */
-	private class Packet {
+	private static class Packet {
 		public byte type;
 		public int length;
 		public byte[] data;

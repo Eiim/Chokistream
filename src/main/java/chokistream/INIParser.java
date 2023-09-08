@@ -2,6 +2,7 @@ package chokistream;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.List;
@@ -21,7 +22,7 @@ public class INIParser {
 		file = f;
 		Scanner s;
 		file.createNewFile();
-		s = new Scanner(file);
+		s = new Scanner(file, StandardCharsets.UTF_8);
 		
 		int lineNum = 0;
 		while(s.hasNextLine()) {
@@ -70,7 +71,7 @@ public class INIParser {
 			params.put(prop, new ParamData(totalLines, value));
 		}
 		
-		Files.write(file.toPath(), lines);
+		Files.write(file.toPath(), lines, StandardCharsets.UTF_8);
 	}
 	
 	public void setProperty(String prop, int value) throws IOException {
@@ -101,7 +102,7 @@ public class INIParser {
 		return getProperty(prop.getShortName());
 	}
 	
-	private class ParamData {
+	private static class ParamData {
 		int line;
 		String value;
 		
@@ -111,7 +112,7 @@ public class INIParser {
 		}
 	}
 	
-	public class IniParseException extends Exception {
+	public static class IniParseException extends Exception {
 		private static final long serialVersionUID = -8122669746738785400L;
 		String message;
 		
