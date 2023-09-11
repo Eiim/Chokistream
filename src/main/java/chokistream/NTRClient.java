@@ -20,11 +20,13 @@
 
 package chokistream;
 
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.concurrent.TimeUnit;
+import java.nio.charset.StandardCharsets;
 
 import chokistream.props.ColorMode;
 import chokistream.props.DSScreen;
@@ -39,6 +41,8 @@ public class NTRClient implements StreamingInterface {
 	private NTRUDPThread thread;
 	
 	private static final Logger logger = Logger.INSTANCE;
+	
+	private static int currentSeq;
 	
 	private int topFrames;
 	private int bottomFrames;
@@ -56,6 +60,7 @@ public class NTRClient implements StreamingInterface {
 	 * @throws InterruptedException 
 	 */
 	public NTRClient(String host, int quality, DSScreen screen, int priority, int qos, ColorMode colorMode, int port) throws UnknownHostException, IOException, InterruptedException {
+		currentSeq = 0;
 		sendInitPacket(host, port, screen, priority, quality, qos);
 		
 		thread = new NTRUDPThread(screen, colorMode);
@@ -108,6 +113,8 @@ public class NTRClient implements StreamingInterface {
 	}
 	
 	public static void sendNFCPatch(String host, int port, int chooseAddr) {
+		NTRPacket packet = new NTRPacket();
+		packet.seq = 24000;
 		int seq = 24000; // 0x5DC0
 		int type = 1;
 		int cmd = 10; // 0x0a
@@ -154,6 +161,84 @@ public class NTRClient implements StreamingInterface {
 			logger.log("Init packet failed to send");
 		}
 		
+		return;
+	}
+	
+	public static void sendHeartbeatPacket(String host, int port) {
+		//if(heartbeatSendable == 1) {
+		try {
+			sendPacket(host, port, 0, 0, new int[0], new byte[0]);
+			//heartbeatSendable = 0;
+		} catch(IOException e) {
+			e.printStackTrace();
+			logger.log("Heartbeat packet failed to send");
+		}
+		return;
+	}
+	
+	public static void sendHelloPacket(String host, int port) {
+		try {
+			sendPacket(host, port, 0, 3, new int[0], new byte[0]);
+		} catch(IOException e) {
+			e.printStackTrace();
+			logger.log("Hello packet failed to send");
+		}
+	}
+	
+	public static void sendReloadPacket(String host, int port) {
+		try {
+			sendPacket(host, port, 0, 4, new int[0], new byte[0]);
+		} catch(IOException e) {
+			e.printStackTrace();
+			logger.log("Hello packet failed to send");
+		}
+	}
+	
+	public static void sendReadMemPacket(String host, int port, int addr, int size, int pid, String fileName) {
+		int args[] = new int[3];
+		args[0] = pid;
+		args[1] = addr;
+		args[2] = size;
+		
+		//lastReadMemSeq = currentSeq;
+		//lastReadMemFileName = fileName;
+		
+		try {
+			sendPacket(host, port, 0, 9, args, new byte[0]);
+		} catch(IOException e) {
+			e.printStackTrace();
+			logger.log("ReadMem packet failed to send");
+		}
+		return;
+	}
+	
+	public static void sendWriteMemPacket(String host, int port, int addr, int pid, byte[] buf) {
+		int args[] = new int[16];
+		args[0] = pid;
+		args[1] = addr;
+		args[2] = buf.length;
+		
+		try {
+			sendPacket(host, port, 1, 10, args, buf);
+		} catch(IOException e) {
+			e.printStackTrace();
+			logger.log("WriteMem packet failed to send");
+		}
+		return;
+	}
+	
+	public void sendSaveFilePacket(String host, int port, String fileName, byte[] fileData) {
+		byte[] fileNameBuf = fileName.getBytes(StandardCharsets.UTF_8);
+		byte[] combinedFileBuf = new byte[fileNameBuf.length + fileData.length];
+		copyByteArray(fileNameBuf, combinedFileBuf, 0);
+		copyByteArray(fileData, combinedFileBuf, fileNameBuf.length);
+		
+		try {
+			sendPacket(host, port, 1, 1, new int[0], combinedFileBuf);
+		} catch(IOException e) {
+			e.printStackTrace();
+			logger.log("SaveFile packet failed to send");
+		}
 		return;
 	}
 	
@@ -258,5 +343,43 @@ public class NTRClient implements StreamingInterface {
 		catch(ArrayIndexOutOfBoundsException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	/**
+	 * currently unused
+	 * Represents a packet received from or sent to NTR
+	 */
+	public static class NTRPacket {
+		public int seq;
+		public int type;
+		public int command;
+		public int[] args;
+		public byte[] exdata;
+		
+		public NTRPacket() {
+			seq = currentSeq;
+			type = 0;
+			command = 0;
+			args = new int[16];
+		}
+		
+		public void resetSeq() {
+			seq = currentSeq;
+		}
+		
+		public void setDefaults(int type) {
+			
+			switch(type) {
+			
+			case 0:
+				break;
+			default:
+				break;
+			
+			}
+			
+			return;
+		}
+		
 	}
 }
