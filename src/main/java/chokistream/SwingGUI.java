@@ -695,7 +695,7 @@ public class SwingGUI extends SettingsUI {
 				try {
     				nfcPatch.setVisible(false);
 					NTRClient.sendNFCPatch(getPropString(Prop.IP), getPropInt(Prop.PORT), 1);
-				} catch (RuntimeException ex) {
+				} catch (IOException ex) {
 					displayError(ex);
 				}
 			}
@@ -709,7 +709,7 @@ public class SwingGUI extends SettingsUI {
 				try {
     				nfcPatch.setVisible(false);
     				NTRClient.sendNFCPatch(getPropString(Prop.IP), getPropInt(Prop.PORT), 0);
-				} catch (RuntimeException ex) {
+				} catch (IOException ex) {
 					displayError(ex);
 				}
 			}

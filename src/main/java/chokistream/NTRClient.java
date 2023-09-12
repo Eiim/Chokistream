@@ -20,7 +20,6 @@
 
 package chokistream;
 
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
@@ -118,12 +117,12 @@ public class NTRClient implements StreamingInterface {
 	}
 	
 	// overloaded function; use stored host and port.
-	public static void sendNFCPatch(int chooseAddr) {
+	public static void sendNFCPatch(int chooseAddr) throws IOException {
 		sendNFCPatch(host, port, chooseAddr);
 	}
 	
 	// overloaded function; manually specify host and port.
-	public static void sendNFCPatch(String host, int port, int chooseAddr) {
+	public static void sendNFCPatch(String host, int port, int chooseAddr) throws IOException {
 		NTRPacket pakobj = new NTRPacket();
 		pakobj.seq = 24000; // 0x5DC0
 		pakobj.type = 1;
@@ -143,20 +142,15 @@ public class NTRClient implements StreamingInterface {
 		
 		pakobj.args[2] = pakobj.exdata.length;
 		
-		try {
-			sendPacket(host, port, pakobj);
-			logger.log("NFC Patch sent!");
-		} catch(IOException e) {
-			e.printStackTrace();
-			logger.log("NFC Patch failed to send");
-		}
+		sendPacket(host, port, pakobj);
+		logger.log("NFC Patch sent!");
 	}
 	
-	public static void sendInitPacket(DSScreen screen, int priority, int quality, int qos) {
+	public static void sendInitPacket(DSScreen screen, int priority, int quality, int qos) throws IOException {
 		sendInitPacket(host, port, screen, priority, quality, qos);
 	}
 	
-	public static void sendInitPacket(String host, int port, DSScreen screen, int priority, int quality, int qos) {
+	public static void sendInitPacket(String host, int port, DSScreen screen, int priority, int quality, int qos) throws IOException {
 		NTRPacket pakobj = new NTRPacket();
 		pakobj.seq = 3000; // 0x0BB8
 		pakobj.type = 0;
@@ -168,117 +162,76 @@ public class NTRClient implements StreamingInterface {
 		pakobj.args[1] = quality;
 		pakobj.args[2] = qos*2; // Nobody has any clue why, but NTR expects double the QoS value
 		
-		try {
 		logger.log("Sending init packet", LogLevel.VERBOSE);
 		sendPacket(host, port, pakobj);
-		} catch(IOException e) {
-			e.printStackTrace();
-			logger.log("Init packet failed to send");
-		}
-		
-		return;
 	}
 	
-	public static void sendHeartbeatPacket() {
+	public static void sendHeartbeatPacket() throws IOException {
 		sendHeartbeatPacket(host, port);
 	}
 	
-	public static void sendHeartbeatPacket(String host, int port) {
+	public static void sendHeartbeatPacket(String host, int port) throws IOException {
 		//if(heartbeatSendable == 1) {
 		NTRPacket pakobj = new NTRPacket();
-		try {
-			sendPacket(host, port, pakobj);
-			//heartbeatSendable = 0;
-		} catch(IOException e) {
-			e.printStackTrace();
-			logger.log("Heartbeat packet failed to send");
-		}
-		return;
+		sendPacket(host, port, pakobj);
+		//heartbeatSendable = 0;
 	}
 	
-	public static void sendHelloPacket() {
+	public static void sendHelloPacket() throws IOException {
 		sendHelloPacket(host, port);
 	}
 	
-	public static void sendHelloPacket(String host, int port) {
+	public static void sendHelloPacket(String host, int port) throws IOException {
 		NTRPacket pakobj = new NTRPacket();
 		pakobj.command = 3;
-		try {
-			sendPacket(host, port, pakobj);
-		} catch(IOException e) {
-			e.printStackTrace();
-			logger.log("Hello packet failed to send");
-		}
+		sendPacket(host, port, pakobj);
 	}
 	
-	public static void sendReloadPacket() {
+	public static void sendReloadPacket() throws IOException {
 		sendReloadPacket(host, port);
 	}
 	
-	public static void sendReloadPacket(String host, int port) {
+	public static void sendReloadPacket(String host, int port) throws IOException {
 		NTRPacket pakobj = new NTRPacket();
 		pakobj.command = 4;
-		try {
-			sendPacket(host, port, pakobj);
-		} catch(IOException e) {
-			e.printStackTrace();
-			logger.log("Hello packet failed to send");
-		}
+		sendPacket(host, port, pakobj);
 	}
 	
-	public static void sendReadMemPacket(int addr, int size, int pid, String fileName) {
+	public static void sendReadMemPacket(int addr, int size, int pid, String fileName) throws IOException {
 		sendReadMemPacket(host, port, addr, size, pid, fileName);
 	}
 	
-	public static void sendReadMemPacket(String host, int port, int addr, int size, int pid, String fileName) {
+	public static void sendReadMemPacket(String host, int port, int addr, int size, int pid, String fileName) throws IOException {
 		NTRPacket pakobj = new NTRPacket();
 		pakobj.command = 9;
-		pakobj.args = new int[3];
-		pakobj.args[0] = pid;
-		pakobj.args[1] = addr;
-		pakobj.args[2] = size;
+		pakobj.args = new int[] {pid, addr, size};
 		
 		//lastReadMemSeq = currentSeq;
 		//pakobj.seq = lastReadMemSeq;
 		//lastReadMemFileName = fileName;
 		
-		try {
-			sendPacket(host, port, pakobj);
-		} catch(IOException e) {
-			e.printStackTrace();
-			logger.log("ReadMem packet failed to send");
-		}
-		return;
+		sendPacket(host, port, pakobj);
 	}
 	
-	public static void sendWriteMemPacket(int addr, int pid, byte[] buf) {
+	public static void sendWriteMemPacket(int addr, int pid, byte[] buf) throws IOException {
 		sendWriteMemPacket(host, port, addr, pid, buf);
 	}
 	
-	public static void sendWriteMemPacket(String host, int port, int addr, int pid, byte[] buf) {
+	public static void sendWriteMemPacket(String host, int port, int addr, int pid, byte[] buf) throws IOException {
 		NTRPacket pakobj = new NTRPacket();
 		pakobj.type = 1;
 		pakobj.command = 10;
-		pakobj.args = new int[3];
-		pakobj.args[0] = pid;
-		pakobj.args[1] = addr;
-		pakobj.args[2] = buf.length;
+		pakobj.args = new int[] {pid, addr, buf.length};
 		pakobj.exdata = buf;
 		
-		try {
-			sendPacket(host, port, pakobj);
-		} catch(IOException e) {
-			e.printStackTrace();
-			logger.log("WriteMem packet failed to send");
-		}
-		return;
+		sendPacket(host, port, pakobj);
 	}
 	
-	public static void sendSaveFilePacket(String fileName, byte[] fileData) {
+	public static void sendSaveFilePacket(String fileName, byte[] fileData) throws IOException {
 		sendSaveFilePacket(host, port, fileName, fileData);
 	}
 	
-	public static void sendSaveFilePacket(String host, int port, String fileName, byte[] fileData) {
+	public static void sendSaveFilePacket(String host, int port, String fileName, byte[] fileData) throws IOException {
 		byte[] fileNameBuf = fileName.getBytes(StandardCharsets.UTF_8);
 		byte[] combinedFileBuf = new byte[fileNameBuf.length + fileData.length];
 		copyByteArray(fileNameBuf, combinedFileBuf, 0);
@@ -289,25 +242,14 @@ public class NTRClient implements StreamingInterface {
 		pakobj.command = 1;
 		pakobj.exdata = combinedFileBuf;
 		
-		try {
-			sendPacket(host, port, pakobj);
-		} catch(IOException e) {
-			e.printStackTrace();
-			logger.log("SaveFile packet failed to send");
-		}
-		return;
+		sendPacket(host, port, pakobj);
 	}
 	
-	public static void sendPacket(NTRPacket pakobj) throws UnknownHostException, IOException {
-		try {
-			sendPacket(host, port, pakobj);
-		} catch(IOException e) {
-			throw e;
-		}
-		return;
+	public static void sendPacket(NTRPacket pakobj) throws IOException {
+		sendPacket(host, port, pakobj);
 	}
 	
-	public static void sendPacket(String host, int port, NTRPacket pakobj) throws UnknownHostException, IOException {
+	public static void sendPacket(String host, int port, NTRPacket pakobj) throws IOException {
 		int dataLen = pakobj.exdata.length;
 		
 		byte[] pak = new byte[84+dataLen];
@@ -338,7 +280,6 @@ public class NTRClient implements StreamingInterface {
 		myOut.write(pak);
 		myOut.close();
 		mySoc.close();
-		return;
 	}
 	
 	/**
@@ -348,7 +289,7 @@ public class NTRClient implements StreamingInterface {
 	 * @param i		starting index / offset in the byte array
 	 * @return		32-bit integer
 	 */
-	public static int bytesToInt(byte[] dat, int i) {
+	private static int bytesToInt(byte[] dat, int i) {
 		try {
 			return dat[i+3]<<24 | dat[i+2]>>8 & 0xff00 | dat[i+1]<<8 & 0xff0000 | dat[i]>>>24;
 		}
@@ -364,7 +305,7 @@ public class NTRClient implements StreamingInterface {
 	 * @param dat	byte array
 	 * @return		32-bit integer
 	 */
-	public static int bytesToInt(byte[] dat) {
+	private static int bytesToInt(byte[] dat) {
 		return bytesToInt(dat, 0);
 	}
 	
@@ -374,7 +315,7 @@ public class NTRClient implements StreamingInterface {
 	 * @param num	integer to convert
 	 * @return		array of 4 bytes
 	 */
-	public static byte[] intToBytes(int num) {
+	private static byte[] intToBytes(int num) {
 		byte[] data = new byte[4];
 		data[0] = (byte)(num & 0xff);
 		data[1] = (byte)(num>>>8 & 0xff);
@@ -390,7 +331,7 @@ public class NTRClient implements StreamingInterface {
 	 * @param dst	destination byte array
 	 * @param i		starting index / offset of the destination byte array.
 	 */
-	public static void copyByteArray(byte[] src, byte[] dst, int i) {
+	private static void copyByteArray(byte[] src, byte[] dst, int i) {
 		try {
 			for(int j = 0; j < src.length ; j++) {
 				dst[i+j] = src[j];
@@ -402,10 +343,9 @@ public class NTRClient implements StreamingInterface {
 	}
 	
 	/**
-	 * currently unused
 	 * Represents a packet received from or sent to NTR
 	 */
-	public static class NTRPacket {
+	private static class NTRPacket {
 		public int seq;
 		public int type;
 		public int command;
