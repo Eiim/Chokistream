@@ -42,6 +42,9 @@ public class NTRClient implements StreamingInterface {
 	
 	private static final Logger logger = Logger.INSTANCE;
 	
+	public static String host;
+	public static int port;
+	
 	private static int currentSeq;
 	
 	private int topFrames;
@@ -59,9 +62,11 @@ public class NTRClient implements StreamingInterface {
 	 * @throws UnknownHostException 
 	 * @throws InterruptedException 
 	 */
-	public NTRClient(String host, int quality, DSScreen screen, int priority, int qos, ColorMode colorMode, int port) throws UnknownHostException, IOException, InterruptedException {
+	public NTRClient(String newHost, int quality, DSScreen screen, int priority, int qos, ColorMode colorMode, int newPort) throws UnknownHostException, IOException, InterruptedException {
+		host = newHost;
+		port = newPort;
 		currentSeq = 0;
-		sendInitPacket(host, port, screen, priority, quality, qos);
+		sendInitPacket(screen, priority, quality, qos);
 		
 		thread = new NTRUDPThread(screen, colorMode);
 		thread.start();
@@ -112,6 +117,12 @@ public class NTRClient implements StreamingInterface {
 		}
 	}
 	
+	// overloaded function; use stored host and port.
+	public static void sendNFCPatch(int chooseAddr) {
+		sendNFCPatch(host, port, chooseAddr);
+	}
+	
+	// overloaded function; manually specify host and port.
 	public static void sendNFCPatch(String host, int port, int chooseAddr) {
 		NTRPacket packet = new NTRPacket();
 		packet.seq = 24000;
@@ -142,6 +153,10 @@ public class NTRClient implements StreamingInterface {
 		}
 	}
 	
+	public static void sendInitPacket(DSScreen screen, int priority, int quality, int qos) {
+		sendInitPacket(host, port, screen, priority, quality, qos);
+	}
+	
 	public static void sendInitPacket(String host, int port, DSScreen screen, int priority, int quality, int qos) {
 		int seq = 3000; // 0x0BB8
 		int type = 0;
@@ -164,6 +179,10 @@ public class NTRClient implements StreamingInterface {
 		return;
 	}
 	
+	public static void sendHeartbeatPacket() {
+		sendHeartbeatPacket(host, port);
+	}
+	
 	public static void sendHeartbeatPacket(String host, int port) {
 		//if(heartbeatSendable == 1) {
 		try {
@@ -176,6 +195,10 @@ public class NTRClient implements StreamingInterface {
 		return;
 	}
 	
+	public static void sendHelloPacket() {
+		sendHelloPacket(host, port);
+	}
+	
 	public static void sendHelloPacket(String host, int port) {
 		try {
 			sendPacket(host, port, 0, 3, new int[0], new byte[0]);
@@ -185,6 +208,10 @@ public class NTRClient implements StreamingInterface {
 		}
 	}
 	
+	public static void sendReloadPacket() {
+		sendReloadPacket(host, port);
+	}
+	
 	public static void sendReloadPacket(String host, int port) {
 		try {
 			sendPacket(host, port, 0, 4, new int[0], new byte[0]);
@@ -192,6 +219,10 @@ public class NTRClient implements StreamingInterface {
 			e.printStackTrace();
 			logger.log("Hello packet failed to send");
 		}
+	}
+	
+	public static void sendReadMemPacket(int addr, int size, int pid, String fileName) {
+		sendReadMemPacket(host, port, addr, size, pid, fileName);
 	}
 	
 	public static void sendReadMemPacket(String host, int port, int addr, int size, int pid, String fileName) {
@@ -212,6 +243,10 @@ public class NTRClient implements StreamingInterface {
 		return;
 	}
 	
+	public static void sendWriteMemPacket(int addr, int pid, byte[] buf) {
+		sendWriteMemPacket(host, port, addr, pid, buf);
+	}
+	
 	public static void sendWriteMemPacket(String host, int port, int addr, int pid, byte[] buf) {
 		int args[] = new int[16];
 		args[0] = pid;
@@ -227,7 +262,11 @@ public class NTRClient implements StreamingInterface {
 		return;
 	}
 	
-	public void sendSaveFilePacket(String host, int port, String fileName, byte[] fileData) {
+	public static void sendSaveFilePacket(String fileName, byte[] fileData) {
+		sendSaveFilePacket(host, port, fileName, fileData);
+	}
+	
+	public static void sendSaveFilePacket(String host, int port, String fileName, byte[] fileData) {
 		byte[] fileNameBuf = fileName.getBytes(StandardCharsets.UTF_8);
 		byte[] combinedFileBuf = new byte[fileNameBuf.length + fileData.length];
 		copyByteArray(fileNameBuf, combinedFileBuf, 0);
