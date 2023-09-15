@@ -45,7 +45,7 @@ public class ImageManipulator {
 		int oh = base.getHeight();
 		for(int i = 0; i < iw; i++) {
 			for(int j = 0; j < ih; j++) {
-				int oy = interlace ? oh-(2*i)-interParity : oh-i-1; // Maybe should do branchless somehow? eh
+				int oy = interlace ? oh-(2*i)-interParity-1 : oh-i-1; // Maybe should do branchless somehow? eh
 				try {
 					//logger.logOnce(in.getRGB(i, j)+"");
 					base.setRGB(j + offset, oy, ColorHotfix.hotfixPixel(in.getRGB(i, j), cm, swapRB));

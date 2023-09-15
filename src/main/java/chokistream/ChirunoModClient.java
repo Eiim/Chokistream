@@ -230,6 +230,9 @@ public class ChirunoModClient implements StreamingInterface {
 		if(image.getWidth() == 256) {
 			image = image.getSubimage(0, 0, 240, image.getHeight());
 		}
+		else if(image.getWidth() == 128) {
+			image = image.getSubimage(0, 0, 120, image.getHeight());
+		}
 		
 		boolean interlace = (packet.subtypeA & INTERLACE_MASK) > 0; // Whether or not the image is interlaced
 		int parity = (packet.subtypeA & PARITY_MASK) / PARITY_MASK; // Interlace parity, ignored for non-interlaced images
