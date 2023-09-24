@@ -36,6 +36,7 @@ import com.formdev.flatlaf.FlatLightLaf;
 
 import chokistream.INIParser.IniParseException;
 import chokistream.props.ColorMode;
+import chokistream.props.Controls;
 import chokistream.props.DSScreen;
 import chokistream.props.DSScreenBoth;
 import chokistream.props.EnumProp;
@@ -177,6 +178,11 @@ public class SwingGUI extends SettingsUI {
 		about.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {createAbout();}
+		});
+
+		controls.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {createControls();}
 		});
 		
 		modSettings.addActionListener(new ActionListener() {
@@ -549,11 +555,19 @@ public class SwingGUI extends SettingsUI {
 		header.setFont(new Font("System", Font.PLAIN, 20));
 		add(header, p, c, 0, 0, 2, 1);
 		
-		add(new JLabel(Prop.VIDEOCODEC.getLongName()), p, c, 0, 1);
-		add(new JLabel(Prop.VIDEOFILE.getLongName()), p, c, 0, 2);
+		add(new JLabel(Controls.SCREENSHOT.getLongName()), p, c, 0, 1);
+		add(new JLabel(Controls.RETURN.getLongName()), p, c, 0, 2);
+		add(new JLabel(Controls.QUALITY_UP.getLongName()), p, c, 0, 3);
+		add(new JLabel(Controls.QUALITY_DOWN.getLongName()), p, c, 0, 4);
+		
+		// Temporary, for layout
+		add(new JTextField(), p, c, 1, 1);
+		add(new JTextField(), p, c, 1, 2);
+		add(new JTextField(), p, c, 1, 3);
+		add(new JTextField(), p, c, 1, 4);
 		
 		JButton apply = new JButton("Apply");
-		add(apply, p, c, 0, 3, 2, 1);
+		add(apply, p, c, 0, 5, 2, 1);
 		apply.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -563,6 +577,7 @@ public class SwingGUI extends SettingsUI {
 		});
 		
 		controls.pack();
+		controls.setVisible(true);
 	}
 	
 	public void createVideoSettings() {
