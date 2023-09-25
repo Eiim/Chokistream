@@ -5,11 +5,13 @@ import java.awt.Component;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import javax.imageio.ImageIO;
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -132,7 +134,7 @@ public class SwingVideo implements VideoOutputInterface {
 			return;
 		}}
 		
-		KeyListener kl = new KeypressHandler(this, client, topImageView, bottomImageView, kb);
+		KeyListener kl = new KeypressHandler(this, client, kb);
 		
 		for(JFrame f : frames) {
 			f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -168,6 +170,24 @@ public class SwingVideo implements VideoOutputInterface {
 		
 		logger.log("Starting Swing video", LogLevel.VERBOSE);
 	}
+	
+	public void screenshot() {
+		try {
+			// Only take the screenshots if the image has rendered - mostly for HzMod, but perhaps
+			// also if the images just haven't come yet because we're still initializing
+			if(topImageView.getImage() != null) {
+				File ft = new File("chokistream_top.png");
+				ImageIO.write(topImageView.getImage(), "png", ft);
+			}
+			if(bottomImageView.getImage() != null) {
+				File fb = new File("chokistream_bottom.png");
+				ImageIO.write(bottomImageView.getImage(), "png", fb);
+			}
+			logger.log("Took a screenshot!", LogLevel.VERBOSE);
+		} catch (IOException e1) {
+			displayError(e1);
+		}
+	}
 
 	@Override
 	public void renderFrame(Frame frame) {
@@ -200,5 +220,4 @@ public class SwingVideo implements VideoOutputInterface {
 			f.setVisible(false);
 		}
 	}
-
 }

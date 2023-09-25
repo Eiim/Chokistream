@@ -93,6 +93,28 @@ public class ChirunoModClient implements StreamingInterface {
 		out.write((new Packet((byte)0x04, (byte)0x01, new byte[] {(byte)quality})).pack);
 	}
 	
+	// Increase quality by a certain amount, up to 100
+	public void increaseQuality(int delta) throws IOException {
+		if(quality + delta < 100) {
+			quality = quality + delta;
+			sendQuality(quality);
+		} else if(quality < 100) {
+			quality = 100;
+			sendQuality(100);
+		}
+	}
+	
+	// Decrease quality by a certain amount, down to 0
+	public void decreaseQuality(int delta) throws IOException {
+		if(quality - delta > 0) {
+			quality = quality - delta;
+			sendQuality(quality);
+		} else if(quality > 0) {
+			quality = 0;
+			sendQuality(0);
+		}
+	}
+	
 	public void sendScreen(DSScreenBoth screen) throws IOException {
 		logger.log("Sending screen packet of "+screen.getLongName(), LogLevel.VERBOSE);
 		byte scr = switch(screen) {

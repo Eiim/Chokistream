@@ -93,6 +93,28 @@ public class HZModClient implements StreamingInterface {
 		out.write(qualityPacket);
 	}
 	
+	// Increase quality by a certain amount, up to 100
+	public void increaseQuality(int delta) throws IOException {
+		if(quality + delta < 100) {
+			quality = quality + delta;
+			sendQuality(quality);
+		} else if(quality < 100) {
+			quality = 100;
+			sendQuality(100);
+		}
+	}
+	
+	// Decrease quality by a certain amount, down to 0
+	public void decreaseQuality(int delta) throws IOException {
+		if(quality - delta > 0) {
+			quality = quality - delta;
+			sendQuality(quality);
+		} else if(quality > 0) {
+			quality = 0;
+			sendQuality(0);
+		}
+	}
+	
 	/**
 	 * You shouldn't really ever need to call this outside of the constructor, but
 	 * you can in case you really want to.

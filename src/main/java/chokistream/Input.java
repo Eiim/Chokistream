@@ -11,7 +11,7 @@ public class Input {
     private int modifiers;
     private String asStr;
     private static Map<Integer, String> downMasks = null;
-    private static Map<Integer, String> keyMasks = null;
+    private static Map<Integer, String> keyCodes = null;
 
     public Input(int keyCode, int modifiers) {
         this.keyCode = keyCode;
@@ -54,7 +54,7 @@ public class Input {
         // Put all key codes in a map, if not already done
         constructKeyMasks();
         
-        String key = keyMasks.get(keyCode);
+        String key = keyCodes.get(keyCode);
         if(key == null) throw new InputParseException("Couldn't find key with code "+keyCode);
 
         String mods = "";
@@ -88,13 +88,13 @@ public class Input {
     }
     
     private static void constructKeyMasks() throws InputParseException {
-    	if(keyMasks != null) return; // don't recreate it if we already have it
-    	keyMasks = new HashMap<>();
+    	if(keyCodes != null) return; // don't recreate it if we already have it
+    	keyCodes = new HashMap<>();
     	
     	for(Field f : KeyEvent.class.getDeclaredFields()) {
             if(f.getName().startsWith("VK_")) {
                 try {
-                	keyMasks.put(f.getInt(null), f.getName().substring(3));
+                	keyCodes.put(f.getInt(null), f.getName().substring(3));
                 } catch (IllegalArgumentException | IllegalAccessException e) {
                     throw new InputParseException("Error parsing field "+f.getName()+" (shouldn't be possible!)");
                 }
