@@ -11,7 +11,6 @@ public class KeypressHandler implements KeyListener {
 	private SwingVideo output;
 	private StreamingInterface client;
 	private ChokiKeybinds ck;
-	private static final Logger logger = Logger.INSTANCE;
 	
 	public KeypressHandler(SwingVideo sv, StreamingInterface si, ChokiKeybinds keybinds) {
 		output = sv;
@@ -22,9 +21,9 @@ public class KeypressHandler implements KeyListener {
 	@Override
 	public void keyPressed(KeyEvent e) {
 		// Generic commands
-		if(e.getKeyCode() == ck.get(Controls.SCREENSHOT)) {
+		if(ck.get(Controls.SCREENSHOT).matches(e)) {
 			output.screenshot();
-		} else if(e.getKeyCode() == ck.get(Controls.RETURN)) {
+		} else if(ck.get(Controls.RETURN).matches(e)) {
 			output.kill();
 		}
 		
@@ -33,17 +32,17 @@ public class KeypressHandler implements KeyListener {
 			if(client instanceof HZModClient) {
 				HZModClient c = (HZModClient) client;
 				
-				if(e.getKeyCode() == ck.get(Controls.QUALITY_UP)) {
+				if(ck.get(Controls.QUALITY_UP).matches(e)) {
 					c.increaseQuality(1);
-				} else if(e.getKeyCode() == ck.get(Controls.QUALITY_DOWN)) {
+				} else if(ck.get(Controls.QUALITY_DOWN).matches(e)) {
 					c.decreaseQuality(1);
 				}
 			} else if(client instanceof ChirunoModClient) {
 				ChirunoModClient c = (ChirunoModClient) client;
 				
-				if(e.getKeyCode() == ck.get(Controls.QUALITY_UP)) {
+				if(ck.get(Controls.QUALITY_UP).matches(e)) {
 					c.increaseQuality(1);
-				} else if(e.getKeyCode() == ck.get(Controls.QUALITY_DOWN)) {
+				} else if(ck.get(Controls.QUALITY_DOWN).matches(e)) {
 					c.decreaseQuality(1);
 				}
 			}

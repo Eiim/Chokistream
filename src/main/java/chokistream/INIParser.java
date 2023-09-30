@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 
+import chokistream.Input.InputParseException;
+import chokistream.props.Controls;
 import chokistream.props.EnumProp;
 import chokistream.props.Prop;
 
@@ -74,7 +76,7 @@ public class INIParser {
 		Files.write(file.toPath(), lines, StandardCharsets.UTF_8);
 	}
 	
-	public void setProperty(String prop, int value) throws IOException {
+	public void setProp(String prop, int value) throws IOException {
 		setProperty(prop, Integer.toString(value));
 	}
 	
@@ -98,8 +100,20 @@ public class INIParser {
 		setProperty(prop.getShortName(), Boolean.toString(value));
 	}
 	
+	public void setProp(Controls c, Input i) throws IOException {
+		setProperty("control_"+c.getShortName(), i.toString());
+	}
+
+	public void setProp(Controls c, String stringRep) throws IOException, InputParseException {
+		setProperty("control_"+c.getShortName(), new Input(stringRep).toString());
+	}
+
 	public String getProp(Prop<?> prop) {
 		return getProperty(prop.getShortName());
+	}
+
+	public String getProp(Controls c) {
+		return getProperty("control_"+c.getShortName());
 	}
 	
 	private static class ParamData {

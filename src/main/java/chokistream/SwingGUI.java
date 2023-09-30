@@ -13,6 +13,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -35,6 +36,7 @@ import javax.swing.event.DocumentListener;
 import com.formdev.flatlaf.FlatLightLaf;
 
 import chokistream.INIParser.IniParseException;
+import chokistream.Input.InputParseException;
 import chokistream.props.ColorMode;
 import chokistream.props.Controls;
 import chokistream.props.DSScreen;
@@ -101,6 +103,7 @@ public class SwingGUI extends SettingsUI {
 	
 	// Controls
 	private JFrame controls;
+	private HashMap<Controls, JTextField> controlsFields = new HashMap<>();
 	
 	private static final Logger logger = Logger.INSTANCE;
 	
@@ -166,13 +169,13 @@ public class SwingGUI extends SettingsUI {
 		
 		JButton modSettings = new JButton("Mod Settings");
 		JButton outputSettings = new JButton("Output Settings");
-		JButton controls = new JButton("Controls");
+		JButton controlsButton = new JButton("Controls");
 		JButton about = new JButton("About");
 		JButton connect = new JButton("Connect!");
 		add(modSettings, p, c, 0, 1, 2, 1);
 		add(connect, p, c, 0, 7, 2, 1);
 		add(outputSettings, p, c, 3, 6, 2, 1);
-		add(controls, p, c, 0, 6, 2, 1);
+		add(controlsButton, p, c, 0, 6, 2, 1);
 		add(about, p, c, 3, 7, 2, 1);
 		
 		about.addActionListener(new ActionListener() {
@@ -180,9 +183,9 @@ public class SwingGUI extends SettingsUI {
 			public void actionPerformed(ActionEvent e) {createAbout();}
 		});
 
-		controls.addActionListener(new ActionListener() {
+		controlsButton.addActionListener(new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent e) {createControls();}
+			public void actionPerformed(ActionEvent e) {controls.setVisible(true);}
 		});
 		
 		modSettings.addActionListener(new ActionListener() {
@@ -270,6 +273,7 @@ public class SwingGUI extends SettingsUI {
 			@Override
 			public void windowClosing(WindowEvent e) {
 				saveSettings();
+				saveControls();
 				System.exit(0);
 			}
 		});
@@ -284,8 +288,10 @@ public class SwingGUI extends SettingsUI {
 		createCHMSettings();
 		createVideoSettings();
 		createSequenceSettings();
+		createControls();
 		
 		loadSettings();
+		loadControls();
 	}
 	
 	@Override
@@ -490,9 +496,42 @@ public class SwingGUI extends SettingsUI {
 		try {
 			INIParser parser = new INIParser(new File("chokistream.ini"));
 			
+			for(Controls c : controlsFields.keySet()) {
+				try {
+					String text = controlsFields.get(c).getText();
+					if(text.length() > 0) parser.setProp(c, text);
+				} catch(InputParseException e) {
+					displayError(e); // still continue onwards
+				}
+			}
 		} catch(IOException | IniParseException e) {
-			displayError(e);
+			displayError(e); // these probably indicate the future ones will fail as well, so stop here
 		}
+	}
+
+	public void loadControls() {
+		try {
+			INIParser parser = new INIParser(new File("chokistream.ini"));
+			
+			for(Controls c : controlsFields.keySet()) {
+				setControlDefault(parser, c, controlsFields.get(c));
+			}
+		} catch(IOException | IniParseException e) {
+			displayError(e); // these probably indicate the future ones will fail as well, so stop here
+		}
+	}
+
+	private static void setControlDefault(INIParser parser, Controls p, JTextField tf) {
+		String val = parser.getProp(p);
+		if(val.length() > 0) {
+			try {
+				tf.setText(new Input(val).toString());
+				return;
+			} catch(InputParseException e) {
+				logger.log("InputParseException: "+e.message, LogLevel.REGULAR);
+			}
+		}
+		tf.setText(p.getDefault().toString()); // If missing or invalid, use default
 	}
 	
 	private static void setTextDefault(INIParser parser, Prop<?> p, JTextField tf) {
@@ -561,10 +600,10 @@ public class SwingGUI extends SettingsUI {
 		add(new JLabel(Controls.QUALITY_DOWN.getLongName()), p, c, 0, 4);
 		
 		// Temporary, for layout
-		add(new JTextField(), p, c, 1, 1);
-		add(new JTextField(), p, c, 1, 2);
-		add(new JTextField(), p, c, 1, 3);
-		add(new JTextField(), p, c, 1, 4);
+		controlsFields.put(Controls.SCREENSHOT, add(new JTextField(), p, c, 1, 1));
+		controlsFields.put(Controls.RETURN, add(new JTextField(), p, c, 1, 2));
+		controlsFields.put(Controls.QUALITY_UP, add(new JTextField(), p, c, 1, 3));
+		controlsFields.put(Controls.QUALITY_DOWN, add(new JTextField(), p, c, 1, 4));
 		
 		JButton apply = new JButton("Apply");
 		add(apply, p, c, 0, 5, 2, 1);
@@ -577,7 +616,6 @@ public class SwingGUI extends SettingsUI {
 		});
 		
 		controls.pack();
-		controls.setVisible(true);
 	}
 	
 	public void createVideoSettings() {
@@ -837,10 +875,12 @@ public class SwingGUI extends SettingsUI {
 		c.insets = new Insets(3, 3, 3, 3);
 	}
 	
-	private void add(Component co, JPanel f, GridBagConstraints c, int x, int y) {
+	// Return co for chaining
+	private <T extends Component> T add(T co, JPanel f, GridBagConstraints c, int x, int y) {
 		c.gridx = x;
 		c.gridy = y;
 		f.add(co, c);
+		return co;
 	}
 	
 	private void add(JComponent co, JPanel f, GridBagConstraints c, int x, int y, String tooltip) {

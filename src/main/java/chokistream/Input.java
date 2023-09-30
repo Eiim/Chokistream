@@ -18,6 +18,18 @@ public class Input {
         this.modifiers = modifiers;
     }
 
+    public Input(int keyCode) {
+        this.keyCode = keyCode;
+        this.modifiers = 0;
+    }
+
+    // Use list of modifiers instead of combined modifiers number
+    public Input(int keyCode, int... modifiers) {
+        this.keyCode = keyCode;
+        this.modifiers = 0;
+        for(int m : modifiers) this.modifiers += m;
+    }
+
     public Input(String keyRep) throws InputParseException {
         String[] keys = keyRep.split("\\+");
         String mainKey = keys[keys.length-1];
@@ -25,7 +37,7 @@ public class Input {
             // Reflection to static field
             keyCode = KeyEvent.class.getDeclaredField("VK_"+mainKey.toUpperCase()).getInt(null);
         } catch (NoSuchFieldException | IllegalAccessException e) {
-            throw new InputParseException("Failed to parse "+mainKey+" as key name");
+            throw new InputParseException("Failed to parse \""+mainKey+"\" as key name");
         }
 
         modifiers = 0;
@@ -34,7 +46,7 @@ public class Input {
                 // Reflection to static field
                 modifiers += InputEvent.class.getDeclaredField(keys[i].toUpperCase()+"_DOWN_MASK").getInt(null);
             } catch(NoSuchFieldException | IllegalAccessException e) {
-                throw new InputParseException("Failed to parse "+keys[i]+" as modifier");
+                throw new InputParseException("Failed to parse \""+keys[i]+"\" as modifier");
             }
         }
 
@@ -77,11 +89,11 @@ public class Input {
     	downMasks = new HashMap<>();
     	
     	for(Field f : InputEvent.class.getDeclaredFields()) {
-            if(f.getName().endsWith("_DOWN_MASK")) {
+            if(f.getName().endsWith("_DOWN_MASK") && !f.getName().equals("BUTTON_DOWN_MASK")) {
                 try {
                     downMasks.put(f.getInt(null), f.getName().substring(f.getName().length()-10).toLowerCase());
                 } catch (IllegalArgumentException | IllegalAccessException e) {
-                    throw new InputParseException("Error parsing field "+f.getName()+" (shouldn't be possible!)");
+                    throw new InputParseException("Error parsing field \""+f.getName()+"\" (shouldn't be possible!)");
                 }
             }
         }
@@ -94,9 +106,9 @@ public class Input {
     	for(Field f : KeyEvent.class.getDeclaredFields()) {
             if(f.getName().startsWith("VK_")) {
                 try {
-                	keyCodes.put(f.getInt(null), f.getName().substring(3));
+                	keyCodes.put(f.getInt(null), f.getName().substring(3).toLowerCase());
                 } catch (IllegalArgumentException | IllegalAccessException e) {
-                    throw new InputParseException("Error parsing field "+f.getName()+" (shouldn't be possible!)");
+                    throw new InputParseException("Error parsing field \""+f.getName()+"\" (shouldn't be possible!)");
                 }
             }
         }
@@ -108,6 +120,7 @@ public class Input {
             try {
                 asStr = getStringForm();
             } catch (InputParseException e ) {
+            	Logger.INSTANCE.log(e.getMessage());
                 return null;
             }
         }

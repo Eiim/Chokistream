@@ -7,13 +7,13 @@ import chokistream.props.Controls;
 
 public class ChokiKeybinds {
 
-	private Map<Controls, Integer> binds = new HashMap<>();
+	private Map<Controls, Input> binds = new HashMap<>();
 	
-	public void set(Controls c, int code) {
+	public void set(Controls c, Input code) {
 		binds.put(c, code);
 	}
 	
-	public int get(Controls c) {
+	public Input get(Controls c) {
 		return binds.get(c);
 	}
 	
