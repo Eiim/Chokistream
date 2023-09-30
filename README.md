@@ -26,7 +26,9 @@ Currently under development by [Eiim](https://github.com/Eiim) and [ChainSwordCS
 
 ## Getting Started
 
-See the [Using Chokistream](https://github.com/Eiim/Chokistream/wiki/Using-Chokistream) wiki page. See [Options](https://github.com/Eiim/Chokistream/wiki/Options) for more comprehensive documentation.
+Make sure NTR, HzMod, or ChirunoMod is installed and running on the 3DS. NTR only supports the New 3DS family.
+
+See the [basic usage](https://github.com/Eiim/Chokistream/wiki/Basic-Chokistream-usage) wiki page. See [Options](https://github.com/Eiim/Chokistream/wiki/Options) for more comprehensive documentation.
 
 ## Supported OSs
 As we're pure Java 17 SE, a very broad range of OSs should work. We have different tiers of support:
