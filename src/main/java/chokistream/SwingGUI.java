@@ -13,7 +13,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.EnumMap;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -103,7 +103,7 @@ public class SwingGUI extends SettingsUI {
 	
 	// Controls
 	private JFrame controls;
-	private HashMap<Controls, JTextField> controlsFields = new HashMap<>();
+	private EnumMap<Controls, JTextField> controlsFields = new EnumMap<>(Controls.class);
 	
 	private static final Logger logger = Logger.INSTANCE;
 	
@@ -390,11 +390,17 @@ public class SwingGUI extends SettingsUI {
 		}
 	}
 	
-	/*
-	 * Just use defaults for now
-	 */
+	@Override
 	public ChokiKeybinds getKeybinds() {
-		return ChokiKeybinds.getDefaults();
+		ChokiKeybinds ck = ChokiKeybinds.getDefaults();
+		for(Controls c : controlsFields.keySet())  {
+			try {
+				ck.set(c, new Input(controlsFields.get(c).getText()));
+			} catch (InputParseException e) {
+				displayError(e); // Continue onwards
+			}
+		}
+		return ck;
 	}
 
 	@Override
@@ -402,7 +408,6 @@ public class SwingGUI extends SettingsUI {
 		JOptionPane.showMessageDialog(f, e, "Error", JOptionPane.ERROR_MESSAGE);
 	}
 
-	@Override
 	public void saveSettings() {
 		try {
 			INIParser parser = new INIParser(new File("chokistream.ini"));
@@ -449,7 +454,6 @@ public class SwingGUI extends SettingsUI {
 		}
 	}
 
-	@Override
 	public void loadSettings() {
 		try {
 			INIParser parser = new INIParser(new File("chokistream.ini"));

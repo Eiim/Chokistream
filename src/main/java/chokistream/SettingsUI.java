@@ -25,14 +25,12 @@ public abstract class SettingsUI {
 		return p.getDefault();
 	}
 	
+	public ChokiKeybinds getKeybinds() {
+		return ChokiKeybinds.getDefaults();
+	}
+	
 	// Sub-classes may or may not want to override
 	public void displayError(Exception e) {
 		Logger.INSTANCE.log(e.getClass().getSimpleName()+": "+e.getMessage());
 	}
-	
-	// Should be overridden by implementing class
-	public void saveSettings() {}
-	
-	// Should be overridden by implementing class
-	public void loadSettings() {}
 }

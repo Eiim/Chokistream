@@ -26,7 +26,7 @@ Currently under development by [Eiim](https://github.com/Eiim) and [ChainSwordCS
 
 ## Getting Started
 
-See the [Using Chokistream](https://github.com/Eiim/Chokistream/wiki/Using-Chokistream) wiki page. See [Options](https://github.com/Eiim/Chokistream/wiki/Options)for more comprehensive documentation.
+See the [Using Chokistream](https://github.com/Eiim/Chokistream/wiki/Using-Chokistream) wiki page. See [Options](https://github.com/Eiim/Chokistream/wiki/Options) for more comprehensive documentation.
 
 ## Supported OSs
 As we're pure Java 17 SE, a very broad range of OSs should work. We have different tiers of support:
