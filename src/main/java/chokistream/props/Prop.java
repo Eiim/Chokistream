@@ -5,7 +5,7 @@ package chokistream.props;
  * Hopefully maintainable than previous, more intuitive solution, which duplicated a lot of code.
  */
 
-public class Prop<T> {
+public final class Prop<T> {
 	public static final Prop<String> IP = new Prop<>("ip", "3DS IP", "0.0.0.0", String.class);
 	public static final Prop<Mod> MOD = new Prop<>("mod", "Streaming Mod", Mod.NTR, Mod.class);
 	public static final Prop<Integer> QUALITY = new Prop<>("quality", "Quality", 70, Integer.class);

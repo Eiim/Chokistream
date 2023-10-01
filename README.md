@@ -16,11 +16,11 @@ Notable features:
  * Chokistream can also run entirely headless and stream straight to a video file, or output frames to image files.
 
 Plus even more planned:
- * Better controls and control options
- * Better video file streaming and image sequences
+ * Better controls and control options (coming in 2.1)
+ * Better video file streaming and image sequences (coming in 2.1)
  * Better NTR support
- * Better CLI
- * And more!
+ * Fullscreen support
+ * [And more!](https://github.com/users/Eiim/projects/7)
 
 Currently under development by [Eiim](https://github.com/Eiim) and [ChainSwordCS](https://github.com/ChainSwordCS). Previously developed by [herronjo](https://github.com/herronjo).
 

@@ -41,51 +41,34 @@ public class TargaParser {
 		logger.log("attrbits="+(attrbits), LogLevel.EXTREME);
 		
 		int tgaBpp = data[16] & 0xff;
-		TGAPixelFormat tgaReportedFormat = TGAPixelFormat.RGB8; // placeholder value
-		boolean errorTgaInvalidBpp = false;
 		boolean isMalformed24bpp = false;
-		switch(tgaBpp) {
-			case 16:
-				tgaReportedFormat = TGAPixelFormat.RGB5A1;
-				break;
-			case 17:
-				tgaReportedFormat = TGAPixelFormat.RGB565;
-				break;
-			case 18:
-				tgaReportedFormat = TGAPixelFormat.RGBA4;
-				break;
-			case 24:
-				tgaReportedFormat = TGAPixelFormat.RGB8;
-				break;
-			case 32:
-				tgaReportedFormat = TGAPixelFormat.RGBA8;
-				break;
-			case 8:
+		TGAPixelFormat tgaReportedFormat = switch(tgaBpp) {
+			case 16 -> TGAPixelFormat.RGB5A1;
+			case 17 -> TGAPixelFormat.RGB565;
+			case 18 -> TGAPixelFormat.RGBA4;
+			case 24 -> TGAPixelFormat.RGB8;
+			case 32 -> TGAPixelFormat.RGBA8;
+			case 8 -> {
 				logger.log("Warning: Bit-depth \"BPP=8\" specified in Targa metadata. Function not implemented. (This error is common and can be safely ignored)", LogLevel.VERBOSE);
-				format = TGAPixelFormat.RGB5A1; // good enough error-handling
-				errorTgaInvalidBpp = true;
-				break;
-			default:
+				yield format; // Fallback
+			}
+			default -> {
 				logger.log("Warning: Invalid bit-depth \"BPP="+tgaBpp+"\" specified in Targa metadata. Falling back to "+format+" ...");
-				errorTgaInvalidBpp = true;
-				break;
-		}
+				yield format; // Fallback
+			}
+		};
 		
 		// iirc log output is bugged, but otherwise this seems to work as intended
-		if(!errorTgaInvalidBpp) {
-			if(tgaReportedFormat != format) {
-				if(tgaReportedFormat == TGAPixelFormat.RGBA8 && format == TGAPixelFormat.RGB8) {
-					logger.log("Warning: Mode-Set packet reports RGB8 (24bpp) format, but Targa image is encoded as RGBA8 (32bpp). This is most likely caused by a known issue with HzMod; quietly fixing...", LogLevel.EXTREME);
-					isMalformed24bpp = true;
-					format = TGAPixelFormat.RGBA8;
-				} else {
-					logger.log("Warning: Color format specified in Targa metadata ("+tgaReportedFormat+") differs from format specified by Mode-Set packet ("+format+")");
-					format = tgaReportedFormat;
-				}
+		if(tgaReportedFormat != format) {
+			if(tgaReportedFormat == TGAPixelFormat.RGBA8 && format == TGAPixelFormat.RGB8) {
+				logger.log("Warning: Mode-Set packet reports RGB8 (24bpp) format, but Targa image is encoded as RGBA8 (32bpp). This is most likely caused by a known issue with HzMod; quietly fixing...", LogLevel.EXTREME);
+				isMalformed24bpp = true;
+			} else {
+				logger.log("Warning: Color format specified in Targa metadata ("+tgaReportedFormat+") differs from format specified by Mode-Set packet ("+format+")");
 			}
 		}
 		
-		logger.log("format="+format, LogLevel.EXTREME);
+		logger.log("format="+tgaReportedFormat, LogLevel.EXTREME);
 		
 		int idFieldLength = data[0] & 0xff;
 		int startOfImgDataOffset = 18 + idFieldLength; // This should be correct... Formerly hardcoded to 22.
@@ -93,13 +76,14 @@ public class TargaParser {
 		int endOfImgDataOffset = data.length - 26; // footer (26 bytes) + other areas (which probably aren't present)
 		
 		byte[] decBuf = new byte[400 * 256 * 4]; // middle-man decode buffer
-		decBuf = tgaDecode(data, decBuf, format, width, height, startOfImgDataOffset, endOfImgDataOffset);
+		decBuf = tgaDecode(data, decBuf, tgaReportedFormat, width, height, startOfImgDataOffset, endOfImgDataOffset);
 		
+		// In this case, we want to do tgaDecode as RGBA8 but tgaTranslate as RGB8, apparently?
 		if(isMalformed24bpp) {
-			format = TGAPixelFormat.RGB8;
+			tgaReportedFormat = TGAPixelFormat.RGB8;
 		}
 		
-		image = tgaTranslate(decBuf, image, format, width, height);
+		image = tgaTranslate(decBuf, image, tgaReportedFormat, width, height);
 		
 		return image;
 	}
