@@ -1,6 +1,7 @@
 package chokistream;
 
 import java.awt.image.BufferedImage;
+import java.util.Arrays;
 
 import chokistream.props.DSScreen;
 import chokistream.props.LogLevel;
@@ -89,120 +90,85 @@ public class TargaParser {
 	}
 	
 	private static byte[] tgaDecode(byte[] data, byte[] decBuf, TGAPixelFormat format, int width, int height, int startOfImgDataOffset, int endOfImgDataOffset) {
-		boolean errorBreak = false;
+		if(endOfImgDataOffset >= data.length || startOfImgDataOffset < 0) {
+			throw new IllegalArgumentException("Data boundaries of "+startOfImgDataOffset+"-"+endOfImgDataOffset+" don't make sense for data with length "+data.length+"!");
+		}
+		
 		boolean errorEndOfInput = false;
 		boolean errorEndOfDecbuf = false;
 		int pxnum = 0;
 		int i = startOfImgDataOffset;
+		
+		packetloop:
 		while(i < endOfImgDataOffset && pxnum < width*height) {
 			byte header = data[i];
-			boolean rle = (header & 0x80) == 0x80; // Top bit is one
-			int packlen = (header & 0x7F) + 1; // Bottom 15 bits plus one
+			boolean rle = (header & 0b10000000) > 0; // Top bit is one
+			int packlen = (header & 0b01111111) + 1; // Bottom 7 bits plus one
 			
 			i += 1;
 			if(rle) {
-				byte[] colorDat = new byte[format.bytes];
-				for(int k = 0; k < format.bytes; k++) {
-					try {
-						colorDat[k] = data[i+k];
-					} catch(ArrayIndexOutOfBoundsException e) {
-						logger.log("Error: Reached end of image data while decoding colors of RLE packet. [tgaDecode()] ("+e.getMessage()+")");
-						errorEndOfInput = true;
-						// fill the rest of the colors with 0. draw pixels (unless all colors are zero). then break out of the larger for-loop.
-						if(k == 0)
-							errorBreak = true;
-						while(k < format.bytes) {
-							colorDat[k] = 0;
-							k++;
-						}
-						break;
-					}
-				}
+				byte[] colorDat = Arrays.copyOfRange(data, i, i+format.bytes); // Automatically fills any extra positions with 0
+				if(i+format.bytes >= data.length) errorEndOfInput = true; // Will want to break out of the loop later since we hit the end, but first encode the pixels
 				
-				if(!errorBreak) {
-				// Repeat for as many times as are in packlen
-					for(int j = 0; j < packlen; j++) {
-						for(int k = 0; k < format.bytes; k++) {
-							// Maybe should double-check that we haven't overrun here
-							try {
-								decBuf[((pxnum+j)*format.bytes)+k] = colorDat[k];
-							} catch(ArrayIndexOutOfBoundsException e) {
-								logger.log("Error: Reached end of image buffer while writing pixels of RLE packet. [tgaDecode()] ("+e.getMessage()+")");
-								// break out of the larger for-loop.
-								errorBreak = true;
-								errorEndOfDecbuf = true;
-								break;
-							}
-						}
-						if(errorBreak) {
-							pxnum += j;
-							break;
-						}
-					}
-				}
-				
-				if(errorEndOfInput)
-					errorBreak = true;
-				
-				if(!errorBreak) {
-					pxnum += packlen;
-					i += format.bytes;
-				}
-			} else {
+				// Repeat for each pixel we're encoding
 				for(int j = 0; j < packlen; j++) {
-					byte[] colorDat = new byte[format.bytes];
-					for(int k = 0; k < format.bytes; k++) {
-						try {
-							colorDat[k] = data[i+k];
-						} catch(ArrayIndexOutOfBoundsException e) {
-							logger.log("Error: Reached end of image data while decoding pixels of RAW packet. [tgaDecode()] ("+e.getMessage()+")");
-							// fill the rest of the colors with 0. draw this pixel (unless all colors are zero). then break out of the larger for-loop.
-							errorEndOfInput = true;
-							if(k == 0)
-								errorBreak = true;
-							while(k < format.bytes) {
-								colorDat[k] = 0;
-								k++;
-							}
-							break;
-						}
+					if((pxnum+j+1)*format.bytes > decBuf.length) {
+						// We're going to overrun. Copy as much as possible, although this will result in broken color data
+						System.arraycopy(colorDat, 0, decBuf, (pxnum+j)*format.bytes, format.bytes);
+						logger.log("Error: Reached end of image buffer while writing pixels of RLE packet. [tgaDecode()] ("+((pxnum+j+1)*format.bytes)+">"+decBuf.length+")");
+						// break out of the larger for-loop.
+						errorEndOfDecbuf = true;
+						break packetloop;
+					} else {
+						// We know it won't overrun here
+						System.arraycopy(colorDat, 0, decBuf, (pxnum+j)*format.bytes, format.bytes);
 					}
-					
-					if(errorBreak)
-						break;
-					
-					for(int k = 0; k < format.bytes; k++) {
-						try {
-							decBuf[(pxnum*format.bytes)+k] = colorDat[k];
-						} catch(ArrayIndexOutOfBoundsException e) {
-							logger.log("Error: Reached end of image buffer while writing pixels of RAW packet. [tgaDecode()] ("+e.getMessage()+")");
-							// break out of the larger for-loop.
-							errorBreak = true;
-							errorEndOfDecbuf = true;
-							break;
-						}
-					}
-					
-					if(errorEndOfInput)
-						errorBreak = true;
-					if(errorBreak)
-						break;
-					
-					pxnum++;
-					i += format.bytes;
 				}
+				
+				if(errorEndOfInput) break; // We hit the end of the input, so stop here
+				
+				pxnum += packlen;
+				i += format.bytes;
+			} else {
+				int bytelen = packlen*format.bytes;
+				
+				if(i+bytelen >= data.length) {
+					logger.log("Error: Reached end of image data while decoding pixels of RAW packet. [tgaDecode()] (Attempted to read "+bytelen+" bytes starting at "+i+" but data is only "+data.length+" bytes long)");
+					// fill the rest of the colors with 0. draw this pixel (unless all colors are zero). then break out of the larger for-loop.
+					bytelen = data.length-i-1;
+					errorEndOfInput = true;
+				}
+				
+				if((pxnum*format.bytes)+bytelen >= decBuf.length) {
+					logger.log("Error: Reached end of image buffer while writing pixels of RAW packet. [tgaDecode()] (Attempted to write "+bytelen+" bytes starting at "+pxnum*format.bytes+" but buffer is only "+decBuf.length+" bytes long)");
+					// Write as much data as possible
+					bytelen = decBuf.length - (pxnum*format.bytes) - 1;
+					errorEndOfDecbuf = true;
+				}
+				
+				// Should all be safe now so that we can't get an exception here
+				System.arraycopy(data, i, decBuf, pxnum*format.bytes, bytelen);
+				
+				i += bytelen;
+				pxnum += packlen;
+				
+				// Fill any extra 0s here
+				for(int j = 0; j < format.bytes-(bytelen%format.bytes); j++) {
+					data[i] = 0;
+					i++;
+				}
+				
+				if(errorEndOfInput || errorEndOfDecbuf) break;
 			}
 		}
 		
-		if(errorBreak) {
-			if(errorEndOfInput) {
-				logger.log("Cont.: Received image data is about "+(width*height - pxnum)+" pixels smaller than expected. (Is bit-depth mismatched?)");
-			}
-			if(errorEndOfDecbuf) {
-				logger.log("Cont.: Received image data exceeds expected size by about "+(endOfImgDataOffset - i)+" bytes. (Is bit-depth mismatched?");
-			}
+		if(errorEndOfInput) {
+			logger.log("Cont.: Received image data is about "+(width*height - pxnum)+" pixels smaller than expected. (Is bit-depth mismatched?)");
 		}
-		
+		if(errorEndOfDecbuf) {
+			logger.log("Cont.: Received image data exceeds expected size by about "+(endOfImgDataOffset - i)+" bytes. (Is bit-depth mismatched?");
+		}
+			
 		return decBuf;
 	}
 	
