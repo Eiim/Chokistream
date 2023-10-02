@@ -104,19 +104,20 @@ public class TargaParser {
 			byte header = data[i];
 			boolean rle = (header & 0b10000000) > 0; // Top bit is one
 			int packlen = (header & 0b01111111) + 1; // Bottom 7 bits plus one
-			
 			i += 1;
+			
 			if(rle) {
 				byte[] colorDat = Arrays.copyOfRange(data, i, i+format.bytes); // Automatically fills any extra positions with 0
-				if(i+format.bytes >= data.length) errorEndOfInput = true; // Will want to break out of the loop later since we hit the end, but first encode the pixels
+				if(i+format.bytes >= endOfImgDataOffset) errorEndOfInput = true; // Will want to break out of the loop later since we hit the end, but first encode the pixels
 				
 				// Repeat for each pixel we're encoding
 				for(int j = 0; j < packlen; j++) {
 					if((pxnum+j+1)*format.bytes > decBuf.length) {
 						// We're going to overrun. Copy as much as possible, although this will result in broken color data
-						System.arraycopy(colorDat, 0, decBuf, (pxnum+j)*format.bytes, format.bytes);
+						System.arraycopy(colorDat, 0, decBuf, (pxnum+j)*format.bytes, decBuf.length-(pxnum+j)*format.bytes-1);
 						logger.log("Error: Reached end of image buffer while writing pixels of RLE packet. [tgaDecode()] ("+((pxnum+j+1)*format.bytes)+">"+decBuf.length+")");
-						// break out of the larger for-loop.
+						// break out of the larger while-loop.
+						pxnum += j;
 						errorEndOfDecbuf = true;
 						break packetloop;
 					} else {
@@ -130,10 +131,10 @@ public class TargaParser {
 			} else {
 				int bytelen = packlen*format.bytes;
 				
-				if(i+bytelen >= data.length) {
-					logger.log("Error: Reached end of image data while decoding pixels of RAW packet. [tgaDecode()] (Attempted to read "+bytelen+" bytes starting at "+i+" but data is only "+data.length+" bytes long)");
-					// fill the rest of the colors with 0. draw this pixel (unless all colors are zero). then break out of the larger for-loop.
-					bytelen = data.length-i-1;
+				if(i+bytelen >= endOfImgDataOffset) {
+					logger.log("Error: Reached end of image data while decoding pixels of RAW packet. [tgaDecode()] (Attempted to read "+bytelen+" bytes starting at "+i+" but data is only "+endOfImgDataOffset+" bytes long)");
+					// fill the rest of the colors with 0. draw this pixel (unless all colors are zero). then break out of the larger while-loop.
+					bytelen = endOfImgDataOffset-i-1;
 					errorEndOfInput = true;
 				}
 				
@@ -147,14 +148,15 @@ public class TargaParser {
 				// Should all be safe now so that we can't get an exception here
 				System.arraycopy(data, i, decBuf, pxnum*format.bytes, bytelen);
 				
-				i += bytelen;
-				pxnum += packlen;
-				
 				// Fill any extra 0s here
-				for(int j = 0; j < (format.bytes-(bytelen%format.bytes))%format.bytes && i < data.length; j++) {
-					data[i] = 0;
-					i++;
+				if(bytelen%format.bytes != 0) {
+					for(int j = 0; j < format.bytes-(bytelen%format.bytes); j++) {
+						decBuf[(pxnum*format.bytes)+bytelen+j] = 0;
+					}
 				}
+				
+				i += bytelen;
+				pxnum += bytelen/format.bytes;
 			}
 		}
 		
@@ -162,7 +164,7 @@ public class TargaParser {
 			logger.log("Cont.: Received image data is about "+(width*height - pxnum)+" pixels smaller than expected. (Is bit-depth mismatched?)");
 		}
 		if(errorEndOfDecbuf) {
-			logger.log("Cont.: Received image data exceeds expected size by about "+(endOfImgDataOffset - i)+" bytes. (Is bit-depth mismatched?");
+			logger.log("Cont.: Received image data exceeds expected size by about "+(endOfImgDataOffset - i)+" bytes. (Is bit-depth mismatched?)");
 		}
 			
 		return decBuf;
