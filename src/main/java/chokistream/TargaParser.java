@@ -108,7 +108,10 @@ public class TargaParser {
 			
 			if(rle) {
 				byte[] colorDat = Arrays.copyOfRange(data, i, i+format.bytes); // Automatically fills any extra positions with 0
-				if(i+format.bytes >= endOfImgDataOffset) errorEndOfInput = true; // Will want to break out of the loop later since we hit the end, but first encode the pixels
+				if(i+format.bytes > endOfImgDataOffset) {
+					logger.log("Error: Reached end of image data while decoding colors of RLE packet. [tgaDecode()]");
+					errorEndOfInput = true; // Will want to break out of the loop later since we hit the end, but first encode the pixels
+				}
 				
 				// Repeat for each pixel we're encoding
 				for(int j = 0; j < packlen; j++) {
@@ -131,7 +134,7 @@ public class TargaParser {
 			} else {
 				int bytelen = packlen*format.bytes;
 				
-				if(i+bytelen >= endOfImgDataOffset) {
+				if(i+bytelen > endOfImgDataOffset) {
 					logger.log("Error: Reached end of image data while decoding pixels of RAW packet. [tgaDecode()] (Attempted to read "+bytelen+" bytes starting at "+i+" but data is only "+endOfImgDataOffset+" bytes long)");
 					// fill the rest of the colors with 0. draw this pixel (unless all colors are zero). then break out of the larger while-loop.
 					bytelen = endOfImgDataOffset-i-1;
