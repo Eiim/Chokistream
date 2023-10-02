@@ -153,7 +153,7 @@ public class TargaParser {
 				pxnum += packlen;
 				
 				// Fill any extra 0s here
-				for(int j = 0; j < format.bytes-(bytelen%format.bytes) && i < data.length; j++) {
+				for(int j = 0; j < (format.bytes-(bytelen%format.bytes))%format.bytes && i < data.length; j++) {
 					data[i] = 0;
 					i++;
 				}
