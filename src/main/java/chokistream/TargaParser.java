@@ -100,7 +100,7 @@ public class TargaParser {
 		int i = startOfImgDataOffset;
 		
 		packetloop:
-		while(i < endOfImgDataOffset && pxnum < width*height) {
+		while(i < endOfImgDataOffset && pxnum < width*height && !errorEndOfInput && !errorEndOfDecbuf) { // do we need both of the first two checks?
 			byte header = data[i];
 			boolean rle = (header & 0b10000000) > 0; // Top bit is one
 			int packlen = (header & 0b01111111) + 1; // Bottom 7 bits plus one
@@ -124,8 +124,6 @@ public class TargaParser {
 						System.arraycopy(colorDat, 0, decBuf, (pxnum+j)*format.bytes, format.bytes);
 					}
 				}
-				
-				if(errorEndOfInput) break; // We hit the end of the input, so stop here
 				
 				pxnum += packlen;
 				i += format.bytes;
@@ -157,8 +155,6 @@ public class TargaParser {
 					data[i] = 0;
 					i++;
 				}
-				
-				if(errorEndOfInput || errorEndOfDecbuf) break;
 			}
 		}
 		
@@ -173,120 +169,92 @@ public class TargaParser {
 	}
 	
 	private static BufferedImage tgaTranslate(byte[] decBuf, BufferedImage image, TGAPixelFormat format, int width, int height) {
-		boolean errorBreak = false;
 		boolean errorEndOfInput = false;
 		boolean errorEndOfOutputBuffer = false;
 		int pxnum = 0;
 		int i = 0;
-		while(i < 400*256*4 && pxnum < width*height) {
-			
+		
+		while(pxnum < width*height && !errorEndOfInput) {
 			// no headers; all RAW
 			
-			int[] colorDat = new int[format.bytes];
-			
-			for(int k = 0; k < format.bytes; k++) {
-				try {
-					colorDat[k] = decBuf[i+k] & 0xff;
-				} catch(ArrayIndexOutOfBoundsException e) {
-					logger.log("Error: Reached end of image data while decoding pixels of RAW packet. [tgaTranslate()] ("+e.getMessage()+")");
-					// fill the rest of the colors with 0. draw this pixel (unless all colors are zero). then break out of the larger for-loop.
-					errorEndOfInput = true;
-					if(k == 0) {
-						errorBreak = true;
-					}
-					while(k < format.bytes) {
-						colorDat[k] = 0;
-						k++;
-					}
-					break;
-				}
+			byte[] colorDat = Arrays.copyOfRange(decBuf, i, i+format.bytes); // Extra 0s automatically appended if needed
+			if(i+format.bytes >= decBuf.length) {
+				logger.log("Error: Reached end of image data while decoding pixels of RAW packet. [tgaTranslate()] (Attempted to read "+format.bytes+" bytes starting at "+i+" but image data is "+decBuf.length+" bytes long)");
+				errorEndOfInput = true; // Exceeded length of input data, break out of larger loop but still write
 			}
-			
-			if(errorBreak) {
-				break;
-			}
-			
-			int[] rgb = getRGB(colorDat, format);
-			int r = rgb[0];
-			int g = rgb[1];
-			int b = rgb[2];
 			
 			try {
-				image.setRGB(pxnum%width, pxnum/width, (r << 16) | (g << 8) | b);
+				image.setRGB(pxnum%width, pxnum/width, getRGB(colorDat, format));
 			} catch(ArrayIndexOutOfBoundsException e) {
 				logger.log("Error: Reached end of image buffer while writing pixels of RAW packet. [tgaTranslate()] ("+e.getMessage()+")");
 				// break out of the larger for-loop.
-				errorBreak = true;
 				errorEndOfOutputBuffer = true;
+				break;
 			}
-			
-			if(errorEndOfInput)
-				break;
-			if(errorBreak)
-				break;
 			
 			pxnum++;
 			i += format.bytes;
 		}
 		
-		if(errorBreak) {
-			if(errorEndOfInput) {
-				logger.log("Cont.: Decoded image data is about "+(width*height - pxnum)+" pixels smaller than expected. (Is bit-depth mismatched?)");
-			}
-			if(errorEndOfOutputBuffer) {
-				logger.log("Cont.: Decoded image data exceeds expected size by about "+(width*height*format.bytes - i)+" bytes. (Is bit-depth mismatched?)");
-			}
+		if(errorEndOfInput) {
+			logger.log("Cont.: Decoded image data is about "+(width*height - pxnum)+" pixels smaller than expected. (Is bit-depth mismatched?)");
+		}
+		if(errorEndOfOutputBuffer) {
+			logger.log("Cont.: Decoded image data exceeds expected size by about "+(width*height*format.bytes - i)+" bytes. (Is bit-depth mismatched?)");
 		}
 		
 		return image;
 	}
 	
-	private static int[] getRGB(int[] bytes, TGAPixelFormat format) {
-		int r=0,g=0,b=0;
-		switch(format) {
-			case RGB565:
+	private static int getRGB(byte[] bytes, TGAPixelFormat format) {
+		return switch(format) {
+			case RGB565 -> {
 				// GGGBBBBB RRRRRGGG
-				r = (bytes[1] & 0b11111000) >>> 3;
-				g = ((bytes[1] & 0b00000111) << 3) | ((bytes[0] & 0b11100000) >>> 5);
-				b = bytes[0] & 0b00011111;
+				int r = (bytes[1] & 0b11111000) >>> 3;
+				int g = ((bytes[1] & 0b00000111) << 3) | ((bytes[0] & 0b11100000) >>> 5);
+				int b = bytes[0] & 0b00011111;
 				// Scale from 5/6 bits to 8 bits
 				r = (r << 3) | (r >>> 2);
 				g = (g << 2) | (g >>> 4);
 				b = (b << 3) | (b >>> 2);
-				break;
-			case RGB5A1:
+				yield (r << 16) | (g << 8) | b;
+			}
+			case RGB5A1 -> {
 				// GGBBBBBA RRRRRGGG
-				r = (bytes[1] & 0b11111000) >>> 3;
-				g = ((bytes[1] & 0b00000111) << 2) | ((bytes[0] & 0b11000000) >>> 6);
-				b = (bytes[0] & 0b00111110) >>> 1;
+				int r = (bytes[1] & 0b11111000) >>> 3;
+				int g = ((bytes[1] & 0b00000111) << 2) | ((bytes[0] & 0b11000000) >>> 6);
+				int b = (bytes[0] & 0b00111110) >>> 1;
 				// Scale from 5 bits to 8 bits
 				r = (r << 3) | (r >>> 2);
 				g = (g << 3) | (g >>> 2);
 				b = (b << 3) | (b >>> 2);
-				break;
-			case RGBA4: // untested
+				yield (r << 16) | (g << 8) | b;
+			}
+			case RGBA4 -> { // untested
 				// BBBBAAAA RRRRGGGG
-				r = (bytes[0] & 0b11110000) >>> 4;
-				g = bytes[0] & 0b00001111;
-				b = bytes[1] & 0b00001111;
+				int r = (bytes[0] & 0b11110000) >>> 4;
+				int g = bytes[0] & 0b00001111;
+				int b = bytes[1] & 0b00001111;
 				// Scale from 4 bits to 8 bits
 				r = (r << 4) | r;
 				g = (g << 4) | g;
 				b = (b << 4) | b;
-				break;
-			case RGB8:
+				yield (r << 16) | (g << 8) | b;
+			}
+			case RGB8 -> {
 				// BBBBBBBB GGGGGGGG RRRRRRRR
-				r = bytes[2];
-				g = bytes[1];
-				b = bytes[0];
-				break;
-			case RGBA8: // untested
+				int r = bytes[2] & 0xff;
+				int g = bytes[1] & 0xff;
+				int b = bytes[0] & 0xff;
+				yield (r << 16) | (g << 8) | b;
+			}
+			case RGBA8 -> { // untested
 				// AAAAAAAA BBBBBBBB GGGGGGGG RRRRRRRR
-				r = bytes[3];
-				g = bytes[2];
-				b = bytes[1];
-				break;
-		}
-		return new int[] {r,g,b};
+				int r = bytes[3] & 0xff;
+				int g = bytes[2] & 0xff;
+				int b = bytes[1] & 0xff;
+				yield (r << 16) | (g << 8) | b;
+			}
+		};
 	}
 }
