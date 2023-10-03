@@ -35,6 +35,7 @@ public class TargaParser {
 			logger.log("Warning: reported image type is not BGR_RLE. Function not implemented. imagetype="+(data[2] & 0xff));
 		}
 		
+		// Note: This value is retrieved and used in HZModClient.java / ChirunoModClient.java, not here.
 		//int origin_y = (data[10] & 0xff) * 256 + (data[11] & 0xff);
 		
 		// Targa images from HzMod always have this set to 0
@@ -72,14 +73,24 @@ public class TargaParser {
 		logger.log("format="+tgaReportedFormat, LogLevel.EXTREME);
 		
 		int idFieldLength = data[0] & 0xff;
-		int startOfImgDataOffset = 18 + idFieldLength; // This should be correct... Formerly hardcoded to 22.
 		logger.log("idFieldLength="+(idFieldLength), LogLevel.EXTREME);
-		int endOfImgDataOffset = data.length - 26; // footer (26 bytes) + other areas (which probably aren't present)
+		
+		// Account for Header (18 bytes + variable-length "ID" Field)
+		int startOfImgData = 18 + idFieldLength;
+		
+		/**
+		 * Account for Footer (26 bytes)
+		 * This is the "offset" (index / position) at which the "Image Data" area ends.
+		 * 
+		 * To clarify, data[endOfImgData] will give the first byte of the Footer area,
+		 * and data[endOfImgData-1] will give the last byte of the Image Data area.
+		 */
+		int endOfImgData = data.length - 26;
 		
 		byte[] decBuf = new byte[400 * 256 * 4]; // middle-man decode buffer
-		decBuf = tgaDecode(data, decBuf, tgaReportedFormat, width, height, startOfImgDataOffset, endOfImgDataOffset);
+		decBuf = tgaDecode(data, decBuf, tgaReportedFormat, width, height, startOfImgData, endOfImgData);
 		
-		// In this case, we want to do tgaDecode as RGBA8 but tgaTranslate as RGB8, apparently?
+		// Workaround known HzMod bug; 3DS-side, 24bpp images are encoded as if they were 32bpp. Refer to docs.
 		if(isMalformed24bpp) {
 			tgaReportedFormat = TGAPixelFormat.RGB8;
 		}
@@ -89,18 +100,18 @@ public class TargaParser {
 		return image;
 	}
 	
-	private static byte[] tgaDecode(byte[] data, byte[] decBuf, TGAPixelFormat format, int width, int height, int startOfImgDataOffset, int endOfImgDataOffset) {
-		if(endOfImgDataOffset >= data.length || startOfImgDataOffset < 0) {
-			throw new IllegalArgumentException("Data boundaries of "+startOfImgDataOffset+"-"+endOfImgDataOffset+" don't make sense for data with length "+data.length+"!");
+	private static byte[] tgaDecode(byte[] data, byte[] decBuf, TGAPixelFormat format, int width, int height, int startOfImgData, int endOfImgData) {
+		if(endOfImgData >= data.length || startOfImgData < 0) {
+			throw new IllegalArgumentException("Data boundaries of "+startOfImgData+"-"+endOfImgData+" don't make sense for data with length "+data.length+"!");
 		}
 		
 		boolean errorEndOfInput = false;
 		boolean errorEndOfDecbuf = false;
 		int pxnum = 0;
-		int i = startOfImgDataOffset;
+		int i = startOfImgData;
 		
 		packetloop:
-		while(i < endOfImgDataOffset && pxnum < width*height && !errorEndOfInput && !errorEndOfDecbuf) { // do we need both of the first two checks?
+		while(i < endOfImgData && pxnum < width*height && !errorEndOfInput && !errorEndOfDecbuf) { // do we need both of the first two checks?
 			byte header = data[i];
 			boolean rle = (header & 0b10000000) > 0; // Top bit is one
 			int packlen = (header & 0b01111111) + 1; // Bottom 7 bits plus one
@@ -108,7 +119,7 @@ public class TargaParser {
 			
 			if(rle) {
 				byte[] colorDat = Arrays.copyOfRange(data, i, i+format.bytes); // Automatically fills any extra positions with 0
-				if(i+format.bytes > endOfImgDataOffset) {
+				if(i+format.bytes > endOfImgData) {
 					logger.log("Error: Reached end of image data while decoding colors of RLE packet. [tgaDecode()]");
 					errorEndOfInput = true; // Will want to break out of the loop later since we hit the end, but first encode the pixels
 				}
@@ -134,10 +145,10 @@ public class TargaParser {
 			} else {
 				int bytelen = packlen*format.bytes;
 				
-				if(i+bytelen > endOfImgDataOffset) {
-					logger.log("Error: Reached end of image data while decoding pixels of RAW packet. [tgaDecode()] (Attempted to read "+bytelen+" bytes starting at "+i+" but data is only "+endOfImgDataOffset+" bytes long)");
+				if(i+bytelen > endOfImgData) {
+					logger.log("Error: Reached end of image data while decoding pixels of RAW packet. [tgaDecode()] (Attempted to read "+bytelen+" bytes starting at "+i+" but data is only "+endOfImgData+" bytes long)");
 					// fill the rest of the colors with 0. draw this pixel (unless all colors are zero). then break out of the larger while-loop.
-					bytelen = endOfImgDataOffset-i-1;
+					bytelen = endOfImgData-i-1;
 					errorEndOfInput = true;
 				}
 				
@@ -167,7 +178,7 @@ public class TargaParser {
 			logger.log("Cont.: Received image data is about "+(width*height - pxnum)+" pixels smaller than expected. (Is bit-depth mismatched?)");
 		}
 		if(errorEndOfDecbuf) {
-			logger.log("Cont.: Received image data exceeds expected size by about "+(endOfImgDataOffset - i)+" bytes. (Is bit-depth mismatched?)");
+			logger.log("Cont.: Received image data exceeds expected size by about "+(endOfImgData - i)+" bytes. (Is bit-depth mismatched?)");
 		}
 			
 		return decBuf;
