@@ -54,49 +54,24 @@ public class SwingGUI extends SettingsUI {
 	
 	private JFrame f;
 	
-	// General settings
-	private JComboBox<String> mod;
-	private JTextField ip;
-	private JComboBox<String> layout;
-	private JTextField topScale;
-	private JTextField bottomScale;
-	private JComboBox<String> colorMode;
-	private JTextField port;
-	private JComboBox<String> logMode;
-	private JComboBox<String> logLevel;
-	private JTextField logFile;
-	private JComboBox<String> outputFormat;
-	
 	// Video settings
 	private JFrame videoSettings;
-	private JComboBox<String> videoCodec;
-	private JTextField videoFile;
 	
 	// Image sequence settings
 	private JFrame sequenceSettings;
-	private JTextField sequenceDir;
-	private JTextField sequencePrefix;
 	
 	// HzMod settings
 	private JFrame hzSettings;
-	private JTextField qualityHz;
 	private JTextField cpuCapHz;
 	private JCheckBox tgaHz;
 	
 	// ChirunoMod settings
 	private JFrame chmSettings;
-	private JTextField qualityCHM;
 	private JTextField cpuCapCHM;
-	private JComboBox<String> reqScreenCHM;
 	private JCheckBox tgaCHM;
-	private JCheckBox interlace;
 	
 	// NTR settings
 	private JFrame ntrSettings;
-	private JTextField qualityNTR;
-	private JComboBox<String> priScreen;
-	private JTextField priFac;
-	private JTextField qos;
 	
 	// NFC Patch screen
 	private JFrame nfcPatch;
@@ -104,6 +79,11 @@ public class SwingGUI extends SettingsUI {
 	// Controls
 	private JFrame controls;
 	private EnumMap<Controls, JTextField> controlsFields = new EnumMap<>(Controls.class);
+	
+	@SuppressWarnings("rawtypes")
+	private JComboBox[] enumFields = new JComboBox[Prop.getCount()];
+	private JTextField[] textFields = new JTextField[Prop.getCount()];
+	private JCheckBox[] boolFields = new JCheckBox[Prop.getCount()];
 	
 	private static final Logger logger = Logger.INSTANCE;
 	
@@ -128,44 +108,20 @@ public class SwingGUI extends SettingsUI {
 		GridBagConstraints c = new GridBagConstraints();
 		frameSetup(f, p, c);
 		
-		add(new JLabel(Prop.MOD.getLongName()), p, c, 0, 0);
-		add(new JLabel(Prop.IP.getLongName()), p, c, 0, 2);
-		add(new JLabel(Prop.LAYOUT.getLongName()), p, c, 0, 3);
-		add(new JLabel(Prop.TOPSCALE.getLongName()), p, c, 0, 4);
-		add(new JLabel(Prop.BOTTOMSCALE.getLongName()), p, c, 0, 5);
-		
-		mod = new JComboBox<String>(EnumProp.getLongNames(Mod.class));
-		add(mod, p, c, 1, 0, "3DS mod to connect to");
-		ip = new JTextField();
-		add(ip, p, c, 1, 2, "IP of the 3DS");
-		layout = new JComboBox<String>(EnumProp.getLongNames(Layout.class));
-		add(layout, p, c, 1, 3, "Layout of the screens. Choose Top Only unless using a dual-screen mod/version.");
-		topScale = new JTextField();
-		add(topScale, p, c, 1, 4, "Factor to scale the top screen by");
-		bottomScale = new JTextField();
-		add(bottomScale, p, c, 1, 5, "Factor to scale the bottom screen by");
+		addOpts(Prop.MOD, p, c, 0, 0, Mod.class);
+		addText(Prop.IP, p, c, 0, 2);
+		addOpts(Prop.LAYOUT, p, c, 0, 3, Layout.class);
+		addText(Prop.TOPSCALE, p, c, 0, 4);
+		addText(Prop.BOTTOMSCALE, p, c, 0, 5);
 		
 		add(new JSeparator(SwingConstants.VERTICAL), p, c, 2, 0, 1, 8);
 		
-		add(new JLabel(Prop.COLORMODE.getLongName()), p, c, 3, 0);
-		add(new JLabel(Prop.PORT.getLongName()), p, c, 3, 1);
-		add(new JLabel(Prop.LOGMODE.getLongName()), p, c, 3, 2);
-		add(new JLabel(Prop.LOGLEVEL.getLongName()), p, c, 3, 3);
-		add(new JLabel(Prop.LOGFILE.getLongName()), p, c, 3, 4);
-		add(new JLabel(Prop.OUTPUTFORMAT.getLongName()), p, c, 3, 5);
-		
-		colorMode = new JComboBox<String>(EnumProp.getLongNames(ColorMode.class));
-		add(colorMode, p, c, 4, 0, "Color correction options");
-		port = new JTextField();
-		add(port, p, c, 4, 1, "3DS port, usually leave as default");
-		logMode = new JComboBox<String>(EnumProp.getLongNames(LogMode.class));
-		add(logMode, p, c, 4, 2, "Log to file or console");
-		logLevel = new JComboBox<String>(EnumProp.getLongNames(LogLevel.class));
-		add(logLevel, p, c, 4, 3, "Amount of detail in logs");
-		logFile = new JTextField();
-		add(logFile, p, c, 4, 4, "Filename for log file");
-		outputFormat = new JComboBox<String>(EnumProp.getLongNames(OutputFormat.class));
-		add(outputFormat, p, c, 4, 5, "Output format. Switch to file streaming or image sequence for file output.");
+		addOpts(Prop.COLORMODE, p, c, 3, 0, ColorMode.class);
+		addText(Prop.PORT, p, c, 3, 1);
+		addOpts(Prop.LOGMODE, p, c, 3, 2, LogMode.class);
+		addOpts(Prop.LOGLEVEL, p, c, 3, 3, LogLevel.class);
+		addText(Prop.LOGFILE, p, c, 3, 4);
+		addOpts(Prop.OUTPUTFORMAT, p, c, 3, 5, OutputFormat.class);
 		
 		JButton modSettings = new JButton("Mod Settings");
 		JButton outputSettings = new JButton("Output Settings");
@@ -223,17 +179,17 @@ public class SwingGUI extends SettingsUI {
 			}
 		});
 		
-		outputFormat.addItemListener(new ItemListener() {
+		enumFields[Prop.OUTPUTFORMAT.getIndex()].addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
-				outputSettings.setEnabled(!outputFormat.getSelectedItem().equals(OutputFormat.VISUAL.getLongName()));
+				outputSettings.setEnabled(!enumFields[Prop.OUTPUTFORMAT.getIndex()].getSelectedItem().equals(OutputFormat.VISUAL.getLongName()));
 			}
 		});
 		
-		mod.addItemListener(new ItemListener() {
+		enumFields[Prop.MOD.getIndex()].addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
-				port.setText(
+				textFields[Prop.PORT.getIndex()].setText(
 					switch(getPropEnum(Prop.MOD)) {
 						case NTR -> "8000";
 						case HZMOD, CHIRUNOMOD -> "6464";
@@ -242,21 +198,21 @@ public class SwingGUI extends SettingsUI {
 			}
 		});
 		
-		logLevel.addItemListener(new ItemListener() {
+		enumFields[Prop.LOGLEVEL.getIndex()].addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
 				logger.setLevel(getPropEnum(Prop.LOGLEVEL));
 			}
 		});
 		
-		logMode.addItemListener(new ItemListener() {
+		enumFields[Prop.LOGMODE.getIndex()].addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
 				logger.setMode(getPropEnum(Prop.LOGMODE));
 			}
 		});
 		
-		logFile.getDocument().addDocumentListener(new DocumentListener() {
+		textFields[Prop.LOGFILE.getIndex()].getDocument().addDocumentListener(new DocumentListener() {
 			@Override
 			public void changedUpdate(DocumentEvent e) {
 				logger.setFile(getPropString(Prop.LOGFILE));
@@ -296,41 +252,33 @@ public class SwingGUI extends SettingsUI {
 	
 	@Override
 	public int getPropInt(Prop<Integer> p) {
-		if(p.equals(Prop.QUALITY)) {
-			return switch(getPropEnum(Prop.MOD)) {
-				case NTR -> Integer.parseInt(qualityNTR.getText());
-				case HZMOD -> Integer.parseInt(qualityHz.getText());
-				case CHIRUNOMOD -> Integer.parseInt(qualityCHM.getText());
-			};
-		} else if(p.equals(Prop.PRIORITYFACTOR)) {
-			return Integer.parseInt(priFac.getText());
-		} else if(p.equals(Prop.QOS)) {
-			return Integer.parseInt(qos.getText());
-		} else if(p.equals(Prop.CPUCAP)) {
+		if(p.equals(Prop.CPUCAP)) {
 			return switch(getPropEnum(Prop.MOD)) {
 				case HZMOD -> Integer.parseInt(cpuCapHz.getText());
 				case CHIRUNOMOD -> Integer.parseInt(cpuCapCHM.getText());
 				default -> p.getDefault(); // Hopefully never happens
 			};
-		} else if(p.equals(Prop.PORT)) {
-			return Integer.parseInt(port.getText());
+		} else if(p.equals(Prop.QUALITY)) {
+			return switch(getPropEnum(Prop.MOD)) {
+				case NTR -> Integer.parseInt(textFields[p.getIndex()].getText());
+				case HZMOD -> Integer.parseInt(textFields[p.getIndex()].getText());
+				case CHIRUNOMOD -> Integer.parseInt(textFields[p.getIndex()].getText());
+			};
 		} else {
-			return p.getDefault();
+			JTextField tf = textFields[p.getIndex()];
+			if(tf != null) {
+				return Integer.parseInt(tf.getText());
+			} else {
+				return p.getDefault();	
+			}
 		}
 	}
 
 	@Override
 	public String getPropString(Prop<String> p) {
-		if(p.equals(Prop.IP)) {
-			return ip.getText();
-		} else if(p.equals(Prop.LOGFILE)) {
-			return logFile.getText();
-		} else if(p.equals(Prop.VIDEOFILE)) {
-			return videoFile.getText();
-		} else if(p.equals(Prop.SEQUENCEDIR)) {
-			return sequenceDir.getText();
-		} else if(p.equals(Prop.SEQUENCEPREFIX)) {
-			return sequencePrefix.getText();
+		JTextField tf = textFields[p.getIndex()];
+		if(tf != null) {
+			return tf.getText();
 		} else {
 			return p.getDefault();
 		}
@@ -338,10 +286,9 @@ public class SwingGUI extends SettingsUI {
 
 	@Override
 	public double getPropDouble(Prop<Double> p) {
-		if(p.equals(Prop.TOPSCALE)) {
-			return Double.parseDouble(topScale.getText());
-		} else if(p.equals(Prop.BOTTOMSCALE)) {
-			return Double.parseDouble(bottomScale.getText());
+		JTextField tf = textFields[p.getIndex()];
+		if(tf != null) {
+			return Double.parseDouble(tf.getText());
 		} else {
 			return p.getDefault();
 		}
@@ -356,7 +303,7 @@ public class SwingGUI extends SettingsUI {
 				default -> p.getDefault(); // Should never happen
 			};
 		} else if(p.equals(Prop.INTERLACE)) {
-			return interlace.isSelected();
+			return boolFields[p.getIndex()].isSelected();
 		} else {
 			return p.getDefault();
 		}
@@ -364,27 +311,9 @@ public class SwingGUI extends SettingsUI {
 
 	@Override
 	public <T extends Enum<T> & EnumProp> T getPropEnum(Prop<T> p) {
-		if(p.equals(Prop.MOD)) {
-			return EnumProp.fromLongName(p.propClass(), mod.getSelectedItem().toString());
-		} else if(p.equals(Prop.LAYOUT)) {
-			return EnumProp.fromLongName(p.propClass(), layout.getSelectedItem().toString());
-		} else if(p.equals(Prop.PRIORITYSCREEN)) {
-			return EnumProp.fromLongName(p.propClass(), priScreen.getSelectedItem().toString());
-		} else if(p.equals(Prop.REQSCREEN)) {
-			return switch(getPropEnum(Prop.MOD)) {
-				case CHIRUNOMOD -> EnumProp.fromLongName(p.propClass(), reqScreenCHM.getSelectedItem().toString());
-				default -> p.getDefault(); // Hopefully never happens
-			};
-		} else if(p.equals(Prop.COLORMODE)) {
-			return EnumProp.fromLongName(p.propClass(), colorMode.getSelectedItem().toString());
-		} else if(p.equals(Prop.LOGMODE)) {
-			return EnumProp.fromLongName(p.propClass(), logMode.getSelectedItem().toString());
-		} else if(p.equals(Prop.LOGLEVEL)) {
-			return EnumProp.fromLongName(p.propClass(), logLevel.getSelectedItem().toString());
-		} else if(p.equals(Prop.OUTPUTFORMAT)) {
-			return EnumProp.fromLongName(p.propClass(), outputFormat.getSelectedItem().toString());
-		} else if(p.equals(Prop.VIDEOCODEC)) {
-			return EnumProp.fromLongName(p.propClass(), videoCodec.getSelectedItem().toString());
+		var ef = enumFields[p.getIndex()];
+		if(ef != null) {
+			return EnumProp.fromLongName(p.propClass(), ef.getSelectedItem().toString());
 		} else {
 			return p.getDefault();
 		}
@@ -449,7 +378,7 @@ public class SwingGUI extends SettingsUI {
 					parser.setProp(Prop.INTERLACE, getPropBoolean(Prop.INTERLACE));
 					break;
 			}
-		} catch (IOException | IniParseException e) {
+		} catch (IOException | IniParseException | NumberFormatException e) {
 			displayError(e);
 		}
 	}
@@ -458,39 +387,39 @@ public class SwingGUI extends SettingsUI {
 		try {
 			INIParser parser = new INIParser(new File("chokistream.ini"));
 			
-			setTextDefault(parser, Prop.IP, ip);
-			setTextDefault(parser, Prop.TOPSCALE, topScale);
-			setTextDefault(parser, Prop.BOTTOMSCALE, bottomScale);
-			setTextDefault(parser, Prop.PORT, port);
-			setTextDefault(parser, Prop.LOGFILE, logFile);
-			setTextDefault(parser, Prop.VIDEOFILE, videoFile);
+			setTextDefault(parser, Prop.IP);
+			setTextDefault(parser, Prop.TOPSCALE);
+			setTextDefault(parser, Prop.BOTTOMSCALE);
+			setTextDefault(parser, Prop.PORT);
+			setTextDefault(parser, Prop.LOGFILE);
+			setTextDefault(parser, Prop.VIDEOFILE);
 			
-			setValueDefault(parser, Prop.MOD, mod);
-			setValueDefault(parser, Prop.LAYOUT, layout);
-			setValueDefault(parser, Prop.COLORMODE, colorMode);
-			setValueDefault(parser, Prop.LOGMODE, logMode);
-			setValueDefault(parser, Prop.LOGLEVEL, logLevel);
+			setValueDefault(parser, Prop.MOD);
+			setValueDefault(parser, Prop.LAYOUT);
+			setValueDefault(parser, Prop.COLORMODE);
+			setValueDefault(parser, Prop.LOGMODE);
+			setValueDefault(parser, Prop.LOGLEVEL);
 			
-			setTextDefault(parser, Prop.QUALITY, qualityHz);
-			tgaHz.setSelected(qualityHz.getText().equals("0"));
+			setTextDefault(parser, Prop.QUALITY);
+			tgaHz.setSelected(textFields[Prop.QUALITY.getIndex()].getText().equals("0"));
 			setTextDefault(parser, Prop.CPUCAP, cpuCapHz);
 			
-			setTextDefault(parser, Prop.QUALITY, qualityCHM);
+			setTextDefault(parser, Prop.QUALITY);
 			setCheckedDefault(parser, Prop.REQTGA, tgaCHM);
 			setTextDefault(parser, Prop.CPUCAP, cpuCapCHM);
-			setValueDefault(parser, Prop.REQSCREEN, reqScreenCHM);
-			setCheckedDefault(parser, Prop.INTERLACE, interlace);
+			setValueDefault(parser, Prop.REQSCREEN);
+			setCheckedDefault(parser, Prop.INTERLACE);
 			
-			setTextDefault(parser, Prop.QUALITY, qualityNTR);
-			setValueDefault(parser, Prop.PRIORITYSCREEN, priScreen);
-			setTextDefault(parser, Prop.PRIORITYFACTOR, priFac);
-			setTextDefault(parser, Prop.QOS, qos);
+			setTextDefault(parser, Prop.QUALITY);
+			setValueDefault(parser, Prop.PRIORITYSCREEN);
+			setTextDefault(parser, Prop.PRIORITYFACTOR);
+			setTextDefault(parser, Prop.QOS);
 			
-			setValueDefault(parser, Prop.OUTPUTFORMAT, outputFormat);
-			setValueDefault(parser, Prop.VIDEOCODEC, videoCodec);
+			setValueDefault(parser, Prop.OUTPUTFORMAT);
+			setValueDefault(parser, Prop.VIDEOCODEC);
 			
-			setTextDefault(parser, Prop.SEQUENCEDIR, sequenceDir);
-			setTextDefault(parser, Prop.SEQUENCEPREFIX, sequencePrefix);
+			setTextDefault(parser, Prop.SEQUENCEDIR);
+			setTextDefault(parser, Prop.SEQUENCEPREFIX);
 		} catch (IOException | IniParseException e) {
 			displayError(e);
 		}
@@ -547,6 +476,15 @@ public class SwingGUI extends SettingsUI {
 		}
 	}
 	
+	private void setTextDefault(INIParser parser, Prop<?> p) {
+		String val = parser.getProp(p);
+		if(val.length() > 0) {
+			textFields[p.getIndex()].setText(val);
+		} else {
+			textFields[p.getIndex()].setText(p.getDefault().toString());
+		}
+	}
+	
 	private static <T extends EnumProp> void setValueDefault(INIParser parser, Prop<T> p, JComboBox<String> tf) {
 		String val = parser.getProp(p);
 		if(val.length() > 0) {
@@ -556,12 +494,32 @@ public class SwingGUI extends SettingsUI {
 		}
 	}
 	
+	private <T extends Enum<T> & EnumProp> void setValueDefault(INIParser parser, Prop<T> p) {
+		JComboBox<?> ef = enumFields[p.getIndex()];
+		if(ef == null) return;
+		String val = parser.getProp(p);
+		if(val.length() > 0) {
+			enumFields[p.getIndex()].setSelectedItem(val);
+		} else {
+			enumFields[p.getIndex()].setSelectedItem(p.getDefault().getLongName());
+		}
+	}
+	
 	private static void setCheckedDefault(INIParser parser, Prop<Boolean> p, JCheckBox cb) {
 		String val = parser.getProp(p);
 		if(val.length() > 0 && (val.equals("true") || val.equals("false"))) {
 			cb.setSelected(val.equals("true"));
 		} else {
 			cb.setSelected(p.getDefault());
+		}
+	}
+	
+	private void setCheckedDefault(INIParser parser, Prop<Boolean> p) {
+		String val = parser.getProp(p);
+		if(val.length() > 0 && (val.equals("true") || val.equals("false"))) {
+			boolFields[p.getIndex()].setSelected(val.equals("true"));
+		} else {
+			boolFields[p.getIndex()].setSelected(p.getDefault());
 		}
 	}
 
@@ -633,13 +591,8 @@ public class SwingGUI extends SettingsUI {
 		header.setFont(new Font("System", Font.PLAIN, 20));
 		add(header, p, c, 0, 0, 2, 1);
 		
-		add(new JLabel(Prop.VIDEOCODEC.getLongName()), p, c, 0, 1);
-		add(new JLabel(Prop.VIDEOFILE.getLongName()), p, c, 0, 2);
-		
-		videoCodec = new JComboBox<String>(EnumProp.getLongNames(VideoFormat.class));;
-		add(videoCodec, p, c, 1, 1, "Codec for video file output");
-		videoFile = new JTextField();
-		add(videoFile, p, c, 1, 2, "File name for video file output");
+		addOpts(Prop.VIDEOCODEC, p, c, 0, 1, VideoFormat.class);
+		addText(Prop.VIDEOFILE, p, c, 0, 2);
 		
 		JButton apply = new JButton("Apply");
 		add(apply, p, c, 0, 3, 2, 1);
@@ -665,13 +618,8 @@ public class SwingGUI extends SettingsUI {
 		header.setFont(new Font("System", Font.PLAIN, 20));
 		add(header, p, c, 0, 0, 2, 1);
 		
-		add(new JLabel(Prop.SEQUENCEDIR.getLongName()), p, c, 0, 1);
-		add(new JLabel(Prop.SEQUENCEPREFIX.getLongName()), p, c, 0, 2);
-		
-		sequenceDir = new JTextField();
-		add(sequenceDir, p, c, 1, 1, "Directory for image sequences");
-		sequencePrefix = new JTextField();
-		add(sequencePrefix, p, c, 1, 2, "Prefix for image sequence files");
+		addText(Prop.SEQUENCEDIR, p, c, 0, 1);
+		addText(Prop.SEQUENCEPREFIX, p, c, 0, 2);
 		
 		JButton apply = new JButton("Apply");
 		add(apply, p, c, 0, 3, 2, 1);
@@ -697,19 +645,10 @@ public class SwingGUI extends SettingsUI {
 		header.setFont(new Font("System", Font.PLAIN, 20));
 		add(header, p, c, 0, 0, 2, 1);
 		
-		add(new JLabel(Prop.QUALITY.getLongName()), p, c, 0, 1);
-		add(new JLabel(Prop.PRIORITYSCREEN.getLongName()), p, c, 0, 2);
-		add(new JLabel(Prop.PRIORITYFACTOR.getLongName()), p, c, 0, 3);
-		add(new JLabel(Prop.QOS.getLongName()), p, c, 0, 4);
-		
-		qualityNTR = new JTextField();
-		add(qualityNTR, p, c, 1, 1, "JPEG compression quality (0-100)");
-		priScreen = new JComboBox<>(EnumProp.getLongNames(DSScreen.class));
-		add(priScreen, p, c, 1, 2, "Prioritized screen");
-		priFac = new JTextField();
-		add(priFac, p, c, 1, 3, "Relative prioritization of prioritized screen");
-		qos = new JTextField("Packet QoS value (Set to >100 to disable)");
-		add(qos, p, c, 1, 4);
+		addText(Prop.QUALITY, p, c, 0, 1);
+		addOpts(Prop.PRIORITYSCREEN, p, c, 0, 2, DSScreen.class);
+		addText(Prop.PRIORITYFACTOR, p, c, 0, 3);
+		addText(Prop.QOS, p, c, 0, 4);
 		
 		JButton patch = new JButton("Patch NTR");
 		add(patch, p, c, 0, 5, 2, 1);
@@ -786,21 +725,19 @@ public class SwingGUI extends SettingsUI {
 		header.setFont(new Font("System", Font.PLAIN, 20));
 		add(header, p, c, 0, 0, 2, 1);
 		
-		add(new JLabel(Prop.QUALITY.getLongName()), p, c, 0, 1);
+		addText(Prop.QUALITY, p, c, 0, 1);
 		add(new JLabel(Prop.REQTGA.getLongName()), p, c, 0, 2);
 		add(new JLabel(Prop.CPUCAP.getLongName()), p, c, 0, 3);
 		
-		qualityHz = new JTextField();
-		add(qualityHz, p, c, 1, 1, "JPEG compression quality (1-100). Set to 0 to request TARGA.");
 		tgaHz = new JCheckBox();
 		add(tgaHz, p, c, 1, 2, "Request TARGA (lossless) image format.");
 		cpuCapHz = new JTextField();
-		add(cpuCapHz, p, c, 1, 3, "CPI usage limiter");
+		add(cpuCapHz, p, c, 1, 3, "CPU usage limiter");
 		
 		tgaHz.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
-				qualityHz.setEnabled(!tgaHz.isSelected());
+				textFields[Prop.QUALITY.getIndex()].setEnabled(!tgaHz.isSelected());
 			}
 		});
 		
@@ -828,27 +765,23 @@ public class SwingGUI extends SettingsUI {
 		header.setFont(new Font("System", Font.PLAIN, 20));
 		add(header, p, c, 0, 0, 2, 1);
 		
-		add(new JLabel("Quality"), p, c, 0, 1);
+		addText(Prop.QUALITY, p, c, 0, 1);
+		
 		add(new JLabel("Request TGA?"), p, c, 0, 2);
 		add(new JLabel("CPU Cap"), p, c, 0, 3);
-		add(new JLabel("Requested Screen"), p, c, 0, 4);
-		add(new JLabel("Interlace?"), p, c, 0, 5);
 		
-		qualityCHM = new JTextField();
-		add(qualityCHM, p, c, 1, 1, "JPEG compression quality (1-100). Set to 0 to request TARGA.");
 		tgaCHM = new JCheckBox();
 		add(tgaCHM, p, c, 1, 2, "Request TARGA (lossless) image format.");
 		cpuCapCHM = new JTextField();
 		add(cpuCapCHM, p, c, 1, 3, "CPU usage limiter");
-		reqScreenCHM = new JComboBox<>(EnumProp.getLongNames(DSScreenBoth.class));
-		add(reqScreenCHM, p, c, 1, 4, "Requested 3DS screen");
-		interlace = new JCheckBox();
-		add(interlace, p, c, 1, 5, "Request image interlacing for higher apparent FPS.");
+		
+		addOpts(Prop.REQSCREEN, p, c, 0, 4, DSScreenBoth.class);
+		addCheck(Prop.INTERLACE, p, c, 0, 5);
 		
 		tgaCHM.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
-				qualityCHM.setEnabled(!tgaCHM.isSelected());
+				textFields[Prop.QUALITY.getIndex()].setEnabled(!tgaCHM.isSelected());
 			}
 		});
 		
@@ -877,6 +810,57 @@ public class SwingGUI extends SettingsUI {
 		c.ipadx = 3;
 		c.ipady = 3;
 		c.insets = new Insets(3, 3, 3, 3);
+	}
+	
+	private void addText(Prop<?> p, JPanel f, GridBagConstraints c, int x, int y) {
+		var tf = textFields[p.getIndex()];
+		if(tf == null) tf = new JTextField();
+		tf.setToolTipText(p.getTooltip());
+		c.gridx = x;
+		c.gridy = y;
+		f.add(tf, c);
+		
+		var lab = new JLabel(p.getLongName());
+		lab.setToolTipText(p.getTooltip());
+		c.gridx = x+1;
+		c.gridy = y;
+		f.add(lab, c);
+		
+		textFields[p.getIndex()] = tf;
+	}
+	
+	private <T extends Enum<T> & EnumProp> void addOpts(Prop<T> p, JPanel f, GridBagConstraints c, int x, int y, Class<T> cl) {
+		var cb = enumFields[p.getIndex()];
+		if(cb == null) cb = new JComboBox<String>(EnumProp.getLongNames(cl));
+		cb.setToolTipText(p.getTooltip());
+		c.gridx = x;
+		c.gridy = y;
+		f.add(cb, c);
+		
+		var lab = new JLabel(p.getLongName());
+		lab.setToolTipText(p.getTooltip());
+		c.gridx = x+1;
+		c.gridy = y;
+		f.add(lab, c);
+		
+		enumFields[p.getIndex()] = cb;
+	}
+	
+	private void addCheck(Prop<Boolean> p, JPanel f, GridBagConstraints c, int x, int y) {
+		var cb = boolFields[p.getIndex()];
+		if(cb == null) cb = new JCheckBox();
+		cb.setToolTipText(p.getTooltip());
+		c.gridx = x;
+		c.gridy = y;
+		f.add(cb, c);
+		
+		var lab = new JLabel(p.getLongName());
+		lab.setToolTipText(p.getTooltip());
+		c.gridx = x+1;
+		c.gridy = y;
+		f.add(lab, c);
+		
+		boolFields[p.getIndex()] = cb;
 	}
 	
 	// Return co for chaining
