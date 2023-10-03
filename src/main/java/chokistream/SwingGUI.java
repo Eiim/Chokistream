@@ -447,15 +447,17 @@ public class SwingGUI extends SettingsUI {
 			INIParser parser = new INIParser(new File("chokistream.ini"));
 			
 			for(Controls c : controlsFields.keySet()) {
-				setControlDefault(parser, c, controlsFields.get(c));
+				setControlDefault(parser, c);
 			}
 		} catch(IOException | IniParseException e) {
 			displayError(e); // these probably indicate the future ones will fail as well, so stop here
 		}
 	}
 
-	private static void setControlDefault(INIParser parser, Controls p, JTextField tf) {
-		String val = parser.getProp(p);
+	private void setControlDefault(INIParser parser, Controls c) {
+		String val = parser.getProp(c);
+		JTextField tf = controlsFields.get(c);
+		if(tf == null) return;
 		if(val.length() > 0) {
 			try {
 				tf.setText(new Input(val).toString());
@@ -464,7 +466,7 @@ public class SwingGUI extends SettingsUI {
 				logger.log("InputParseException: "+e.message, LogLevel.REGULAR);
 			}
 		}
-		tf.setText(p.getDefault().toString()); // If missing or invalid, use default
+		tf.setText(c.getDefault().toString()); // If missing or invalid, use default
 	}
 	
 	private static void setTextDefault(INIParser parser, Prop<?> p, JTextField tf) {
@@ -482,15 +484,6 @@ public class SwingGUI extends SettingsUI {
 			textFields[p.getIndex()].setText(val);
 		} else {
 			textFields[p.getIndex()].setText(p.getDefault().toString());
-		}
-	}
-	
-	private static <T extends EnumProp> void setValueDefault(INIParser parser, Prop<T> p, JComboBox<String> tf) {
-		String val = parser.getProp(p);
-		if(val.length() > 0) {
-			tf.setSelectedItem(val);
-		} else {
-			tf.setSelectedItem(p.getDefault().getLongName());
 		}
 	}
 	
