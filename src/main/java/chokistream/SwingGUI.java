@@ -599,18 +599,24 @@ public class SwingGUI extends SettingsUI {
 		add(header, p, c, 0, 0, 2, 1);
 		
 		add(new JLabel(Controls.SCREENSHOT.getLongName()), p, c, 0, 1);
-		add(new JLabel(Controls.RETURN.getLongName()), p, c, 0, 2);
+		add(new JLabel(Controls.CLOSE.getLongName()), p, c, 0, 2);
 		add(new JLabel(Controls.QUALITY_UP.getLongName()), p, c, 0, 3);
 		add(new JLabel(Controls.QUALITY_DOWN.getLongName()), p, c, 0, 4);
+		add(new JLabel(Controls.REQ_SCREEN.getLongName()), p, c, 0, 5);
+		add(new JLabel(Controls.TGA.getLongName()), p, c, 0, 6);
+		add(new JLabel(Controls.INTERLACE.getLongName()), p, c, 0, 7);
 		
 		// Temporary, for layout
 		controlsFields.put(Controls.SCREENSHOT, add(new JTextField(), p, c, 1, 1));
-		controlsFields.put(Controls.RETURN, add(new JTextField(), p, c, 1, 2));
+		controlsFields.put(Controls.CLOSE, add(new JTextField(), p, c, 1, 2));
 		controlsFields.put(Controls.QUALITY_UP, add(new JTextField(), p, c, 1, 3));
 		controlsFields.put(Controls.QUALITY_DOWN, add(new JTextField(), p, c, 1, 4));
+		controlsFields.put(Controls.REQ_SCREEN, add(new JTextField(), p, c, 1, 5));
+		controlsFields.put(Controls.TGA, add(new JTextField(), p, c, 1, 6));
+		controlsFields.put(Controls.INTERLACE, add(new JTextField(), p, c, 1, 7));
 		
 		JButton apply = new JButton("Apply");
-		add(apply, p, c, 0, 5, 2, 1);
+		add(apply, p, c, 0, 8, 2, 1);
 		apply.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

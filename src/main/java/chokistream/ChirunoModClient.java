@@ -27,12 +27,18 @@ public class ChirunoModClient implements StreamingInterface {
 	private InputStream in = null;
 	private OutputStream out = null;
 	private ColorMode colorMode;
-	public int quality;
 	private BufferedImage lastTopImage;
 	private BufferedImage lastBottomImage;
 	
 	private int topFrames;
 	private int bottomFrames;
+	
+	// Remember settings for future use
+	private int quality;
+	private int cpuLimit;
+	private boolean tga;
+	private boolean interlace;
+	private DSScreenBoth screen;
 	
 	private static final int FORMAT_MASK = 		0b00000111;
 	private static final int TGA_MASK = 		0b00001000;
@@ -57,6 +63,12 @@ public class ChirunoModClient implements StreamingInterface {
 	 */
 	public ChirunoModClient(String host, int quality, boolean reqTGA, boolean interlace, int capCPU, ColorMode receivedColorMode,
 			int port, DSScreenBoth reqScreen) throws UnknownHostException, IOException {
+		this.quality = quality;
+		this.cpuLimit = capCPU;
+		this.tga = reqTGA;
+		this.screen = reqScreen;
+		this.interlace = interlace;
+		
 		// Connect to TCP port and set up client
 		client = new Socket(host, port);
 		client.setTcpNoDelay(true);
@@ -64,7 +76,6 @@ public class ChirunoModClient implements StreamingInterface {
 		out = client.getOutputStream();
 		
 		this.colorMode = receivedColorMode;
-		this.quality = quality;
 		
 		lastTopImage = new BufferedImage(400, 240, BufferedImage.TYPE_INT_RGB);
 		lastBottomImage = new BufferedImage(320, 240, BufferedImage.TYPE_INT_RGB);
@@ -91,28 +102,6 @@ public class ChirunoModClient implements StreamingInterface {
 		// Creates the quality packet to the 3DS
 		logger.log("Sending quality packet of "+quality, LogLevel.VERBOSE);
 		out.write((new Packet((byte)0x04, (byte)0x01, new byte[] {(byte)quality})).pack);
-	}
-	
-	// Increase quality by a certain amount, up to 100
-	public void increaseQuality(int delta) throws IOException {
-		if(quality + delta < 100) {
-			quality = quality + delta;
-			sendQuality(quality);
-		} else if(quality < 100) {
-			quality = 100;
-			sendQuality(100);
-		}
-	}
-	
-	// Decrease quality by a certain amount, down to 0
-	public void decreaseQuality(int delta) throws IOException {
-		if(quality - delta > 0) {
-			quality = quality - delta;
-			sendQuality(quality);
-		} else if(quality > 0) {
-			quality = 0;
-			sendQuality(0);
-		}
 	}
 	
 	public void sendScreen(DSScreenBoth screen) throws IOException {
@@ -151,6 +140,69 @@ public class ChirunoModClient implements StreamingInterface {
 	public void sendDebug(byte[] debugData) throws IOException {
 		logger.log("Sending debug packet", LogLevel.VERBOSE);
 		out.write((new Packet((byte)0xFF, (byte)0x00, debugData)).pack);
+	}
+	
+	// Increase quality by a certain amount, up to 100
+	public void increaseQuality(int delta) throws IOException {
+		if(quality + delta < 100) {
+			quality = quality + delta;
+			sendQuality(quality);
+		} else if(quality < 100) {
+			quality = 100;
+			sendQuality(100);
+		}
+	}
+	
+	// Decrease quality by a certain amount, down to 1
+	public void decreaseQuality(int delta) throws IOException {
+		if(quality - delta > 1) {
+			quality = quality - delta;
+			sendQuality(quality);
+		} else if(quality > 1) {
+			quality = 1;
+			sendQuality(1);
+		}
+	}
+	
+	// Increase CPU cap by a certain amount, up to 100
+	public void increaseCPU(int delta) throws IOException {
+		if(cpuLimit + delta < 100) {
+			cpuLimit = cpuLimit + delta;
+			sendLimitCPU(cpuLimit);
+		} else if(cpuLimit < 100) {
+			cpuLimit = 100;
+			sendLimitCPU(100);
+		}
+	}
+	
+	// Decrease CPU cap by a certain amount, down to 0
+	public void decreaseCPU(int delta) throws IOException {
+		if(cpuLimit - delta > 0) {
+			cpuLimit = cpuLimit - delta;
+			sendLimitCPU(cpuLimit);
+		} else if(cpuLimit > 0) {
+			cpuLimit = 0;
+			sendLimitCPU(0);
+		}
+	}
+	
+	public void toggleTGA() throws IOException {
+		tga = !tga;
+		sendImageType(tga);
+	}
+	
+	public void toggleInterlacing() throws IOException {
+		interlace = !interlace;
+		sendInterlace(interlace);
+	}
+	
+	public void switchScreen() throws IOException {
+		screen = switch(screen) {
+			case TOP -> DSScreenBoth.BOTTOM;
+			case BOTTOM -> DSScreenBoth.BOTH;
+			case BOTH -> DSScreenBoth.TOP;
+		};
+		sendScreen(screen);		
 	}
 
 	@Override

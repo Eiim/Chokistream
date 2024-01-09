@@ -23,7 +23,7 @@ public class KeypressHandler implements KeyListener {
 		// Generic commands
 		if(ck.get(Controls.SCREENSHOT).matches(e)) {
 			output.screenshot();
-		} else if(ck.get(Controls.RETURN).matches(e)) {
+		} else if(ck.get(Controls.CLOSE).matches(e)) {
 			output.kill();
 		}
 		
@@ -44,6 +44,16 @@ public class KeypressHandler implements KeyListener {
 					c.increaseQuality(1);
 				} else if(ck.get(Controls.QUALITY_DOWN).matches(e)) {
 					c.decreaseQuality(1);
+				} else if(ck.get(Controls.CPU_UP).matches(e)) {
+					c.increaseCPU(1);
+				} else if(ck.get(Controls.CPU_DOWN).matches(e)) {
+					c.decreaseCPU(1);
+				} else if(ck.get(Controls.TGA).matches(e)) {
+					c.toggleTGA();
+				} else if(ck.get(Controls.REQ_SCREEN).matches(e)) {
+					c.switchScreen();
+				} else if(ck.get(Controls.INTERLACE).matches(e)) {
+					c.toggleInterlacing();
 				}
 			}
 		} catch(IOException e1) {
