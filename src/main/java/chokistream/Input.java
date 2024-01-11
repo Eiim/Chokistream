@@ -29,6 +29,11 @@ public class Input {
         this.modifiers = 0;
         for(int m : modifiers) this.modifiers += m;
     }
+    
+    public Input(KeyEvent ke) {
+    	this.keyCode = ke.getKeyCode();
+    	this.modifiers = ke.getModifiersEx();
+    }
 
     public Input(String keyRep) throws InputParseException {
         String[] keys = keyRep.split("\\+");
@@ -91,7 +96,7 @@ public class Input {
     	for(Field f : InputEvent.class.getDeclaredFields()) {
             if(f.getName().endsWith("_DOWN_MASK") && !f.getName().equals("BUTTON_DOWN_MASK")) {
                 try {
-                    downMasks.put(f.getInt(null), f.getName().substring(f.getName().length()-10).toLowerCase());
+                    downMasks.put(f.getInt(null), f.getName().substring(0, f.getName().length()-10).toLowerCase());
                 } catch (IllegalArgumentException | IllegalAccessException e) {
                     throw new InputParseException("Error parsing field \""+f.getName()+"\" (shouldn't be possible!)");
                 }

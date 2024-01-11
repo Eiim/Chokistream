@@ -27,6 +27,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
+import javax.swing.JToggleButton;
 import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -103,7 +104,7 @@ public class SwingGUI extends SettingsUI {
 	
 	// Controls
 	private JFrame controls;
-	private EnumMap<Controls, JTextField> controlsFields = new EnumMap<>(Controls.class);
+	private EnumMap<Controls, JToggleButton> controlsFields = new EnumMap<>(Controls.class);
 	
 	private static final Logger logger = Logger.INSTANCE;
 	
@@ -185,7 +186,10 @@ public class SwingGUI extends SettingsUI {
 
 		controlsButton.addActionListener(new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent e) {controls.setVisible(true);}
+			public void actionPerformed(ActionEvent e) {
+				controls.setFocusable(true);
+				controls.setVisible(true);
+				controls.requestFocusInWindow();}
 		});
 		
 		modSettings.addActionListener(new ActionListener() {
@@ -523,9 +527,11 @@ public class SwingGUI extends SettingsUI {
 		} catch(IOException | IniParseException e) {
 			displayError(e); // these probably indicate the future ones will fail as well, so stop here
 		}
+		
+		controls.pack(); // Needs to resize based on text in buttons
 	}
 
-	private static void setControlDefault(INIParser parser, Controls p, JTextField tf) {
+	private static void setControlDefault(INIParser parser, Controls p, JToggleButton tf) {
 		String val = parser.getProp(p);
 		if(val.length() > 0) {
 			try {
@@ -598,25 +604,20 @@ public class SwingGUI extends SettingsUI {
 		header.setFont(new Font("System", Font.PLAIN, 20));
 		add(header, p, c, 0, 0, 2, 1);
 		
-		add(new JLabel(Controls.SCREENSHOT.getLongName()), p, c, 0, 1);
-		add(new JLabel(Controls.CLOSE.getLongName()), p, c, 0, 2);
-		add(new JLabel(Controls.QUALITY_UP.getLongName()), p, c, 0, 3);
-		add(new JLabel(Controls.QUALITY_DOWN.getLongName()), p, c, 0, 4);
-		add(new JLabel(Controls.REQ_SCREEN.getLongName()), p, c, 0, 5);
-		add(new JLabel(Controls.TGA.getLongName()), p, c, 0, 6);
-		add(new JLabel(Controls.INTERLACE.getLongName()), p, c, 0, 7);
+		ControlButtonsHandler cbl = new ControlButtonsHandler(controls);
 		
-		// Temporary, for layout
-		controlsFields.put(Controls.SCREENSHOT, add(new JTextField(), p, c, 1, 1));
-		controlsFields.put(Controls.CLOSE, add(new JTextField(), p, c, 1, 2));
-		controlsFields.put(Controls.QUALITY_UP, add(new JTextField(), p, c, 1, 3));
-		controlsFields.put(Controls.QUALITY_DOWN, add(new JTextField(), p, c, 1, 4));
-		controlsFields.put(Controls.REQ_SCREEN, add(new JTextField(), p, c, 1, 5));
-		controlsFields.put(Controls.TGA, add(new JTextField(), p, c, 1, 6));
-		controlsFields.put(Controls.INTERLACE, add(new JTextField(), p, c, 1, 7));
+		int i = 1;
+		for(Controls control : Controls.class.getEnumConstants()) {
+			add(new JLabel(control.getLongName()), p, c, 0, i); // add label
+			JToggleButton tb = new JToggleButton();
+			add(tb, p, c, 1, i); // add button
+			controlsFields.put(control, tb); // remember button is associated with control
+			cbl.add(tb); // add to key listener, add click listener
+			i++;
+		}
 		
 		JButton apply = new JButton("Apply");
-		add(apply, p, c, 0, 8, 2, 1);
+		add(apply, p, c, 0, i, 2, 1);
 		apply.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -625,7 +626,7 @@ public class SwingGUI extends SettingsUI {
 			}
 		});
 		
-		controls.pack();
+		controls.addKeyListener(cbl);
 	}
 	
 	public void createVideoSettings() {

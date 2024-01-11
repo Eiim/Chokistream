@@ -10,8 +10,8 @@ public enum Controls {
 	CLOSE("close", "Close", new Input(KeyEvent.VK_BACK_SPACE)),
 	QUALITY_UP("quality_up", "Increase Quality", new Input(KeyEvent.VK_UP)),
 	QUALITY_DOWN("quality_down", "Decrease Quality", new Input(KeyEvent.VK_DOWN)),
-	CPU_UP("cpu_up", "Increase CPU Cap", new Input(KeyEvent.VK_BRACERIGHT)),
-	CPU_DOWN("cpu_down", "Decrease CPU Cap", new Input(KeyEvent.VK_BRACELEFT)),
+	CPU_UP("cpu_up", "Increase CPU Cap", new Input(KeyEvent.VK_OPEN_BRACKET)),
+	CPU_DOWN("cpu_down", "Decrease CPU Cap", new Input(KeyEvent.VK_CLOSE_BRACKET)),
 	REQ_SCREEN("req_screen","Switch requested screen", new Input(KeyEvent.VK_R)),
 	INTERLACE("interlace","Toggle interlacing", new Input(KeyEvent.VK_I)),
 	TGA("tga","Toggle TGA", new Input(KeyEvent.VK_T));
