@@ -6,8 +6,6 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.imageio.ImageIO;
@@ -29,9 +27,9 @@ public class NTRUDPThread extends Thread {
 	private byte[] packetBuffer = new byte[1448];
 	
 	/**
-	 * A BlockingQueue to buffer received Frames in.
+	 * The last received frame.
 	 */
-	private BlockingQueue<Frame> frameBuffer = new LinkedBlockingQueue<Frame>();
+	private Frame frameBuffer;
 	
 	/**
 	 * Should the thread die?
@@ -64,7 +62,7 @@ public class NTRUDPThread extends Thread {
 	}
 	
 	public Frame getFrame() throws InterruptedException {
-		return frameBuffer.take();
+		return frameBuffer;
 	}
 	
 	public void close() {
@@ -112,7 +110,7 @@ public class NTRUDPThread extends Thread {
 						
 						priorityImage = ImageManipulator.adjust(priorityImage, colorMode, false);
 						
-						frameBuffer.add(new Frame(currentScreen, priorityImage));
+						frameBuffer = new Frame(currentScreen, priorityImage);
 						priorityImage = null;
 						priorityExpectedFrame = 0;
 	                    priorityExpectedPacket = 0;
@@ -141,7 +139,7 @@ public class NTRUDPThread extends Thread {
 						
 						secondaryImage = ImageManipulator.adjust(secondaryImage, colorMode, false);
 						
-						frameBuffer.add(new Frame(currentScreen, secondaryImage));
+						frameBuffer = new Frame(currentScreen, secondaryImage);
 						secondaryImage = null;
 						secondaryExpectedFrame = 0;
 	                    secondaryExpectedPacket = 0;
