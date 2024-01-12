@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.imageio.ImageIO;
@@ -62,7 +63,12 @@ public class NTRUDPThread extends Thread {
 	}
 	
 	public Frame getFrame() throws InterruptedException {
-		return frameBuffer;
+		while(frameBuffer == null) {
+			TimeUnit.MILLISECONDS.sleep(1);
+		}
+		Frame f = frameBuffer;
+		frameBuffer = null;
+		return f;
 	}
 	
 	public void close() {
