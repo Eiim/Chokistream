@@ -3,7 +3,6 @@ package chokistream;
 import java.io.File;
 import java.io.IOException;
 
-import chokistream.INIParser.IniParseException;
 import chokistream.props.EnumProp;
 import chokistream.props.Prop;
 
@@ -23,7 +22,7 @@ public class ConfigFileCLI extends SettingsUI {
 		}
 		try {
 			parser = new INIParser(f);
-		} catch (IOException | IniParseException e) {
+		} catch (IOException e) {
 			System.out.println("Failed to set up INI parser");
 		}
 	}

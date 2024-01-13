@@ -36,7 +36,6 @@ import javax.swing.event.DocumentListener;
 
 import com.formdev.flatlaf.FlatLightLaf;
 
-import chokistream.INIParser.IniParseException;
 import chokistream.Input.InputParseException;
 import chokistream.props.ColorMode;
 import chokistream.props.Controls;
@@ -453,7 +452,7 @@ public class SwingGUI extends SettingsUI {
 					parser.setProp(Prop.INTERLACE, getPropBoolean(Prop.INTERLACE));
 					break;
 			}
-		} catch (IOException | IniParseException e) {
+		} catch (IOException e) {
 			displayError(e);
 		}
 	}
@@ -495,7 +494,7 @@ public class SwingGUI extends SettingsUI {
 			
 			setTextDefault(parser, Prop.SEQUENCEDIR, sequenceDir);
 			setTextDefault(parser, Prop.SEQUENCEPREFIX, sequencePrefix);
-		} catch (IOException | IniParseException e) {
+		} catch (IOException e) {
 			displayError(e);
 		}
 	}
@@ -512,7 +511,7 @@ public class SwingGUI extends SettingsUI {
 					displayError(e); // still continue onwards
 				}
 			}
-		} catch(IOException | IniParseException e) {
+		} catch(IOException e) {
 			displayError(e); // these probably indicate the future ones will fail as well, so stop here
 		}
 	}
@@ -524,7 +523,7 @@ public class SwingGUI extends SettingsUI {
 			for(Controls c : controlsFields.keySet()) {
 				setControlDefault(parser, c, controlsFields.get(c));
 			}
-		} catch(IOException | IniParseException e) {
+		} catch(IOException e) {
 			displayError(e); // these probably indicate the future ones will fail as well, so stop here
 		}
 		

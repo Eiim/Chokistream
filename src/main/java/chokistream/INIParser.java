@@ -4,9 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Scanner;
 
 import chokistream.Input.InputParseException;
 import chokistream.props.Controls;
@@ -16,68 +16,68 @@ import chokistream.props.Prop;
 // Very very simple INI handler
 public class INIParser {
 	
-	private HashMap<String, ParamData> params = new HashMap<>();
+	private List<IniLine> iniLines;
+	private HashMap<String, String> data;
 	private File file;
-	private int totalLines;
 	
-	public INIParser(File f) throws IOException, IniParseException {
+	public INIParser(File f) throws IOException {
 		file = f;
-		Scanner s;
-		file.createNewFile();
-		s = new Scanner(file, StandardCharsets.UTF_8);
+		readFile();
+	}
+	
+	public void readFile() throws IOException {
+		iniLines = new ArrayList<>();
+		data = new HashMap<>();
+		file.createNewFile(); // only if it doesn't yet exist
 		
-		int lineNum = 0;
-		while(s.hasNextLine()) {
-			String line = s.nextLine().trim();
-			lineNum++;
-			if(line.length() == 0) {
-				break;
-			}
+		List<String> lines = Files.readAllLines(file.toPath(), StandardCharsets.UTF_8);
+		for(int i = 0; i < lines.size(); i++) {
+			String line = lines.get(i);
 			
 			// Ignore comments and sections
-			if(line.charAt(0) == ';' || line.charAt(0) == '[') {
-				break;
+			if(line.length() == 0 || line.charAt(0) == ';' || line.charAt(0) == '[') {
+				iniLines.add(new IniLine(false, line));
+			} else {
+				int eqpos = line.indexOf('=');
+				if(eqpos == -1) {
+					throw new IniParseException(line, i);
+				}
+				String key = line.substring(0, eqpos).trim();
+				String value = line.substring(eqpos+1).trim();
+				if(!data.containsKey(key)) {
+					iniLines.add(new IniLine(true, key));
+				}
+				data.put(key, value);
 			}
-			
-			int eqpos = line.indexOf('=');
-			if(eqpos == -1) {
-				s.close();
-				throw new IniParseException(line, lineNum);
-			}
-			String key = line.substring(0, eqpos).trim();
-			String value = line.substring(eqpos+1).trim();
-			params.put(key, new ParamData(lineNum, value));
 		}
-		
-		s.close();
-		totalLines = lineNum;
+	}
+	
+	public void writeFile() throws IOException {
+		List<String> outLines = new ArrayList<>();
+		for(IniLine l : iniLines) {
+			if(l.isData) {
+				outLines.add(l.key+" = "+data.get(l.key));
+			} else {
+				outLines.add(l.key);
+			}
+		}
+		Files.write(file.toPath(), outLines, StandardCharsets.UTF_8);
 	}
 	
 	public String getProperty(String prop) {
-		if(params.containsKey(prop)) {
-			return params.get(prop).value;
+		if(data.containsKey(prop)) {
+			return data.get(prop);
 		} else {
 			return "";
 		}
 	}
 	
 	public void setProperty(String prop, String value) throws IOException {
-		List<String> lines = Files.readAllLines(file.toPath());
-		if(params.containsKey(prop)) {
-			int lineNum = params.get(prop).line;
-			lines.set(lineNum-1, prop+" = "+value);
-			params.put(prop, new ParamData(totalLines, value));
-		} else {
-			lines.add(prop+" = "+value);
-			totalLines++;
-			params.put(prop, new ParamData(totalLines, value));
-		}
+		if(!data.containsKey(prop))
+			iniLines.add(new IniLine(true, prop)); // always add to end for now
+		data.put(prop, value);
 		
-		Files.write(file.toPath(), lines, StandardCharsets.UTF_8);
-	}
-	
-	public void setProp(String prop, int value) throws IOException {
-		setProperty(prop, Integer.toString(value));
+		writeFile();
 	}
 	
 	public void setProp(Prop<?> prop, String value) throws IOException {
@@ -116,22 +116,14 @@ public class INIParser {
 		return getProperty("control_"+c.getShortName());
 	}
 	
-	private static class ParamData {
-		int line;
-		String value;
-		
-		ParamData(int l, String v) {
-			line = l;
-			value = v;
-		}
-	}
+	private static record IniLine(boolean isData, String key) {};
 	
-	public static class IniParseException extends Exception {
+	public static class IniParseException extends IOException {
 		private static final long serialVersionUID = -8122669746738785400L;
 		String message;
 		
 		public IniParseException(String line, int lineNum) {
-			message = "Failed to parse .ini line "+lineNum+":\n"+line;
+			message = "Failed to parse .ini at line "+lineNum+":\n"+line;
 		}
 		
 		@Override
