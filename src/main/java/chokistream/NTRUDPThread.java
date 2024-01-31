@@ -31,7 +31,7 @@ public class NTRUDPThread extends Thread {
 	/**
 	 * A BlockingQueue to buffer received Frames in.
 	 */
-	private BlockingQueue<Frame> frameBuffer = new LinkedBlockingQueue<Frame>();
+	private BlockingQueue<Frame> frameBuffer = new LinkedBlockingQueue<Frame>(10);
 	
 	/**
 	 * Should the thread die?
@@ -112,6 +112,7 @@ public class NTRUDPThread extends Thread {
 						
 						priorityImage = ImageManipulator.adjust(priorityImage, colorMode, false);
 						
+						frameBuffer.poll();
 						frameBuffer.add(new Frame(currentScreen, priorityImage));
 						priorityImage = null;
 						priorityExpectedFrame = 0;
@@ -119,6 +120,7 @@ public class NTRUDPThread extends Thread {
 					}
 				} else if (currentScreen == activeScreen) {
 					// Unexpected priority packet or frame
+					logger.log("Packets received out-of-order, flushing priority screen data", LogLevel.VERBOSE);
 					priorityImageData = new byte[0];
 					priorityImage = null;
 					priorityExpectedFrame = 0;
@@ -141,6 +143,7 @@ public class NTRUDPThread extends Thread {
 						
 						secondaryImage = ImageManipulator.adjust(secondaryImage, colorMode, false);
 						
+						frameBuffer.poll();
 						frameBuffer.add(new Frame(currentScreen, secondaryImage));
 						secondaryImage = null;
 						secondaryExpectedFrame = 0;
@@ -148,6 +151,7 @@ public class NTRUDPThread extends Thread {
 					}
 				} else {
 					// Unexpected secondary packet or frame
+					logger.log("Packets received out-of-order, flushing secondary screen data", LogLevel.VERBOSE);
 					secondaryImageData = new byte[0];
 					secondaryImage = null;
 					secondaryExpectedFrame = 0;
