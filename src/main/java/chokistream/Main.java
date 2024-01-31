@@ -114,7 +114,8 @@ public class Main {
 			double topScale = ui.getPropDouble(Prop.TOPSCALE);
 			double bottomScale = ui.getPropDouble(Prop.BOTTOMSCALE);
 			ChokiKeybinds ck = ui.getKeybinds();
-			new SwingVideo(client, layout, topScale, bottomScale, intrp, ck);
+			boolean showFPS = ui.getPropBoolean(Prop.SHOWFPS);
+			new SwingVideo(client, layout, topScale, bottomScale, intrp, ck, showFPS);
 		}
 	}
 	

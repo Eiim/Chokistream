@@ -33,7 +33,7 @@ public class SwingVideo implements VideoOutputInterface {
 	
 	private static final Logger logger = Logger.INSTANCE;
 
-	public SwingVideo(StreamingInterface client, Layout layout, double topScale, double bottomScale, InterpolationMode intrp, ChokiKeybinds kb) {
+	public SwingVideo(StreamingInterface client, Layout layout, double topScale, double bottomScale, InterpolationMode intrp, ChokiKeybinds kb, boolean showFPS) {
 		this.client = client;
 		
 		networkThread = new NetworkThread(this.client, this);
@@ -150,21 +150,23 @@ public class SwingVideo implements VideoOutputInterface {
 			f.getContentPane().setBackground(Color.BLACK);
 		}
 		
-		fpsTimer = new Timer();
-		fpsTimer.scheduleAtFixedRate(new TimerTask() {
-			@Override
-			public void run() {
-				int topFPS = client.framesSinceLast(DSScreenBoth.TOP);
-				int bottomFPS = client.framesSinceLast(DSScreenBoth.BOTTOM);
-				
-				if(frames.size() == 2) {
-					frames.get(0).setTitle("Chokistream - Top Screen ("+topFPS+" FPS)");
-					frames.get(1).setTitle("Chokistream - Bottom Screen ("+bottomFPS+" FPS)");
-				} else {
-					frames.get(0).setTitle("Chokistream ("+Math.max(topFPS, bottomFPS)+" FPS)");
+		if(showFPS) {
+			fpsTimer = new Timer();
+			fpsTimer.scheduleAtFixedRate(new TimerTask() {
+				@Override
+				public void run() {
+					int topFPS = client.framesSinceLast(DSScreenBoth.TOP);
+					int bottomFPS = client.framesSinceLast(DSScreenBoth.BOTTOM);
+					
+					if(frames.size() == 2) {
+						frames.get(0).setTitle("Chokistream - Top Screen ("+topFPS+" FPS)");
+						frames.get(1).setTitle("Chokistream - Bottom Screen ("+bottomFPS+" FPS)");
+					} else {
+						frames.get(0).setTitle("Chokistream ("+Math.max(topFPS, bottomFPS)+" FPS)");
+					}
 				}
-			}
-		}, 1000, 1000);
+			}, 1000, 1000);
+		}
 		
 		networkThread.start();
 		

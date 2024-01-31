@@ -77,6 +77,10 @@ public class SwingGUI extends SettingsUI {
 	private JTextField sequenceDir;
 	private JTextField sequencePrefix;
 	
+	// Visual settings
+	private JFrame visualSettings;
+	private JCheckBox showFPS;
+	
 	// HzMod settings
 	private JFrame hzSettings;
 	private JTextField qualityHz;
@@ -208,7 +212,7 @@ public class SwingGUI extends SettingsUI {
 				switch(getPropEnum(Prop.OUTPUTFORMAT)) {
 					case FILE -> videoSettings.setVisible(true);
 					case SEQUENCE -> sequenceSettings.setVisible(true);
-					default -> {}
+					case VISUAL -> visualSettings.setVisible(true);
 				}
 			}
 		});
@@ -223,13 +227,6 @@ public class SwingGUI extends SettingsUI {
 		    		case FILE -> Main.initializeFile(SwingGUI.this);
 		    		case SEQUENCE -> Main.initializeSequence(SwingGUI.this);
 		    	}
-			}
-		});
-		
-		outputFormat.addItemListener(new ItemListener() {
-			@Override
-			public void itemStateChanged(ItemEvent e) {
-				outputSettings.setEnabled(!outputFormat.getSelectedItem().equals(OutputFormat.VISUAL.getLongName()));
 			}
 		});
 		
@@ -291,6 +288,7 @@ public class SwingGUI extends SettingsUI {
 		createCHMSettings();
 		createVideoSettings();
 		createSequenceSettings();
+		createVisualSettings();
 		createControls();
 		
 		loadSettings();
@@ -360,6 +358,8 @@ public class SwingGUI extends SettingsUI {
 			};
 		} else if(p.equals(Prop.INTERLACE)) {
 			return interlace.isSelected();
+		} else if(p.equals(Prop.SHOWFPS)) {
+			return showFPS.isSelected();
 		} else {
 			return p.getDefault();
 		}
@@ -433,6 +433,7 @@ public class SwingGUI extends SettingsUI {
 			parser.setProp(Prop.SEQUENCEDIR, getPropString(Prop.SEQUENCEDIR));
 			parser.setProp(Prop.SEQUENCEPREFIX, getPropString(Prop.SEQUENCEPREFIX));
 			parser.setProp(Prop.REQTGA, getPropBoolean(Prop.REQTGA));
+			parser.setProp(Prop.SHOWFPS, getPropBoolean(Prop.SHOWFPS));
 			
 			switch(getPropEnum(Prop.MOD)) {
 				case NTR:
@@ -494,6 +495,8 @@ public class SwingGUI extends SettingsUI {
 			
 			setTextDefault(parser, Prop.SEQUENCEDIR, sequenceDir);
 			setTextDefault(parser, Prop.SEQUENCEPREFIX, sequencePrefix);
+			
+			setCheckedDefault(parser, Prop.SHOWFPS, showFPS);
 		} catch (IOException e) {
 			displayError(e);
 		}
@@ -690,6 +693,35 @@ public class SwingGUI extends SettingsUI {
 		});
 		
 		sequenceSettings.pack();
+	}
+	
+	public void createVisualSettings() {
+		visualSettings = new JFrame();
+		JPanel p = new JPanel();
+		GridBagConstraints c = new GridBagConstraints();
+		frameSetup(visualSettings, p, c);
+		visualSettings.setTitle("Visual Settings");
+		
+		JLabel header = new JLabel("Visual Settings");
+		header.setFont(new Font("System", Font.PLAIN, 20));
+		add(header, p, c, 0, 0, 2, 1);
+		
+		add(new JLabel(Prop.SHOWFPS.getLongName()), p, c, 0, 1);
+		
+		showFPS = new JCheckBox();
+		add(showFPS, p, c, 1, 1, "Show FPS in window title");
+		
+		JButton apply = new JButton("Apply");
+		add(apply, p, c, 0, 2, 2, 1);
+		apply.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				saveSettings();
+				visualSettings.setVisible(false);
+			}
+		});
+		
+		visualSettings.pack();
 	}
 	
 	public void createNTRSettings() {

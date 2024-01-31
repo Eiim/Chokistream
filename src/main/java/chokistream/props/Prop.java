@@ -30,6 +30,7 @@ public final class Prop<T> {
 	public static final Prop<String> VIDEOFILE = new Prop<>("videoFile", "Video File", "out", String.class);
 	public static final Prop<String> SEQUENCEDIR = new Prop<>("sequenceDir", "Image Directory", "out", String.class);
 	public static final Prop<String> SEQUENCEPREFIX = new Prop<>("sequencePrefix", "Image Prefix", "", String.class);
+	public static final Prop<Boolean> SHOWFPS = new Prop<>("showFPS", "Show FPS?", true, Boolean.class);
 	
 	private final String shortName; // short, camel-case name used in .ini
 	private final String longName; // longer, human-friendly name used in GUI
