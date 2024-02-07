@@ -13,7 +13,7 @@ public final class Prop<T> {
 	public static final Prop<Boolean> INTERLACE = new Prop<>("interlace", "Interlace?", false, Boolean.class);
 	public static final Prop<DSScreen> PRIORITYSCREEN = new Prop<>("priorityScreen", "Priority Screen", DSScreen.TOP, DSScreen.class);
 	public static final Prop<Integer> PRIORITYFACTOR = new Prop<>("priority", "Priority Factor", 8, Integer.class);
-	public static final Prop<Integer> QOS = new Prop<>("qos", "QoS", 26, Integer.class);
+	public static final Prop<Integer> QOS = new Prop<>("qos", "QoS", 16, Integer.class);
 	public static final Prop<Integer> CPUCAP = new Prop<>("cpuCap", "CPU Cap", 0, Integer.class);
 	public static final Prop<DSScreenBoth> REQSCREEN = new Prop<>("requestedScreen", "Requested Screen", DSScreenBoth.TOP, DSScreenBoth.class);
 	public static final Prop<Layout> LAYOUT = new Prop<>("layout", "Layout", Layout.SEPARATE, Layout.class);

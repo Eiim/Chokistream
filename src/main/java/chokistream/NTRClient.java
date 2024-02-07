@@ -144,7 +144,7 @@ public class NTRClient implements StreamingInterface {
 		
 		args[0] = ((screen == DSScreen.TOP)? 1 : 0) << 8 | (priority % 256);
 		args[1] = quality;
-		args[2] = qos*2; // Nobody has any clue why, but NTR expects double the QoS value
+		args[2] = (qos*2) << 16; // Convert to the format expected by NTR and NTR-HR
 		
 		try {
 		logger.log("Sending init packet", LogLevel.VERBOSE);
