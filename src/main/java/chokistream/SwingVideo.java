@@ -48,8 +48,8 @@ public class SwingVideo implements VideoOutputInterface {
 			bottom.add(bottomImageView);
 			top.pack();
 			bottom.pack();
-			top.setTitle("Chokistream - Top Screen");
-			bottom.setTitle("Chokistream - Bottom Screen");
+			top.setTitle("Chokistream - 3DS Top Screen");
+			bottom.setTitle("Chokistream - 3DS Bottom Screen");
 			top.setVisible(true);
 			bottom.setVisible(true);
 			frames.add(top);
@@ -60,7 +60,7 @@ public class SwingVideo implements VideoOutputInterface {
 			topImageView = new ImageComponent(DSScreen.TOP, topScale, intrp);
 			top.add(topImageView);
 			top.pack();
-			top.setTitle("Chokistream");
+			top.setTitle("Chokistream - 3DS");
 			top.setVisible(true);
 			frames.add(top);
 			break;
@@ -69,7 +69,7 @@ public class SwingVideo implements VideoOutputInterface {
 			bottomImageView = new ImageComponent(DSScreen.BOTTOM, bottomScale, intrp);
 			bottom.add(bottomImageView);
 			bottom.pack();
-			bottom.setTitle("Chokistream");
+			bottom.setTitle("Chokistream - 3DS");
 			bottom.setVisible(true);
 			frames.add(bottom);
 			break;
@@ -83,7 +83,7 @@ public class SwingVideo implements VideoOutputInterface {
 			bottomImageView.setAlignmentX(Component.CENTER_ALIGNMENT);
 			f.add(bottomImageView);
 			f.pack();
-			f.setTitle("Chokistream");
+			f.setTitle("Chokistream - 3DS");
 			f.setVisible(true);
 			frames.add(f);
 			break;
@@ -97,7 +97,7 @@ public class SwingVideo implements VideoOutputInterface {
 			topImageView.setAlignmentX(Component.CENTER_ALIGNMENT);
 			f.add(topImageView);
 			f.pack();
-			f.setTitle("Chokistream");
+			f.setTitle("Chokistream - 3DS");
 			f.setVisible(true);
 			frames.add(f);
 			break;
@@ -111,7 +111,7 @@ public class SwingVideo implements VideoOutputInterface {
 			bottomImageView.setAlignmentX(Component.CENTER_ALIGNMENT);
 			f.add(bottomImageView);
 			f.pack();
-			f.setTitle("Chokistream");
+			f.setTitle("Chokistream - 3DS");
 			f.setVisible(true);
 			frames.add(f);
 			break;
@@ -125,7 +125,7 @@ public class SwingVideo implements VideoOutputInterface {
 			topImageView.setAlignmentX(Component.CENTER_ALIGNMENT);
 			f.add(topImageView);
 			f.pack();
-			f.setTitle("Chokistream");
+			f.setTitle("Chokistream - 3DS");
 			f.setVisible(true);
 			frames.add(f);
 			break;
@@ -159,10 +159,10 @@ public class SwingVideo implements VideoOutputInterface {
 					int bottomFPS = client.framesSinceLast(DSScreenBoth.BOTTOM);
 					
 					if(frames.size() == 2) {
-						frames.get(0).setTitle("Chokistream - Top Screen ("+topFPS+" FPS)");
-						frames.get(1).setTitle("Chokistream - Bottom Screen ("+bottomFPS+" FPS)");
+						frames.get(0).setTitle("Chokistream - 3DS Top Screen ("+topFPS+" FPS)");
+						frames.get(1).setTitle("Chokistream - 3DS Bottom Screen ("+bottomFPS+" FPS)");
 					} else {
-						frames.get(0).setTitle("Chokistream ("+Math.max(topFPS, bottomFPS)+" FPS)");
+						frames.get(0).setTitle("Chokistream - 3DS ("+Math.max(topFPS, bottomFPS)+" FPS)");
 					}
 				}
 			}, 1000, 1000);
