@@ -68,6 +68,7 @@ public class ImageManipulator {
 	}
 	
 	// Only offset + rotation
+	// TODO: Make faster with Raster
 	private static BufferedImage adjustStandard(BufferedImage base, BufferedImage in, int offset) {
 		int ow = base.getWidth();
 		int oh = base.getHeight();
@@ -80,6 +81,7 @@ public class ImageManipulator {
 	}
 	
 	// interlace + offset + rotation
+	// TODO: Make faster with Raster
 	private static BufferedImage adjustInt(BufferedImage base, BufferedImage in, int interParity, int offset) {
 		int iw = in.getWidth();
 		int ih = in.getHeight();
@@ -119,7 +121,6 @@ public class ImageManipulator {
 		int ih = in.getHeight();
 		for(int i = 0; i < iw; i++) {
 			for(int j = 0; j < ih; j++) {
-				int oy = iw-(2*i)-interParity-1;
 				try {
 					base.setRGB(j + offset, iw-(2*i)-interParity-1, ColorHotfix.hzModSwapRedBlue(in.getRGB(i, j)));
 				} catch(ArrayIndexOutOfBoundsException e) {
