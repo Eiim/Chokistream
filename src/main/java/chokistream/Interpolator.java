@@ -19,12 +19,17 @@ public class Interpolator {
 		if(in == null) {
 			return new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
 		}
-		int newW = (int)(scale*in.getWidth());
-		int newH = (int)(scale*in.getHeight());
-		BufferedImage out = new BufferedImage(newW, newH, in.getType());
-		for(int i = 0; i < newW; i++) {
-			for(int j = 0; j < newH; j++) {
-				out.setRGB(i, j, in.getRGB((int)(i/scale), (int)(j/scale)));
+		int oldW = in.getWidth();
+		int oldH = in.getHeight();
+		BufferedImage out = new BufferedImage((int)(scale*oldW), (int)(scale*oldH), in.getType());
+		for(int i = 0; i < oldW; i++) {
+			for(int j = 0; j < oldH; j++) {
+				int rgb = in.getRGB(i, j);
+				for(int i2 = (int)(scale*i); i2 < (int)(scale*(i+1)); i2++) {
+					for(int j2 = (int)(scale*j); j2 < (int)(scale*(j+1)); j2++) {
+						out.setRGB(i2, j2, rgb);
+					}
+				}
 			}
 		}
 		return out;
