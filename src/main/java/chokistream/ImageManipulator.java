@@ -9,26 +9,23 @@ public class ImageManipulator {
 	private static Logger logger = Logger.INSTANCE;
 	
 	/**
-	 * Rotates and color-adjusts an image
+	 * For NTR: rotates and color-adjusts an image
 	 * @param in Original image
 	 * @param cm Color adjustment mode
-	 * @param swapRB Swap R/B channels (HzM/CHM)
 	 * @return Adjusted image
 	 */
-	public static BufferedImage adjust(BufferedImage in, ColorMode cm, boolean swapRB) {
+	public static BufferedImage adjust(BufferedImage in, ColorMode cm) {
 		BufferedImage out = new BufferedImage(in.getHeight(), in.getWidth(), in.getType());
-		int ow = out.getWidth();
-		int oh = out.getHeight();
-		for(int i = 0; i < ow; i++) {
-			for(int j = 0; j < oh; j++) {
-				out.setRGB(i, oh-j-1, ColorHotfix.hotfixPixel(in.getRGB(j, i), cm, swapRB));
-			}
+		if(cm == ColorMode.REGULAR) {
+			return adjustStandard(out, in, 0);
+		} else {
+			return adjustCM(out, in, 0, cm);
 		}
-		return out;
 	}
 	
 	/**
 	 * Combines an image with another, doing interpolation, offset, color adjustment, and rotation, as necessary.
+	 * Propagates down to optimized code paths.
 	 * @param base Image to be combined onto
 	 * @param in Image to combine
 	 * @param interlace Whether or not to interlace
@@ -38,21 +35,150 @@ public class ImageManipulator {
 	 * @param swapRB Swap R/B channels (HzM/CHM)
 	 * @return Resultant image
 	 */
-	public static BufferedImage adjust(BufferedImage base, BufferedImage in, boolean interlace, int interParity, int offset, ColorMode cm, boolean swapRB) throws ArrayIndexOutOfBoundsException {
-		//logger.log(String.format("Composing %d x %d onto %d x %d with i=%s,%d, o=%d, cm=%s, and rb=%s", in.getWidth(), in.getHeight(), base.getWidth(), base.getHeight(), interlace, interParity, offset, cm.getLongName(), swapRB), LogLevel.VERBOSE);
+	public static BufferedImage adjust(BufferedImage base, BufferedImage in, boolean interlace, int interParity, int offset, ColorMode cm, boolean swapRB) {
+		if(interlace) {
+			if(swapRB) {
+				if(cm == ColorMode.REGULAR) {
+					return adjustIntRB(base, in, interParity, offset);
+				} else {
+					return adjustIntCMRB(base, in, interParity, offset, cm);
+				}
+			} else {
+				if(cm == ColorMode.REGULAR) {
+					return adjustInt(base, in, interParity, offset);
+				} else {
+					return adjustIntCM(base, in, interParity, offset, cm);
+				}
+			}
+		} else {
+			if(swapRB) {
+				if(cm == ColorMode.REGULAR) {
+					return adjustRB(base, in, offset);
+				} else {
+					return adjustCMRB(base, in, offset, cm);
+				}
+			} else {
+				if(cm == ColorMode.REGULAR) {
+					return adjustStandard(base, in, offset);
+				} else {
+					return adjustCM(base, in, offset, cm);
+				}
+			}
+		}
+	}
+	
+	// Only offset + rotation
+	private static BufferedImage adjustStandard(BufferedImage base, BufferedImage in, int offset) {
+		int ow = base.getWidth();
+		int oh = base.getHeight();
+		for(int i = 0; i < ow; i++) {
+			for(int j = 0; j < oh; j++) {
+				base.setRGB(i + offset, oh-j-1, in.getRGB(j, i));
+			}
+		}
+		return base;
+	}
+	
+	// interlace + offset + rotation
+	private static BufferedImage adjustInt(BufferedImage base, BufferedImage in, int interParity, int offset) {
 		int iw = in.getWidth();
 		int ih = in.getHeight();
-		int oh = base.getHeight();
 		for(int i = 0; i < iw; i++) {
 			for(int j = 0; j < ih; j++) {
-				int oy = interlace ? oh-(2*i)-interParity-1 : oh-i-1; // Maybe should do branchless somehow? eh
 				try {
-					//logger.logOnce(in.getRGB(i, j)+"");
-					base.setRGB(j + offset, oy, ColorHotfix.hotfixPixel(in.getRGB(i, j), cm, swapRB));
+					base.setRGB(j + offset, iw-(2*i)-interParity-1, in.getRGB(i, j));
 				} catch(ArrayIndexOutOfBoundsException e) {
-					logger.log(i+" "+j+" "+(j+offset)+" "+oy);
+					logger.log(i+" "+j+" "+(j+offset)+" "+(iw-(2*i)-interParity-1));
 					throw e;
 				}
+			}
+		}
+		return base;
+	}
+	
+	// interlace + offset + rotation + colormode
+	private static BufferedImage adjustIntCM(BufferedImage base, BufferedImage in, int interParity, int offset, ColorMode cm) {
+		int iw = in.getWidth();
+		int ih = in.getHeight();
+		for(int i = 0; i < iw; i++) {
+			for(int j = 0; j < ih; j++) {
+				try {
+					base.setRGB(j + offset, iw-(2*i)-interParity-1, ColorHotfix.hotfixPixel(in.getRGB(i, j), cm));
+				} catch(ArrayIndexOutOfBoundsException e) {
+					logger.log(i+" "+j+" "+(j+offset)+" "+(iw-(2*i)-interParity-1));
+					throw e;
+				}
+			}
+		}
+		return base;
+	}
+	
+	// interlace + offset + rotation + swap rb
+	private static BufferedImage adjustIntRB(BufferedImage base, BufferedImage in, int interParity, int offset) {
+		int iw = in.getWidth();
+		int ih = in.getHeight();
+		for(int i = 0; i < iw; i++) {
+			for(int j = 0; j < ih; j++) {
+				int oy = iw-(2*i)-interParity-1;
+				try {
+					base.setRGB(j + offset, iw-(2*i)-interParity-1, ColorHotfix.hzModSwapRedBlue(in.getRGB(i, j)));
+				} catch(ArrayIndexOutOfBoundsException e) {
+					logger.log(i+" "+j+" "+(j+offset)+" "+(iw-(2*i)-interParity-1));
+					throw e;
+				}
+			}
+		}
+		return base;
+	}
+	
+	// interlace + offset + rotation + swap rb + colormode
+	private static BufferedImage adjustIntCMRB(BufferedImage base, BufferedImage in, int interParity, int offset, ColorMode cm) {
+		int iw = in.getWidth();
+		int ih = in.getHeight();
+		for(int i = 0; i < iw; i++) {
+			for(int j = 0; j < ih; j++) {
+				try {
+					base.setRGB(j + offset, iw-(2*i)-interParity-1, ColorHotfix.hotfixPixel(ColorHotfix.hzModSwapRedBlue(in.getRGB(i, j)), cm));
+				} catch(ArrayIndexOutOfBoundsException e) {
+					logger.log(i+" "+j+" "+(j+offset)+" "+(iw-(2*i)-interParity-1));
+					throw e;
+				}
+			}
+		}
+		return base;
+	}
+	
+	// offset + rotation + colormode
+	private static BufferedImage adjustCM(BufferedImage base, BufferedImage in, int offset, ColorMode cm) {
+		int iw = in.getWidth();
+		int ih = in.getHeight();
+		for(int i = 0; i < iw; i++) {
+			for(int j = 0; j < ih; j++) {
+				base.setRGB(j + offset, iw-i-1, ColorHotfix.hotfixPixel(in.getRGB(i, j), cm));
+			}
+		}
+		return base;
+	}
+	
+	// offset + rotation + swap rb
+	private static BufferedImage adjustRB(BufferedImage base, BufferedImage in, int offset) {
+		int iw = in.getWidth();
+		int ih = in.getHeight();
+		for(int i = 0; i < iw; i++) {
+			for(int j = 0; j < ih; j++) {
+				base.setRGB(j + offset, iw-i-1, ColorHotfix.hzModSwapRedBlue(in.getRGB(i, j)));
+			}
+		}
+		return base;
+	}
+	
+	// offset + rotation + swap rb + colormode
+	private static BufferedImage adjustCMRB(BufferedImage base, BufferedImage in, int offset, ColorMode cm) {
+		int iw = in.getWidth();
+		int ih = in.getHeight();
+		for(int i = 0; i < iw; i++) {
+			for(int j = 0; j < ih; j++) {
+				base.setRGB(j + offset, iw-i-1, ColorHotfix.hotfixPixel(ColorHotfix.hzModSwapRedBlue(in.getRGB(i, j)), cm));
 			}
 		}
 		return base;

@@ -1,12 +1,10 @@
 package chokistream;
 
-import java.awt.image.BufferedImage;
-
 import chokistream.props.ColorMode;
 
 public class ColorHotfix {
 	
-	private static int hzModSwapRedBlue(int currentPixelColor) {
+	public static int hzModSwapRedBlue(int currentPixelColor) {
 		// Assume full alpha because it always should be
 		//int newAlphaIdk = ((currentPixelColor&0b11111111000000000000000000000000) >>> 24);
 		int newRedPixel = ((currentPixelColor&0b00000000000000000000000011111111)); //bitwise AND
@@ -15,7 +13,7 @@ public class ColorHotfix {
 		return 0xFF000000 +  ((newRedPixel)<<16) + ((newGrnPixel)<<8) + (newBluPixel);
 	}
 	
-	private static int makeGrayscale(int currentPixelColor) {
+	public static int makeGrayscale(int currentPixelColor) {
 		int newRedPixel = ((currentPixelColor&0b00000000111111110000000000000000) >>> 16);
 		int newGrnPixel = ((currentPixelColor&0b00000000000000001111111100000000) >>> 8);
 		int newBluPixel = ((currentPixelColor&0b00000000000000000000000011111111));
@@ -24,7 +22,7 @@ public class ColorHotfix {
 	}
 	
 	// THIS IS BROKEN. IT IS BORDERLINE UNSOLVABLE. TRUST ME, I SPENT HOURS ON THIS. -C
-	private static int vcBlueShift(int currentPixelColor) {
+	public static int vcBlueShift(int currentPixelColor) {
 		//int newAlphaIdk = ((currentPixelColor&0b11111111000000000000000000000000) >>> 24);
 		int newRedPixel = ((currentPixelColor&0b00000000111111110000000000000000) >>> 16);
 		int newGrnPixel = ((currentPixelColor&0b00000000000000001111111100000000) >>> 8);
@@ -95,27 +93,6 @@ public class ColorHotfix {
 	 * newBluPixel = (int)((newBluPixel/256.0) * 0x48) + newBluPixel;
 	 */
 	
-	public static BufferedImage doColorHotfix(BufferedImage hotfixImage, ColorMode colorMode, boolean swapRB) {
-		try {
-			int currentPixelColor = 0;
-			int currentW = 0;
-			int currentH = 0;
-			while (currentH < hotfixImage.getHeight()) {
-				while (currentW < hotfixImage.getWidth()) {
-					currentPixelColor = hotfixImage.getRGB(currentW, currentH);
-					hotfixImage.setRGB(currentW, currentH, hotfixPixel(currentPixelColor, colorMode, swapRB));
-					currentW++;
-				}
-				currentW = 0;
-				currentH++;
-			}
-			return hotfixImage;
-		} catch (NullPointerException e) {
-			e.printStackTrace();
-			return new BufferedImage(400, 240, BufferedImage.TYPE_INT_RGB);
-		}
-	}
-	
 	public static int hotfixPixel(int in, ColorMode colorMode, boolean swapRB) {
 		int ret = in;
 		
@@ -126,6 +103,15 @@ public class ColorHotfix {
 			case GRAYSCALE -> makeGrayscale(in);
 			case REGULAR -> ret;
 			case VC_BLUE_SHIFT -> vcBlueShift(in);
+		};
+	}
+	
+	// Probably slower than we'd like, but it should be rarely used
+	public static int hotfixPixel(int in, ColorMode colorMode) {
+		return switch(colorMode) {
+			case GRAYSCALE -> makeGrayscale(in);
+			case VC_BLUE_SHIFT -> vcBlueShift(in);
+			case REGULAR -> in;
 		};
 	}
 	

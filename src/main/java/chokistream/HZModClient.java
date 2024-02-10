@@ -246,22 +246,16 @@ public class HZModClient implements StreamingInterface {
 		}
 		
 		if(screen == DSScreen.BOTTOM) {
-			if(image.getHeight() == 320) { // Full screen
-				bottomFrames++;
-				lastBottomImage = ImageManipulator.adjust(image, colorMode, rbSwap);
-			} else if(image.getWidth() > 1) { // Fractional
-				if(image.getHeight() + offset == 320) bottomFrames++;
-				lastBottomImage = ImageManipulator.adjust(lastBottomImage, image, false, 0, offset, colorMode, rbSwap);;
+			if(image.getWidth() > 1) {
+				if(image.getHeight() + offset == 320) bottomFrames++; // works for both fractional and non-fractional
+				lastBottomImage = ImageManipulator.adjust(lastBottomImage, image, false, 0, offset, colorMode, rbSwap);
 			} else {
 				// 1-wide frame, use the last one instead
 			}
 			returnFrame = new Frame(DSScreen.BOTTOM, lastBottomImage);
 		} else {
-			if(image.getHeight() == 400) { // Full screen
-				topFrames++;
-				lastTopImage = ImageManipulator.adjust(image, colorMode, rbSwap);
-			} else if(image.getWidth() > 1) { // Fractional
-				if(image.getHeight() + offset == 400) topFrames++;
+			if(image.getWidth() > 1) {
+				if(image.getHeight() + offset == 400) topFrames++; // works for both fractional and non-fractional
 				lastTopImage = ImageManipulator.adjust(lastTopImage, image, false, 0, offset, colorMode, rbSwap);
 			} else {
 				// 1-wide frame, use the last one instead

@@ -110,7 +110,7 @@ public class NTRUDPThread extends Thread {
 						priorityImage = ImageIO.read(new ByteArrayInputStream(priorityImageData));
 						priorityImageData = new byte[0];
 						
-						priorityImage = ImageManipulator.adjust(priorityImage, colorMode, false);
+						priorityImage = ImageManipulator.adjust(priorityImage, colorMode);
 						
 						frameBuffer.poll();
 						frameBuffer.add(new Frame(currentScreen, priorityImage));
@@ -141,7 +141,7 @@ public class NTRUDPThread extends Thread {
 						secondaryImage = ImageIO.read(new ByteArrayInputStream(secondaryImageData));
 						secondaryImageData = new byte[0];
 						
-						secondaryImage = ImageManipulator.adjust(secondaryImage, colorMode, false);
+						secondaryImage = ImageManipulator.adjust(secondaryImage, colorMode);
 						
 						frameBuffer.poll();
 						frameBuffer.add(new Frame(currentScreen, secondaryImage));
