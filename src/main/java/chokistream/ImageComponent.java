@@ -15,11 +15,11 @@ public class ImageComponent extends JComponent {
 	private static final long serialVersionUID = 765806607527369338L;
 	
 	private BufferedImage img;
-	private DSScreen screen;
-	private InterpolationMode intrp;
-	private int width;
-	private int height;
-	private double scale;
+	private final DSScreen screen;
+	private final InterpolationMode intrp;
+	private final int width;
+	private final int height;
+	private final double scale;
 
 	public ImageComponent(DSScreen screen, double scale, InterpolationMode intrp) {
 		this.screen = screen;

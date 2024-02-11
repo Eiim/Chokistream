@@ -36,7 +36,7 @@ public class NTRClient implements StreamingInterface {
 	/**
 	 * Thread used by NTRClient to read and buffer Frames received from the 3DS.
 	 */
-	private NTRUDPThread thread;
+	private final NTRUDPThread thread;
 	
 	private static final Logger logger = Logger.INSTANCE;
 	
@@ -147,23 +147,12 @@ public class NTRClient implements StreamingInterface {
 		args[2] = (qos*2) << 16; // Convert to the format expected by NTR and NTR-HR
 		
 		try {
-		logger.log("Sending init packet", LogLevel.VERBOSE);
-		sendPacket(host, port, type, cmd, args, new byte[0], seq);
+			logger.log("Sending init packet", LogLevel.VERBOSE);
+			sendPacket(host, port, type, cmd, args, new byte[0], seq);
 		} catch(IOException e) {
 			e.printStackTrace();
 			logger.log("Init packet failed to send");
 		}
-		
-		return;
-	}
-	
-	public static void sendPacket(String host, int port, int type, int cmd, int[] args, byte[] exdata) throws UnknownHostException, IOException {
-		try {
-			sendPacket(host, port, type, cmd, args, exdata, 0);
-		} catch(IOException e) {
-			throw e;
-		}
-		return;
 	}
 	
 	public static void sendPacket(String host, int port, int type, int cmd, int[] args, byte[] exdata, int seq) throws UnknownHostException, IOException {

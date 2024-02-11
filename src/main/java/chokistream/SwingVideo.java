@@ -25,9 +25,9 @@ import chokistream.props.LogLevel;
 
 public class SwingVideo implements VideoOutputInterface {
 	
-	private StreamingInterface client;
-	private NetworkThread networkThread;
-	private ArrayList<JFrame> frames = new ArrayList<>();
+	private final StreamingInterface client;
+	private final NetworkThread networkThread;
+	private final ArrayList<JFrame> frames = new ArrayList<>();
 	private ImageComponent topImageView;
 	private ImageComponent bottomImageView;
 	private Timer fpsTimer;

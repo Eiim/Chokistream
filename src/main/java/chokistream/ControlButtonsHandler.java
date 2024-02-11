@@ -13,9 +13,9 @@ import chokistream.props.Controls;
 
 public class ControlButtonsHandler implements KeyListener {
 	
-	private ArrayList<JToggleButton> buttons = new ArrayList<>(Controls.values().length);
+	private final ArrayList<JToggleButton> buttons = new ArrayList<>(Controls.values().length);
 	private JToggleButton active = null;
-	private JFrame frame;
+	private final JFrame frame;
 	
 	public ControlButtonsHandler(JFrame f) {
 		frame = f;

@@ -13,20 +13,21 @@ import chokistream.props.Layout;
 
 public class ImageSequenceVideo implements VideoOutputInterface {
 	
-	private StreamingInterface client;
-	private NetworkThread networkThread;
-	private InterpolationMode intrp;
-	private Layout layout;
-	private double topScale;
-	private double bottomScale;
+	private final StreamingInterface client;
+	private final NetworkThread networkThread;
+	private final InterpolationMode intrp;
+	private final Layout layout;
+	private final double topScale;
+	private final double bottomScale;
+	private final String directory;
+	private final String prefix;
 	private BufferedImage lastTopFrame;
 	private BufferedImage lastBottomFrame;
-	private static final Logger logger = Logger.INSTANCE;
 	private boolean done;
 	private int frameCount; // Used as topFrameCount for separate
 	private int bottomFrameCount;
-	private String directory;
-	private String prefix;
+	
+	private static final Logger logger = Logger.INSTANCE;
 	
 	public ImageSequenceVideo(StreamingInterface client, String directory, String prefix, InterpolationMode intrp, Layout layout, double topScale, double bottomScale) {
 		this.client = client;

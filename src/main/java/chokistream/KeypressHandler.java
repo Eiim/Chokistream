@@ -8,9 +8,9 @@ import chokistream.props.Controls;
 
 public class KeypressHandler implements KeyListener {
 	
-	private SwingVideo output;
-	private StreamingInterface client;
-	private ChokiKeybinds ck;
+	private final SwingVideo output;
+	private final StreamingInterface client;
+	private final ChokiKeybinds ck;
 	
 	public KeypressHandler(SwingVideo sv, StreamingInterface si, ChokiKeybinds keybinds) {
 		output = sv;

@@ -18,17 +18,17 @@ import chokistream.props.VideoFormat;
 
 public class OutputFileVideo implements VideoOutputInterface {
 	
-	private StreamingInterface client;
-	private NetworkThread networkThread;
+	private final StreamingInterface client;
+	private final NetworkThread networkThread;
 	private SequenceEncoder enc;
 	private SequenceEncoder bottomEnc;
 	private long prevNanos;
 	private long prevBottomNanos; // For separate screen
 	private static final Logger logger = Logger.INSTANCE;
 	private boolean done;
-	private InterpolationMode intrp;
-	private double topScale;
-	private double bottomScale;
+	private final InterpolationMode intrp;
+	private final double topScale;
+	private final double bottomScale;
 	private BufferedImage lastTopFrame;
 	private BufferedImage lastBottomFrame;
 	private Layout layout;

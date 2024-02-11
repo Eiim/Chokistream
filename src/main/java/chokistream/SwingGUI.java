@@ -52,20 +52,20 @@ import chokistream.props.VideoFormat;
 
 public class SwingGUI extends SettingsUI {
 	
-	private JFrame f;
+	private final JFrame f;
 	
 	// General settings
-	private JComboBox<String> mod;
-	private JTextField ip;
-	private JComboBox<String> layout;
-	private JTextField topScale;
-	private JTextField bottomScale;
-	private JComboBox<String> colorMode;
-	private JTextField port;
-	private JComboBox<String> logMode;
-	private JComboBox<String> logLevel;
-	private JTextField logFile;
-	private JComboBox<String> outputFormat;
+	private final JComboBox<String> mod;
+	private final JTextField ip;
+	private final JComboBox<String> layout;
+	private final JTextField topScale;
+	private final JTextField bottomScale;
+	private final JComboBox<String> colorMode;
+	private final JTextField port;
+	private final JComboBox<String> logMode;
+	private final JComboBox<String> logLevel;
+	private final JTextField logFile;
+	private final JComboBox<String> outputFormat;
 	
 	// Video settings
 	private JFrame videoSettings;
@@ -107,7 +107,7 @@ public class SwingGUI extends SettingsUI {
 	
 	// Controls
 	private JFrame controls;
-	private EnumMap<Controls, JToggleButton> controlsFields = new EnumMap<>(Controls.class);
+	private final EnumMap<Controls, JToggleButton> controlsFields = new EnumMap<>(Controls.class);
 	
 	private static final Logger logger = Logger.INSTANCE;
 	

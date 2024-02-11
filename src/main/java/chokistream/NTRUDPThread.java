@@ -21,22 +21,22 @@ public class NTRUDPThread extends Thread {
 	/**
 	 * Socket used to receive UDP packets from the 3DS on.
 	 */
-	private DatagramSocket socket;
+	private final DatagramSocket socket;
 	
 	/**
 	 * Buffer used to store UDP data in.
 	 */
-	private byte[] packetBuffer = new byte[1448];
+	private final byte[] packetBuffer = new byte[1448];
 	
 	/**
 	 * A BlockingQueue to buffer received Frames in.
 	 */
-	private BlockingQueue<Frame> frameBuffer = new LinkedBlockingQueue<Frame>(10);
+	private final BlockingQueue<Frame> frameBuffer = new LinkedBlockingQueue<Frame>(10);
 	
 	/**
 	 * Should the thread die?
 	 */
-	private AtomicBoolean shouldDie = new AtomicBoolean(false);
+	private final AtomicBoolean shouldDie = new AtomicBoolean(false);
 	
 	//WritableInputStream priorityInputStream = new WritableInputStream();
 	//WritableInputStream secondaryInputStream = new WritableInputStream();
@@ -48,8 +48,8 @@ public class NTRUDPThread extends Thread {
 	private byte secondaryExpectedFrame = 0;
 	private byte priorityExpectedPacket = 0;
 	private byte secondaryExpectedPacket = 0;
-	private DSScreen activeScreen = DSScreen.TOP;
-	private ColorMode colorMode;
+	private final DSScreen activeScreen;
+	private final ColorMode colorMode;
 	
 	private static final Logger logger = Logger.INSTANCE;
 	

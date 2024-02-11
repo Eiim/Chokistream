@@ -25,11 +25,11 @@ public class HZModClient implements StreamingInterface {
 	private static final byte TARGA_PACKET = 0x03;
 	private static final byte JPEG_PACKET = 0x04;
 	
-	private Socket client = null;
-	private InputStream in = null;
-	private OutputStream out = null;
-	private ColorMode colorMode;
-	public int quality;
+	private final Socket client;
+	private final InputStream in;
+	private final OutputStream out;
+	private final ColorMode colorMode;
+	private int quality;
 	private TGAPixelFormat topFormat = TGAPixelFormat.RGB8;
 	private TGAPixelFormat bottomFormat = TGAPixelFormat.RGB8;
 	private BufferedImage lastTopImage;

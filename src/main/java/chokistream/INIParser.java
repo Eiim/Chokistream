@@ -18,7 +18,7 @@ public class INIParser {
 	
 	private List<IniLine> iniLines;
 	private HashMap<String, String> data;
-	private File file;
+	private final File file;
 	
 	public INIParser(File f) throws IOException {
 		file = f;
