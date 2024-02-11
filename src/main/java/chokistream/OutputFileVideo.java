@@ -31,7 +31,7 @@ public class OutputFileVideo implements VideoOutputInterface {
 	private final double bottomScale;
 	private BufferedImage lastTopFrame;
 	private BufferedImage lastBottomFrame;
-	private Layout layout;
+	private final Layout layout;
 	
 	public OutputFileVideo(StreamingInterface client, Layout layout, String filename, String extension, VideoFormat vf, InterpolationMode intrp, double topScale, double bottomScale) {
 		this.client = client;

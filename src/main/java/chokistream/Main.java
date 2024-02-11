@@ -44,9 +44,9 @@ public class Main {
 				break;
 			}
 		} else {
-			top = new JFrame();
-			bottom = new JFrame();
-			both = new JFrame();
+			top = new JFrame("Chokistream - 3DS Top Screen");
+			bottom = new JFrame("Chokistream - 3DS Bottom Screen");
+			both = new JFrame("Chokistream - 3DS");
 			new SwingGUI();
 		}
 	}

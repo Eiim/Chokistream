@@ -26,7 +26,6 @@ public class ChirunoModClient implements StreamingInterface {
 	private Socket client = null;
 	private InputStream in = null;
 	private OutputStream out = null;
-	private ColorMode colorMode;
 	private BufferedImage lastTopImage;
 	private BufferedImage lastBottomImage;
 	
@@ -39,6 +38,7 @@ public class ChirunoModClient implements StreamingInterface {
 	private boolean tga;
 	private boolean interlace;
 	private DSScreenBoth screen;
+	private final ColorMode colorMode; // probably no need to have this modifiable
 	
 	private static final int FORMAT_MASK = 		0b00000111;
 	private static final int TGA_MASK = 		0b00001000;

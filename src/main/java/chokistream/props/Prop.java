@@ -1,5 +1,7 @@
 package chokistream.props;
 
+import java.util.Objects;
+
 /*
  * An enum for all the different user-specifiable properties we use.
  * Hopefully maintainable than previous, more intuitive solution, which duplicated a lot of code.
@@ -35,7 +37,7 @@ public final class Prop<T> {
 	private final String shortName; // short, camel-case name used in .ini
 	private final String longName; // longer, human-friendly name used in GUI
 	private final T defaultVal;
-	private final Class<T> c; // Helper lass instance
+	private final Class<T> c; // Helper class instance
 	
 	private Prop(String sname, String lname, T def, Class<T> c) {
 		shortName = sname;
@@ -61,15 +63,19 @@ public final class Prop<T> {
 	}
 
 	@Override
+	public int hashCode() {
+		// If we have the same long and short names, we're referring to the same property. No need to check defaults.
+		return Objects.hash(longName, shortName);
+	}
+
+	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
-		if (obj == null)
+		if (!(obj instanceof Prop))
 			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Prop<?> other = (Prop<?>) obj;
+		Prop other = (Prop) obj;
 		// If we have the same long and short names, we're referring to the same property. No need to check defaults.
-		return shortName.equals(other.shortName) && longName.equals(other.longName);
+		return Objects.equals(longName, other.longName) && Objects.equals(shortName, other.shortName);
 	}
 }

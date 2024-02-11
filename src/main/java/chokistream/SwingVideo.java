@@ -45,29 +45,17 @@ public class SwingVideo implements VideoOutputInterface {
 			bottomImageView = new ImageComponent(DSScreen.BOTTOM, bottomScale, intrp);
 			top.add(topImageView);
 			bottom.add(bottomImageView);
-			top.pack();
-			bottom.pack();
-			top.setTitle("Chokistream - 3DS Top Screen");
-			bottom.setTitle("Chokistream - 3DS Bottom Screen");
-			top.setVisible(true);
-			bottom.setVisible(true);
 			frames.add(top);
 			frames.add(bottom);
 			break;
 		} case TOP_ONLY: {
 			topImageView = new ImageComponent(DSScreen.TOP, topScale, intrp);
 			top.add(topImageView);
-			top.pack();
-			top.setTitle("Chokistream - 3DS");
-			top.setVisible(true);
 			frames.add(top);
 			break;
 		} case BOTTOM_ONLY: {
 			bottomImageView = new ImageComponent(DSScreen.BOTTOM, bottomScale, intrp);
 			bottom.add(bottomImageView);
-			bottom.pack();
-			bottom.setTitle("Chokistream - 3DS");
-			bottom.setVisible(true);
 			frames.add(bottom);
 			break;
 		} case HORIZONTAL: {
@@ -78,9 +66,6 @@ public class SwingVideo implements VideoOutputInterface {
 			bottomImageView = new ImageComponent(DSScreen.BOTTOM, bottomScale, intrp);
 			bottomImageView.setAlignmentX(Component.CENTER_ALIGNMENT);
 			both.add(bottomImageView);
-			both.pack();
-			both.setTitle("Chokistream - 3DS");
-			both.setVisible(true);
 			frames.add(both);
 			break;
 		} case HORIZONTAL_INV: {
@@ -91,9 +76,6 @@ public class SwingVideo implements VideoOutputInterface {
 			topImageView = new ImageComponent(DSScreen.TOP, topScale, intrp);
 			topImageView.setAlignmentX(Component.CENTER_ALIGNMENT);
 			both.add(topImageView);
-			both.pack();
-			both.setTitle("Chokistream - 3DS");
-			both.setVisible(true);
 			frames.add(both);
 			break;
 		} case VERTICAL: {
@@ -104,9 +86,6 @@ public class SwingVideo implements VideoOutputInterface {
 			bottomImageView = new ImageComponent(DSScreen.BOTTOM, bottomScale, intrp);
 			bottomImageView.setAlignmentX(Component.CENTER_ALIGNMENT);
 			both.add(bottomImageView);
-			both.pack();
-			both.setTitle("Chokistream - 3DS");
-			both.setVisible(true);
 			frames.add(both);
 			break;
 		} case VERTICAL_INV: {
@@ -117,9 +96,6 @@ public class SwingVideo implements VideoOutputInterface {
 			topImageView = new ImageComponent(DSScreen.TOP, topScale, intrp);
 			topImageView.setAlignmentX(Component.CENTER_ALIGNMENT);
 			both.add(topImageView);
-			both.pack();
-			both.setTitle("Chokistream - 3DS");
-			both.setVisible(true);
 			frames.add(both);
 			break;
 		} default: {
@@ -141,7 +117,9 @@ public class SwingVideo implements VideoOutputInterface {
 			});
 			f.addKeyListener(kl);
 			f.getContentPane().setBackground(Color.BLACK);
-			f.repaint(); // Force Windows to remember that it should be all black background
+			f.pack();
+			f.setVisible(true);
+			f.repaint(); // Fix Windows bug when re-using JFrames
 		}
 		
 		if(showFPS) {
