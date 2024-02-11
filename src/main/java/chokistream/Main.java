@@ -3,6 +3,8 @@ package chokistream;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.swing.JFrame;
+
 import chokistream.props.ColorMode;
 import chokistream.props.DSScreen;
 import chokistream.props.DSScreenBoth;
@@ -18,6 +20,7 @@ import chokistream.props.VideoFormat;
  * Determines the UI to use and initializes it
  */
 public class Main {
+	private static JFrame top, bottom, both;
 	public static void main(String[] args) {
 		
 		// Set up logging before anything else
@@ -41,6 +44,9 @@ public class Main {
 				break;
 			}
 		} else {
+			top = new JFrame();
+			bottom = new JFrame();
+			both = new JFrame();
 			new SwingGUI();
 		}
 	}
@@ -107,15 +113,18 @@ public class Main {
 	}
 	
 	public static void initializeSwing(SettingsUI ui) {
+		System.out.println("Initializing client");
 		StreamingInterface client = initialize(ui);
 		if(client != null) {
+			System.out.println("Getting properties");
 			Layout layout = ui.getPropEnum(Prop.LAYOUT);
 			InterpolationMode intrp = ui.getPropEnum(Prop.INTRPMODE);
 			double topScale = ui.getPropDouble(Prop.TOPSCALE);
 			double bottomScale = ui.getPropDouble(Prop.BOTTOMSCALE);
 			ChokiKeybinds ck = ui.getKeybinds();
 			boolean showFPS = ui.getPropBoolean(Prop.SHOWFPS);
-			new SwingVideo(client, layout, topScale, bottomScale, intrp, ck, showFPS);
+			System.out.println("Starting Video");
+			new SwingVideo(client, layout, topScale, bottomScale, intrp, ck, showFPS, top, bottom, both);
 		}
 	}
 	

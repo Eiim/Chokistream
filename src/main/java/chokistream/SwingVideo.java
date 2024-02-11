@@ -33,15 +33,13 @@ public class SwingVideo implements VideoOutputInterface {
 	
 	private static final Logger logger = Logger.INSTANCE;
 
-	public SwingVideo(StreamingInterface client, Layout layout, double topScale, double bottomScale, InterpolationMode intrp, ChokiKeybinds kb, boolean showFPS) {
+	public SwingVideo(StreamingInterface client, Layout layout, double topScale, double bottomScale, InterpolationMode intrp, ChokiKeybinds kb, boolean showFPS, JFrame top, JFrame bottom, JFrame both) {
 		this.client = client;
 		
 		networkThread = new NetworkThread(this.client, this);
 		
 		switch(layout) {
 		case SEPARATE: {
-			JFrame top = new JFrame();
-			JFrame bottom = new JFrame();
 			topImageView = new ImageComponent(DSScreen.TOP, topScale, intrp);
 			bottomImageView = new ImageComponent(DSScreen.BOTTOM, bottomScale, intrp);
 			top.add(topImageView);
@@ -56,7 +54,6 @@ public class SwingVideo implements VideoOutputInterface {
 			frames.add(bottom);
 			break;
 		} case TOP_ONLY: {
-			JFrame top = new JFrame();
 			topImageView = new ImageComponent(DSScreen.TOP, topScale, intrp);
 			top.add(topImageView);
 			top.pack();
@@ -65,7 +62,6 @@ public class SwingVideo implements VideoOutputInterface {
 			frames.add(top);
 			break;
 		} case BOTTOM_ONLY: {
-			JFrame bottom = new JFrame();
 			bottomImageView = new ImageComponent(DSScreen.BOTTOM, bottomScale, intrp);
 			bottom.add(bottomImageView);
 			bottom.pack();
@@ -74,60 +70,56 @@ public class SwingVideo implements VideoOutputInterface {
 			frames.add(bottom);
 			break;
 		} case HORIZONTAL: {
-			JFrame f = new JFrame();
-			f.setLayout(new BoxLayout(f.getContentPane(), BoxLayout.X_AXIS));
+			both.setLayout(new BoxLayout(both.getContentPane(), BoxLayout.X_AXIS));
 			topImageView = new ImageComponent(DSScreen.TOP, topScale, intrp);
 			topImageView.setAlignmentX(Component.CENTER_ALIGNMENT);
-			f.add(topImageView);
+			both.add(topImageView);
 			bottomImageView = new ImageComponent(DSScreen.BOTTOM, bottomScale, intrp);
 			bottomImageView.setAlignmentX(Component.CENTER_ALIGNMENT);
-			f.add(bottomImageView);
-			f.pack();
-			f.setTitle("Chokistream - 3DS");
-			f.setVisible(true);
-			frames.add(f);
+			both.add(bottomImageView);
+			both.pack();
+			both.setTitle("Chokistream - 3DS");
+			both.setVisible(true);
+			frames.add(both);
 			break;
 		} case HORIZONTAL_INV: {
-			JFrame f = new JFrame();
-			f.setLayout(new BoxLayout(f.getContentPane(), BoxLayout.X_AXIS));
+			both.setLayout(new BoxLayout(both.getContentPane(), BoxLayout.X_AXIS));
 			bottomImageView = new ImageComponent(DSScreen.BOTTOM, bottomScale, intrp);
 			bottomImageView.setAlignmentX(Component.CENTER_ALIGNMENT);
-			f.add(bottomImageView);
+			both.add(bottomImageView);
 			topImageView = new ImageComponent(DSScreen.TOP, topScale, intrp);
 			topImageView.setAlignmentX(Component.CENTER_ALIGNMENT);
-			f.add(topImageView);
-			f.pack();
-			f.setTitle("Chokistream - 3DS");
-			f.setVisible(true);
-			frames.add(f);
+			both.add(topImageView);
+			both.pack();
+			both.setTitle("Chokistream - 3DS");
+			both.setVisible(true);
+			frames.add(both);
 			break;
 		} case VERTICAL: {
-			JFrame f = new JFrame();
-			f.setLayout(new BoxLayout(f.getContentPane(), BoxLayout.Y_AXIS));
+			both.setLayout(new BoxLayout(both.getContentPane(), BoxLayout.Y_AXIS));
 			topImageView = new ImageComponent(DSScreen.TOP, topScale, intrp);
 			topImageView.setAlignmentX(Component.CENTER_ALIGNMENT);
-			f.add(topImageView);
+			both.add(topImageView);
 			bottomImageView = new ImageComponent(DSScreen.BOTTOM, bottomScale, intrp);
 			bottomImageView.setAlignmentX(Component.CENTER_ALIGNMENT);
-			f.add(bottomImageView);
-			f.pack();
-			f.setTitle("Chokistream - 3DS");
-			f.setVisible(true);
-			frames.add(f);
+			both.add(bottomImageView);
+			both.pack();
+			both.setTitle("Chokistream - 3DS");
+			both.setVisible(true);
+			frames.add(both);
 			break;
 		} case VERTICAL_INV: {
-			JFrame f = new JFrame();
-			f.setLayout(new BoxLayout(f.getContentPane(), BoxLayout.Y_AXIS));
+			both.setLayout(new BoxLayout(both.getContentPane(), BoxLayout.Y_AXIS));
 			bottomImageView = new ImageComponent(DSScreen.BOTTOM, bottomScale, intrp);
 			bottomImageView.setAlignmentX(Component.CENTER_ALIGNMENT);
-			f.add(bottomImageView);
+			both.add(bottomImageView);
 			topImageView = new ImageComponent(DSScreen.TOP, topScale, intrp);
 			topImageView.setAlignmentX(Component.CENTER_ALIGNMENT);
-			f.add(topImageView);
-			f.pack();
-			f.setTitle("Chokistream - 3DS");
-			f.setVisible(true);
-			frames.add(f);
+			both.add(topImageView);
+			both.pack();
+			both.setTitle("Chokistream - 3DS");
+			both.setVisible(true);
+			frames.add(both);
 			break;
 		} default: {
 			logger.log("Unsupported layout!");
