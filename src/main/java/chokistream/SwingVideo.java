@@ -15,6 +15,7 @@ import javax.imageio.ImageIO;
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 
 import chokistream.props.DSScreen;
 import chokistream.props.DSScreenBoth;
@@ -26,7 +27,7 @@ public class SwingVideo implements VideoOutputInterface {
 	
 	private StreamingInterface client;
 	private NetworkThread networkThread;
-	private ArrayList<JFrame> frames = new ArrayList<>();	
+	private ArrayList<JFrame> frames = new ArrayList<>();
 	private ImageComponent topImageView;
 	private ImageComponent bottomImageView;
 	private Timer fpsTimer;
@@ -212,6 +213,7 @@ public class SwingVideo implements VideoOutputInterface {
 		}
 		for(JFrame f : frames) {
 			f.setVisible(false);
+			((JPanel)f.getContentPane()).removeAll(); // Remove previous image view
 		}
 	}
 }
