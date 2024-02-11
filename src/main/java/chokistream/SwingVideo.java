@@ -141,6 +141,7 @@ public class SwingVideo implements VideoOutputInterface {
 			});
 			f.addKeyListener(kl);
 			f.getContentPane().setBackground(Color.BLACK);
+			f.repaint(); // Force Windows to remember that it should be all black background
 		}
 		
 		if(showFPS) {
