@@ -24,7 +24,7 @@ public class ImageManipulator {
 	}
 	
 	/**
-	 * Combines an image with another, doing interpolation, offset, color adjustment, and rotation, as necessary.
+	 * Combines an image with another, doing interlacing, offset, color adjustment, and rotation, as necessary.
 	 * Propagates down to optimized code paths.
 	 * @param base Image to be combined onto
 	 * @param in Image to combine
@@ -88,7 +88,7 @@ public class ImageManipulator {
 		for(int i = 0; i < iw; i++) {
 			for(int j = 0; j < ih; j++) {
 				try {
-					base.setRGB(j + offset, iw-(2*i)-interParity-1, in.getRGB(i, j));
+					base.setRGB(j + offset, 2*(iw-i)-interParity-1, in.getRGB(i, j));
 				} catch(ArrayIndexOutOfBoundsException e) {
 					logger.log(i+" "+j+" "+(j+offset)+" "+(iw-(2*i)-interParity-1));
 					throw e;
@@ -105,7 +105,7 @@ public class ImageManipulator {
 		for(int i = 0; i < iw; i++) {
 			for(int j = 0; j < ih; j++) {
 				try {
-					base.setRGB(j + offset, iw-(2*i)-interParity-1, ColorHotfix.hotfixPixel(in.getRGB(i, j), cm));
+					base.setRGB(j + offset, 2*(iw-i)-interParity-1, ColorHotfix.hotfixPixel(in.getRGB(i, j), cm));
 				} catch(ArrayIndexOutOfBoundsException e) {
 					logger.log(i+" "+j+" "+(j+offset)+" "+(iw-(2*i)-interParity-1));
 					throw e;
@@ -122,7 +122,7 @@ public class ImageManipulator {
 		for(int i = 0; i < iw; i++) {
 			for(int j = 0; j < ih; j++) {
 				try {
-					base.setRGB(j + offset, iw-(2*i)-interParity-1, ColorHotfix.hzModSwapRedBlue(in.getRGB(i, j)));
+					base.setRGB(j + offset, 2*(iw-i)-interParity-1, ColorHotfix.hzModSwapRedBlue(in.getRGB(i, j)));
 				} catch(ArrayIndexOutOfBoundsException e) {
 					logger.log(i+" "+j+" "+(j+offset)+" "+(iw-(2*i)-interParity-1));
 					throw e;
@@ -139,7 +139,7 @@ public class ImageManipulator {
 		for(int i = 0; i < iw; i++) {
 			for(int j = 0; j < ih; j++) {
 				try {
-					base.setRGB(j + offset, iw-(2*i)-interParity-1, ColorHotfix.hotfixPixel(ColorHotfix.hzModSwapRedBlue(in.getRGB(i, j)), cm));
+					base.setRGB(j + offset, 2*(iw-i)-interParity-1, ColorHotfix.hotfixPixel(ColorHotfix.hzModSwapRedBlue(in.getRGB(i, j)), cm));
 				} catch(ArrayIndexOutOfBoundsException e) {
 					logger.log(i+" "+j+" "+(j+offset)+" "+(iw-(2*i)-interParity-1));
 					throw e;
