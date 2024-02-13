@@ -176,9 +176,8 @@ public class SwingVideo implements VideoOutputInterface {
 
 	@Override
 	public void displayError(Exception e) {
-		JFrame f = new JFrame();
-		JOptionPane.showMessageDialog(f, e, "Error", JOptionPane.ERROR_MESSAGE);
-		f.setVisible(true);
+		Logger.INSTANCE.log(e.getClass().getSimpleName()+": "+e.getMessage());
+		JOptionPane.showMessageDialog(null, e, "Error", JOptionPane.ERROR_MESSAGE);
 	}
 
 	@Override
