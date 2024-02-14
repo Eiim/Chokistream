@@ -36,7 +36,7 @@ public class NTRClient implements StreamingInterface {
 	/**
 	 * Thread used by NTRClient to read and buffer Frames received from the 3DS.
 	 */
-	private final NTRUDPThread thread;
+	private NTRUDPThread thread;
 	
 	private static final Logger logger = Logger.INSTANCE;
 	
@@ -71,8 +71,8 @@ public class NTRClient implements StreamingInterface {
 
 	@Override
 	public void close() throws IOException {
-		thread.interrupt();
 		thread.close();
+		thread = null;
 	}
 
 	@Override

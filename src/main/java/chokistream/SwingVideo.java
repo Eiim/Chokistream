@@ -28,10 +28,10 @@ import chokistream.props.LogLevel;
 
 public class SwingVideo implements VideoOutputInterface {
 	
-	private final StreamingInterface client;
-	private final NetworkThread networkThread;
+	private StreamingInterface client;
+	private NetworkThread networkThread;
 	private final ArrayList<JFrame> frames = new ArrayList<>();
-	private final KeyListener kl;
+	private KeypressHandler kl;
 	private ImageComponent topImageView;
 	private ImageComponent bottomImageView;
 	private Timer fpsTimer;
@@ -190,15 +190,21 @@ public class SwingVideo implements VideoOutputInterface {
 	public void kill() {
 		if(fpsTimer != null) fpsTimer.cancel();
 		networkThread.stopRunning();
+		networkThread = null;
+		
 		try {
 			client.close();
 		} catch (IOException e) {
 			displayError(e);
 		}
+		client = null;
+		
 		for(JFrame f : frames) {
 			f.setVisible(false);
 			f.removeKeyListener(kl);
 			((JPanel)f.getContentPane()).removeAll(); // Remove previous image view
 		}
+		kl.kill();
+		kl = null;
 	}
 }

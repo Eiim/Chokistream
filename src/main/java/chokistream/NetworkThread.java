@@ -53,5 +53,7 @@ public class NetworkThread extends Thread {
 	
 	public void stopRunning() {
 		active = false;
+		output = null;
+		input = null;
 	}
 }
