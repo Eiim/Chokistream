@@ -31,6 +31,7 @@ public class SwingVideo implements VideoOutputInterface {
 	private final StreamingInterface client;
 	private final NetworkThread networkThread;
 	private final ArrayList<JFrame> frames = new ArrayList<>();
+	private final KeyListener kl;
 	private ImageComponent topImageView;
 	private ImageComponent bottomImageView;
 	private Timer fpsTimer;
@@ -39,6 +40,7 @@ public class SwingVideo implements VideoOutputInterface {
 
 	public SwingVideo(StreamingInterface client, Layout layout, double topScale, double bottomScale, InterpolationMode intrp, ChokiKeybinds kb, boolean showFPS, JFrame top, JFrame bottom, JFrame both) {
 		this.client = client;
+		kl = new KeypressHandler(this, client, kb);
 		
 		networkThread = new NetworkThread(this.client, this);
 		
@@ -105,8 +107,6 @@ public class SwingVideo implements VideoOutputInterface {
 			logger.log("Unsupported layout!");
 			return;
 		}}
-		
-		KeyListener kl = new KeypressHandler(this, client, kb);
 		
 		for(JFrame f : frames) {
 			f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -197,6 +197,7 @@ public class SwingVideo implements VideoOutputInterface {
 		}
 		for(JFrame f : frames) {
 			f.setVisible(false);
+			f.removeKeyListener(kl);
 			((JPanel)f.getContentPane()).removeAll(); // Remove previous image view
 		}
 	}
