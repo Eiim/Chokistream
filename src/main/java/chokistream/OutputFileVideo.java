@@ -3,6 +3,9 @@ package chokistream;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.Arrays;
 
 import org.jcodec.api.SequenceEncoder;
@@ -158,6 +161,9 @@ public class OutputFileVideo implements VideoOutputInterface {
 	
 	@Override
 	public void displayError(Exception e) {
-		logger.log(e.getClass()+": "+e.getMessage()+System.lineSeparator()+Arrays.toString(e.getStackTrace()));
+		Writer buffer = new StringWriter();
+		PrintWriter pw = new PrintWriter(buffer);
+		e.printStackTrace(pw);
+		logger.log(buffer.toString());
 	}
 }

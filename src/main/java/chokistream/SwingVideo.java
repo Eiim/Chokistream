@@ -7,6 +7,9 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -176,7 +179,10 @@ public class SwingVideo implements VideoOutputInterface {
 
 	@Override
 	public void displayError(Exception e) {
-		Logger.INSTANCE.log(e.getClass().getSimpleName()+": "+e.getMessage());
+		Writer buffer = new StringWriter();
+		PrintWriter pw = new PrintWriter(buffer);
+		e.printStackTrace(pw);
+		logger.log(buffer.toString());
 		JOptionPane.showMessageDialog(null, e, "Error", JOptionPane.ERROR_MESSAGE);
 	}
 

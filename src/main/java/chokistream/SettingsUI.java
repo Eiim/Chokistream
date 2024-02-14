@@ -1,5 +1,9 @@
 package chokistream;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
+
 import chokistream.props.EnumProp;
 import chokistream.props.Prop;
 
@@ -31,6 +35,9 @@ public abstract class SettingsUI {
 	
 	// Sub-classes may or may not want to override
 	public void displayError(Exception e) {
-		Logger.INSTANCE.log(e.getClass().getSimpleName()+": "+e.getMessage());
+		Writer buffer = new StringWriter();
+		PrintWriter pw = new PrintWriter(buffer);
+		e.printStackTrace(pw);
+		Logger.INSTANCE.log(buffer.toString());
 	}
 }
