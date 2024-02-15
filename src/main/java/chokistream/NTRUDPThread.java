@@ -69,6 +69,7 @@ public class NTRUDPThread extends Thread {
 	
 	public void close() {
 		shouldDie.set(true);
+		socket.close();
 	}
 
 	@Override
@@ -161,7 +162,6 @@ public class NTRUDPThread extends Thread {
 				e.printStackTrace();
 			}
 		}
-		socket.close();
 	}
 	
 }
