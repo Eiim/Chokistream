@@ -35,6 +35,12 @@ public class SwingVideo implements VideoOutputInterface {
 	private ImageComponent topImageView;
 	private ImageComponent bottomImageView;
 	private Timer fpsTimer;
+	private final WindowAdapter killListener = new WindowAdapter() {
+	    @Override
+	    public void windowClosing(WindowEvent e) {
+	    	kill();
+	    }
+	};
 	
 	private static final Logger logger = Logger.INSTANCE;
 
@@ -112,12 +118,7 @@ public class SwingVideo implements VideoOutputInterface {
 			f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			f.setResizable(false);
 			f.setIconImages(IconLoader.getAll());
-			f.addWindowListener(new WindowAdapter() {
-			    @Override
-			    public void windowClosing(WindowEvent e) {
-			    	kill();
-			    }
-			});
+			f.addWindowListener(killListener);
 			f.addKeyListener(kl);
 			f.getContentPane().setBackground(Color.BLACK);
 			f.pack();
@@ -198,6 +199,7 @@ public class SwingVideo implements VideoOutputInterface {
 		for(JFrame f : frames) {
 			f.setVisible(false);
 			f.removeKeyListener(kl);
+			f.removeWindowListener(killListener);
 			((JPanel)f.getContentPane()).removeAll(); // Remove previous image view
 		}
 	}
