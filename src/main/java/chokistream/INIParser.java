@@ -47,6 +47,8 @@ public class INIParser {
 				if(!data.containsKey(key)) {
 					iniLines.add(new IniLine(true, key));
 				}
+				if(Prop.PORT.getShortName().equals(key) && "8000".equals(value))
+					value = "8001"; // Update old NTR port default
 				data.put(key, value);
 			}
 		}
