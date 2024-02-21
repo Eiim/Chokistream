@@ -59,9 +59,9 @@ public class NTRUDPThread extends Thread {
 	 * Create an NTRUDPThread.
 	 * @throws SocketException
 	 */
-	NTRUDPThread(DSScreen screen, ColorMode colorMode) throws SocketException {
+	NTRUDPThread(DSScreen screen, ColorMode colorMode, int port) throws SocketException {
 		activeScreen = screen;
-		socket = new DatagramSocket(8001);
+		socket = new DatagramSocket(port); // 8001
 		this.colorMode = colorMode;
 	}
 	

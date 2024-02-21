@@ -20,7 +20,7 @@ public final class Prop<T> {
 	public static final Prop<DSScreenBoth> REQSCREEN = new Prop<>("requestedScreen", "Requested Screen", DSScreenBoth.TOP, DSScreenBoth.class);
 	public static final Prop<Layout> LAYOUT = new Prop<>("layout", "Layout", Layout.SEPARATE, Layout.class);
 	public static final Prop<ColorMode> COLORMODE = new Prop<>("colorMode", "Color Mode", ColorMode.REGULAR, ColorMode.class);
-	public static final Prop<Integer> PORT = new Prop<>("port", "3DS Port", 8000, Integer.class);
+	public static final Prop<Integer> PORT = new Prop<>("port", "3DS Port", 8001, Integer.class);
 	public static final Prop<Double> TOPSCALE = new Prop<>("topScale", "Top Scale", 1.0, Double.class);
 	public static final Prop<Double> BOTTOMSCALE = new Prop<>("bottomScale", "Bottom Scale", 1.0, Double.class);
 	public static final Prop<LogMode> LOGMODE = new Prop<>("logMode", "Log Mode", LogMode.CONSOLE, LogMode.class);

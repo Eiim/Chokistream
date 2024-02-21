@@ -58,7 +58,7 @@ public class NTRClient implements StreamingInterface {
 	 * @throws InterruptedException 
 	 */
 	public NTRClient(String host, int quality, DSScreen screen, int priority, int qos, ColorMode colorMode, int port) throws UnknownHostException, IOException, InterruptedException {
-		thread = new NTRUDPThread(screen, colorMode);
+		thread = new NTRUDPThread(screen, colorMode, port);
 		thread.start();
 		
 		try {
@@ -120,7 +120,7 @@ public class NTRClient implements StreamingInterface {
 		}
 	}
 	
-	public static void sendNFCPatch(String host, int port, int chooseAddr) {
+	public static void sendNFCPatch(String host, int chooseAddr) {
 		int seq = 24000; // 0x5DC0
 		int type = 1;
 		int cmd = 10; // 0x0a
@@ -140,7 +140,7 @@ public class NTRClient implements StreamingInterface {
 		args[2] = exdata.length;
 		
 		try {
-			sendPacket(host, port, type, cmd, args, exdata, seq);
+			sendPacket(host, type, cmd, args, exdata, seq);
 			logger.log("NFC Patch sent!");
 		} catch(IOException e) {
 			e.printStackTrace();
@@ -161,14 +161,14 @@ public class NTRClient implements StreamingInterface {
 		
 		try {
 			logger.log("Sending init packet", LogLevel.VERBOSE);
-			sendPacket(host, port, type, cmd, args, new byte[0], seq);
+			sendPacket(host, type, cmd, args, new byte[0], seq);
 		} catch(IOException e) {
 			logger.log("Init packet failed to send");
 			throw e;
 		}
 	}
 	
-	public static void sendPacket(String host, int port, int type, int cmd, int[] args, byte[] exdata, int seq) throws UnknownHostException, ConnectException, IOException {
+	public static void sendPacket(String host, int type, int cmd, int[] args, byte[] exdata, int seq) throws UnknownHostException, ConnectException, IOException {
 		int dataLen = exdata.length;
 		
 		byte[] pak = new byte[84+dataLen];
@@ -193,7 +193,7 @@ public class NTRClient implements StreamingInterface {
 		logger.log("Sending packet to NTR...", LogLevel.EXTREME);
 		logger.log(pak, LogLevel.EXTREME);
 		
-		Socket mySoc = new Socket(host, port);
+		Socket mySoc = new Socket(host, 8000);
 		//mySoc.setTcpNoDelay(true);
 		OutputStream myOut = mySoc.getOutputStream();
 		myOut.write(pak);

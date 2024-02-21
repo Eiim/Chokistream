@@ -238,7 +238,7 @@ public class SwingGUI extends SettingsUI {
 			public void itemStateChanged(ItemEvent e) {
 				port.setText(
 					switch(getPropEnum(Prop.MOD)) {
-						case NTR -> "8000";
+						case NTR -> "8001";
 						case HZMOD, CHIRUNOMOD -> "6464";
 					}
 				);
@@ -796,7 +796,7 @@ public class SwingGUI extends SettingsUI {
 			public void actionPerformed(ActionEvent e) {
 				try {
     				nfcPatch.setVisible(false);
-					NTRClient.sendNFCPatch(getPropString(Prop.IP), getPropInt(Prop.PORT), 1);
+					NTRClient.sendNFCPatch(getPropString(Prop.IP), 1);
 				} catch (RuntimeException ex) {
 					displayError(ex);
 				}
@@ -810,7 +810,7 @@ public class SwingGUI extends SettingsUI {
 			public void actionPerformed(ActionEvent e) {
 				try {
     				nfcPatch.setVisible(false);
-    				NTRClient.sendNFCPatch(getPropString(Prop.IP), getPropInt(Prop.PORT), 0);
+    				NTRClient.sendNFCPatch(getPropString(Prop.IP), 0);
 				} catch (RuntimeException ex) {
 					displayError(ex);
 				}
