@@ -22,8 +22,10 @@ package chokistream;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.ConnectException;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 import chokistream.props.ColorMode;
@@ -56,17 +58,28 @@ public class NTRClient implements StreamingInterface {
 	 * @throws InterruptedException 
 	 */
 	public NTRClient(String host, int quality, DSScreen screen, int priority, int qos, ColorMode colorMode, int port) throws UnknownHostException, IOException, InterruptedException {
-		sendInitPacket(host, port, screen, priority, quality, qos);
-		
 		thread = new NTRUDPThread(screen, colorMode);
 		thread.start();
-
-		// Give NTR some time to think
-		TimeUnit.SECONDS.sleep(3);
 		
-		// NTR expects us to reconnect, so we will. And then disconnect again!
-		Socket client = new Socket(host, 8000);
-		client.close();
+		try {
+			
+			sendInitPacket(host, port, screen, priority, quality, qos);
+			
+			// Give NTR some time to think
+			TimeUnit.SECONDS.sleep(3);
+			
+			// NTR expects us to reconnect, so we will. And then disconnect again!
+			Socket client = new Socket(host, 8000);
+			client.close();
+		
+		} catch (ConnectException e) {
+			if(thread.isReceivingFrames()) {
+				logger.log(e.getClass()+": "+e.getMessage()+System.lineSeparator()+Arrays.toString(e.getStackTrace()), LogLevel.VERBOSE);
+				logger.log("NTR's NFC Patch seems to be active. Proceeding as normal...");
+			} else {
+				throw e;
+			}
+		}
 	}
 
 	@Override
@@ -135,7 +148,7 @@ public class NTRClient implements StreamingInterface {
 		}
 	}
 	
-	public static void sendInitPacket(String host, int port, DSScreen screen, int priority, int quality, int qos) {
+	public static void sendInitPacket(String host, int port, DSScreen screen, int priority, int quality, int qos) throws UnknownHostException, ConnectException, IOException {
 		int seq = 3000; // 0x0BB8
 		int type = 0;
 		int cmd = 901; //0x0385
@@ -150,12 +163,12 @@ public class NTRClient implements StreamingInterface {
 			logger.log("Sending init packet", LogLevel.VERBOSE);
 			sendPacket(host, port, type, cmd, args, new byte[0], seq);
 		} catch(IOException e) {
-			e.printStackTrace();
 			logger.log("Init packet failed to send");
+			throw e;
 		}
 	}
 	
-	public static void sendPacket(String host, int port, int type, int cmd, int[] args, byte[] exdata, int seq) throws UnknownHostException, IOException {
+	public static void sendPacket(String host, int port, int type, int cmd, int[] args, byte[] exdata, int seq) throws UnknownHostException, ConnectException, IOException {
 		int dataLen = exdata.length;
 		
 		byte[] pak = new byte[84+dataLen];

@@ -38,6 +38,8 @@ public class NTRUDPThread extends Thread {
 	 */
 	private final AtomicBoolean shouldDie = new AtomicBoolean(false);
 	
+	private boolean amIReceivingFrames = false;
+	
 	//WritableInputStream priorityInputStream = new WritableInputStream();
 	//WritableInputStream secondaryInputStream = new WritableInputStream();
 	byte[] priorityImageData = new byte[0];
@@ -70,6 +72,13 @@ public class NTRUDPThread extends Thread {
 	public void close() {
 		shouldDie.set(true);
 	}
+	
+	public boolean isReceivingFrames() throws InterruptedException {
+		if (amIReceivingFrames == false) {
+			Thread.sleep(2000);
+		}
+		return amIReceivingFrames;
+	}
 
 	@Override
 	public void run() {
@@ -86,6 +95,7 @@ public class NTRUDPThread extends Thread {
 				logger.log("Recieved packet for screen "+currentScreen.getLongName()+
 						", isLast="+isLastPacket+", curF="+currentFrame+", curP="+currentPacket, LogLevel.VERBOSE);
 				logger.log(data, LogLevel.EXTREME);
+				amIReceivingFrames = true;
 				
 				if (priorityExpectedFrame == 0 && currentScreen == activeScreen) {
 					priorityExpectedFrame = currentFrame;
@@ -157,6 +167,7 @@ public class NTRUDPThread extends Thread {
                     secondaryExpectedPacket = 0;
 				}
 			} catch (IOException e) {
+				amIReceivingFrames = false;
 				close();
 				e.printStackTrace();
 			}
