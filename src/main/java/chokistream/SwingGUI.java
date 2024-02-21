@@ -12,6 +12,9 @@ import java.awt.event.ItemListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.io.IOException;
 import java.util.EnumMap;
 
@@ -408,6 +411,10 @@ public class SwingGUI extends SettingsUI {
 
 	@Override
 	public void displayError(Exception e) {
+		Writer buffer = new StringWriter();
+		PrintWriter pw = new PrintWriter(buffer);
+		e.printStackTrace(pw);
+		logger.log(buffer.toString());
 		JOptionPane.showMessageDialog(f, e, "Error", JOptionPane.ERROR_MESSAGE);
 	}
 
