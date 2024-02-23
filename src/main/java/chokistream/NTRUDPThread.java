@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -62,6 +63,7 @@ public class NTRUDPThread extends Thread {
 	NTRUDPThread(DSScreen screen, ColorMode colorMode, int port) throws SocketException {
 		activeScreen = screen;
 		socket = new DatagramSocket(port); // 8001
+		socket.setSoTimeout(2000);
 		this.colorMode = colorMode;
 	}
 	
@@ -166,6 +168,9 @@ public class NTRUDPThread extends Thread {
 					secondaryExpectedFrame = 0;
                     secondaryExpectedPacket = 0;
 				}
+			} catch (SocketTimeoutException e) {
+				amIReceivingFrames = false;
+				logger.log("[NTR UDP] "+e.getClass()+": "+e.getMessage());
 			} catch (IOException e) {
 				amIReceivingFrames = false;
 				close();
