@@ -1,7 +1,10 @@
 /**
  * NTRClient.java
- * Copyright (C) 2023  Eiim, ChainSwordCS, Herronjo
- * Some code is based on NTRClient, which is Copyright (C) 2016  Cell9 / 44670
+ * Copyright (C) 2024  Eiim, ChainSwordCS, Herronjo
+ * 
+ * Some code is based on:
+ * NTRClient, Copyright (C) 2016  Cell9 / 44670
+ * NTR, Copyright (C) 2017  Cell9 / 44670
  * 
  * This file is licensed under GPLv2
  *

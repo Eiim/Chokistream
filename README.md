@@ -2,16 +2,12 @@
 
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/19617caaedb14f799e8d0c3595119386)](https://app.codacy.com/gh/Eiim/Chokistream/dashboard)![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/Eiim/Chokistream/gradle.yml) ![GitHub commits since latest release](https://img.shields.io/github/commits-since/Eiim/Chokistream/latest)
 
-Nintendo 3DS wireless video capture software, compatible with [ChirunoMod](https://github.com/ChainSwordCS/ChirunoMod), [BootNTR](https://github.com/44670/BootNTR) and [HzMod](https://chainswordcs.com/horizon-by-sono.html) and the only cross-platform video capture software to support HzMod.
+Nintendo 3DS wireless video capture software, compatible with [NTR](https://github.com/Nanquitas/BootNTR), [NTR-HR](https://github.com/xzn/ntr-hr/releases), [HzMod](https://chainswordcs.com/horizon-by-sono.html), and [ChirunoMod](https://github.com/ChainSwordCS/ChirunoMod), and the only cross-platform video capture software to support HzMod.
 
-A from-scratch re-implementation of [Snickerstream](https://github.com/RattletraPM/Snickerstream), with TARGA support in part from [TGAHz](https://github.com/ChainSwordCS/TGAHz-Parsing) and [HorizonScreen](hps://github.com/gamingaddictionz03/HorizonM)
+A from-scratch reimplementation of [Snickerstream](https://github.com/RattletraPM/Snickerstream).
 
 Notable features:
- * Only client to support ChirunoMod!
  * Pure Java - works on essentially any platform. Tested on Windows and Linux, and lightly tested on Mac and FreeBSD.
-   * Versions < 2.0 support Windows, Linux, and Mac, with OS-specific builds. Builds may not be available for all platforms for all releases.
- * TGA (lossless compression) support for HzMod, the only application other than HorizonScreen with such!
- * Dual-Screen HzMod support for version 2017-05-05 (one of two dual-screen versions)
  * Various display output options to get it looking just right
  * Chokistream can also run entirely headless and stream straight to a video file, or output frames to image files.
 
@@ -34,6 +30,8 @@ As we're pure Java 17 SE, a very broad range of OSs should work. We have differe
 * Mac OS and FreeBSD - @herronjo has run Chokistream on these and it seemed fine, but they're not really tested. Can probably fix OS-specific bugs if they occur.
 * Haiku, others - untested but theoretically should work fine. Let us know about OS-specific bugs, but they won't be a high priority.
 
+Note: Old versions prior to 2.0 support Windows, Linux, and Mac, with OS-specific builds. Builds may not be available for all platforms for all releases.
+
 ## Build Instructions
 
 Written in Java 17 with Gradle 7.5, requires Java 17 to be installed :)
@@ -47,6 +45,6 @@ Besides GitHub issues:
 
 # Licensing
 
-NTRClient.java and NTRUDPThread.java include work derived from [NTRClient](https://github.com/Nanquitas/NTRClient), which is licensed under GPLv2. Therefore, those files are licensed under GPLv2-only. All other files are licensed under GPLv2-or-later.
+NTRClient.java includes work derived from [NTRClient](https://github.com/Nanquitas/NTRClient) and [NTR](https://github.com/44670/NTR), projects which are licensed under GPLv2. Therefore, this file is licensed under GPLv2-only. All other files are licensed under GPLv2-or-later.
 
-Prior to commit [5ac6e58](https://github.com/Eiim/Chokistream/commit/5ac6e585446b7e2bd3d652351066ad1fe421b70e), HzModClient.java (and at times other files) contained work derived from [Snickerstream](https://github.com/RattletraPM/Snickerstream), which is licensed under GPLv3-only, and so the entire repository was licensed under GPLv3-only. However, this is no longer the case. As such, the repository as a whole is now licensed under GPLv2, and the repository excluding NTRClient.java and NTRUDPThread.java is licensed under GPLv2-or-later. The GPLv2-licensed additions from NTRClient were added after the removal of GPLv3-licensed code from Snickstream.
+Prior to commit [5ac6e58](https://github.com/Eiim/Chokistream/commit/5ac6e585446b7e2bd3d652351066ad1fe421b70e), HzModClient.java (and at times other files) contained work derived from [Snickerstream](https://github.com/RattletraPM/Snickerstream), which is licensed under GPLv3-only, and so the entire repository was licensed under GPLv3-only. However, this is no longer the case. As such, the repository as a whole is now licensed under GPLv2, and the repository excluding NTRClient.java is licensed under GPLv2-or-later. The GPLv2-licensed additions from NTRClient were added after the removal of GPLv3-licensed code from Snickstream.

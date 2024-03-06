@@ -121,8 +121,10 @@ public class SwingGUI extends SettingsUI {
 								+ "Chokistream was made possible by the use and reference of several projects. Special thanks to:<br>"
 								+ " * RattletraPM for Snickerstream<br>"
 								+ " * Sono for HzMod<br>"
-								+ " * Cell9/44670 for BootNTR and NTRClient<br>"
-								+ " * Nanquitas for BootNTRSelector<br>"
+								+ " * Cell9/44670 for NTR 3.6 and NTRClient<br>"
+								+ " * PabloMK7 and others for NTR 3.6.1<br>"
+								+ " * Nanquitas, PabloMK7, and others for BootNTRSelector<br>"
+								+ " * xzn for NTR-HR<br>"
 								+ " * toolboc for UWPStreamer<br>"
 								+ " * All other open-source contributors";
 	
