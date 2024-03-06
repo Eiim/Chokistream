@@ -219,24 +219,6 @@ public class NTRClient implements StreamingInterface {
 	}
 	
 	/**
-	 * Copies all values from source byte array to destination byte array, starting at a given index in the destination byte array.
-	 * 
-	 * @param src	source byte array
-	 * @param dst	destination byte array
-	 * @param i		starting index / offset of the destination byte array.
-	 */
-	public static void copyByteArray(byte[] src, byte[] dst, int i) {
-		try {
-			for(int j = 0; j < src.length ; j++) {
-				dst[i+j] = src[j];
-			}
-		}
-		catch(ArrayIndexOutOfBoundsException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	/**
 	 * Represents a (TCP) packet received from NTR / NTR-HR
 	 */
 	private static class Packet {
