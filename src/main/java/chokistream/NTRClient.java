@@ -28,10 +28,12 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.ConnectException;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
+import java.util.Random;
 
 import chokistream.props.ColorMode;
 import chokistream.props.DSScreen;
@@ -44,6 +46,8 @@ public class NTRClient implements StreamingInterface {
 	 * Thread used by NTRClient to read and buffer Frames received from the 3DS.
 	 */
 	private final NTRUDPThread thread;
+	
+	private final Random random = new Random();
 	
 	private static final Logger logger = Logger.INSTANCE;
 	
@@ -66,11 +70,12 @@ public class NTRClient implements StreamingInterface {
 	 * @throws UnknownHostException 
 	 * @throws InterruptedException 
 	 */
-	public NTRClient(String host, int quality, DSScreen screen, int priority, int qos, ColorMode colorMode, int port) throws UnknownHostException, IOException, InterruptedException {
+	public NTRClient(String host, int quality, DSScreen screen, int priority, int qos, ColorMode colorMode, int port) throws Exception, UnknownHostException, IOException, InterruptedException {
 		thread = new NTRUDPThread(screen, colorMode, port);
 		thread.start();
 		
 		soc = new Socket(host, 8000);
+		soc.setSoTimeout(10000);
 		socOut = soc.getOutputStream();
 		socIn = soc.getInputStream();
 		
@@ -136,17 +141,18 @@ public class NTRClient implements StreamingInterface {
 		}
 	}
 	
-	public void heartbeat() throws UnknownHostException, ConnectException, IOException {
+	public void heartbeat() throws Exception, UnknownHostException, ConnectException, IOException {
 		Packet pak = new Packet();
-		pak.seq = 0;
+		int heartbeatSeq = random.nextInt(100);
+		pak.seq = heartbeatSeq;
 		pak.type = 0;
 		pak.cmd = 0; // heartbeat command
 		
 		try {
 			sendPacket(pak);
-			logger.log("heartbeat packet sent");
+			logger.log("NTR Heartbeat packet sent.");
 		} catch(IOException e) {
-			logger.log("heartbeat packet failed to send");
+			logger.log("NTR Heartbeat error: Packet failed to send.");
 			throw e;
 		}
 		
@@ -159,15 +165,37 @@ public class NTRClient implements StreamingInterface {
 		*/
 		
 		Packet reply = recvPacket();
-		logger.log("heartbeat response received");
+		
+		// TODO: sooner or later i'll implement this very differently. but this should work fine for now. -C
+		if(reply.cmd != 0 || reply.seq != heartbeatSeq) {
+			logger.log("NTR Heartbeat error: Received non-matching response packet.");
+			if(reply.cmd != 0) {
+				logger.log("cmd "+reply.cmd+" != 0");
+			}
+			if(reply.seq != heartbeatSeq) {
+				logger.log("seq "+reply.seq+" != "+heartbeatSeq);
+			}
+			throw new Exception();
+		}
+		
+		logger.log("NTR Heartbeat response received.");
 		
 		if(reply.exdata.length > 0) {
 			String debugOut = new String(reply.exdata, StandardCharsets.UTF_8);
-			// (dumb) custom formatting
-			debugOut = debugOut.replace("\n", "\n[NTR] ");
-			logger.log("[NTR] "+debugOut, LogLevel.REGULAR);
+			if(debugOut.charAt(debugOut.length()-1) == '\n') {
+				debugOut = debugOut.substring(0, debugOut.length()-1);
+			}
+			// custom formatting
+			String ntrText = null;
+			if(debugOut.charAt(0) == '[') { // then it's most likely NTR-HR
+				ntrText = "[NTR]";
+			} else {
+				ntrText = "[NTR] ";
+			}
+			debugOut = debugOut.replace("\n", "\n"+ntrText);
+			logger.log(ntrText+debugOut, LogLevel.REGULAR);
 		} else {
-			logger.log("heartbeat response exdata is empty...");
+			logger.log("NTR Heartbeat response is empty.");
 		}
 	}
 	
@@ -204,7 +232,7 @@ public class NTRClient implements StreamingInterface {
 		}
 	}
 	
-	public void sendInitPacket(int port, DSScreen screen, int priority, int quality, int qos) throws UnknownHostException, ConnectException, IOException {
+	public void sendInitPacket(int port, DSScreen screen, int priority, int quality, int qos) throws UnknownHostException, ConnectException, IOException, SocketTimeoutException {
 		Packet pak = new Packet();
 		pak.seq = 3000;
 		pak.type = 0;
@@ -223,78 +251,74 @@ public class NTRClient implements StreamingInterface {
 		}
 	}
 	
-	public void sendPacket(Packet packet) throws UnknownHostException, ConnectException, IOException {
+	public void sendPacket(Packet packet) throws UnknownHostException, ConnectException, IOException, SocketTimeoutException {
 		byte[] pak = packet.getRaw();
 		logger.log("Sending packet to NTR...", LogLevel.EXTREME);
 		logger.log(pak, LogLevel.EXTREME);
 		socOut.write(pak);
 	}
 	
-	// I apologize for the unnecessarily verbose error logging logic. That's what most of this code is. -C
-	public Packet recvPacket() throws UnknownHostException, ConnectException, IOException {
-		logger.log("Listening for TCP packet from NTR...", LogLevel.VERBOSE);
+	public Packet recvPacket() throws Exception, UnknownHostException, ConnectException, IOException, SocketTimeoutException {
+		Exception exception = null;
+		Packet pak = null;
 		byte[] header = new byte[84];
+		int bytesReadHeader = 0;
+		int bytesReadExdata = 0;
 		
-		socIn.read(header); // less safe version of this commented-out section
-		/*
-		int result;
-		result = socIn.readNBytes(header, 0, 84);
-		if(result != 84) {
-			logger.log("NTRClient recvPacket error: received only "+result+" of expected "+84+" bytes. Aborting...");
-			if(result > 0) {
-				byte[] errorPacketOutput = new byte[result];
-				System.arraycopy(header, 0, errorPacketOutput, 0, result);
-				logger.log(errorPacketOutput, LogLevel.EXTREME);
-			}
-			// TODO: panic
-			throw new IOException();
-		}
-		*/
-		
-		Packet pak;
 		try {
-			pak = new Packet(header);
-		} catch(Exception e) {
-			// TODO: Packet constructor throwing exceptions isn't implemented yet btw
-			throw e;
-		}
-		
-		byte[] exdata = new byte[0];
-		if(pak.exdata.length != 0) {
-			exdata = new byte[pak.exdata.length];
+			logger.log("Listening for NTR TCP packet...", LogLevel.VERBOSE);
 			
-			socIn.read(exdata); // less safe version of this commented-out section
-			/*
-			result = socIn.readNBytes(exdata, 0, exdata.length);
-			
-			if(result != exdata.length) {
-				logger.log("NTRClient recvPacket error: received only "+result+" of expected "+exdata.length+" bytes. Aborting...");
-				if(result > 0) {
-					byte[] errorPacketOutput = new byte[84+result];
-					System.arraycopy(header, 0, errorPacketOutput, 0, 84);
-					System.arraycopy(exdata, 0, errorPacketOutput, 84, result);
-					logger.log(errorPacketOutput, LogLevel.EXTREME);
-				} else {
-					logger.log(header, LogLevel.EXTREME);
-				}
-				// TODO: panic
-				throw new IOException();
+			try {
+				bytesReadHeader = socIn.readNBytes(header, 0, 84);
+			} catch(IOException e) {
+				bytesReadHeader = 84; // err towards logging too much, rather than nothing at all.
+				throw e;
 			}
-			*/
-			pak.exdata = exdata;
+			
+			if(bytesReadHeader < 84) {
+				logger.log("NTR recvPacket error: Received only "+bytesReadHeader+" of expected "+84+" bytes.");
+				throw new Exception();
+			}
+			
+			pak = new Packet(header);
+			
+			if(pak.exdata.length > 0) {
+				bytesReadExdata = socIn.readNBytes(pak.exdata, 0, pak.exdata.length);
+				// maybe log some amount of exdata when this line throws an IOException?
+				
+				if(bytesReadExdata < pak.exdata.length) {
+					// TODO: if this becomes a regular problem, maybe handle more elegantly.
+					logger.log("NTR recvPacket error: Received only "+bytesReadExdata+" of expected "+pak.exdata.length+" bytes.");
+					throw new Exception();
+				}
+			}
+		} catch(Exception e) {
+			exception = e;
 		}
 		
-		byte[] logPacketOutput;
-		if(exdata.length > 0) {
-			logPacketOutput = new byte[84+exdata.length];
-			System.arraycopy(header, 0, logPacketOutput, 0, 84);
-			System.arraycopy(exdata, 0, logPacketOutput, 84, exdata.length);
-		} else {
-			logPacketOutput = header;
+		// This section logs the raw packet data, mainly.
+
+		byte[] debugOutRawPacketData;
+		if(bytesReadHeader == 84) { // full header and some exdata
+			debugOutRawPacketData = new byte[84+bytesReadExdata];
+			System.arraycopy(header, 0, debugOutRawPacketData, 0, 84);
+			if(pak != null && pak.exdata.length > 0) {
+				System.arraycopy(pak.exdata, 0, debugOutRawPacketData, 84, bytesReadExdata);
+			}
+		} else { // incomplete header (only)
+			debugOutRawPacketData = new byte[bytesReadHeader];
+			System.arraycopy(header, 0, debugOutRawPacketData, 0, bytesReadHeader);
+		}
+		
+		if(exception != null) {
+			if(debugOutRawPacketData.length > 0) {
+				logger.log("NTR TCP packet received! (incomplete)");
+				logger.log(debugOutRawPacketData, LogLevel.REGULAR);
+			}
+			throw exception;
 		}
 		logger.log("NTR TCP packet received!", LogLevel.EXTREME);
-		logger.log(logPacketOutput, LogLevel.EXTREME);
-		
+		logger.log(debugOutRawPacketData, LogLevel.EXTREME);
 		return pak;
 	}
 	
@@ -405,18 +429,17 @@ public class NTRClient implements StreamingInterface {
 		 * 
 		 * @param pak A packet, in the form of raw bytes.
 		 */
-		Packet(byte[] pak) {
+		Packet(byte[] pak) throws Exception {
+			// minimum valid packet length; size of header
 			if(pak.length < 84) {
-				// TODO: throw an exception?
-				logger.log("NTRClient Packet error: pak.length < 84");
-				return;
+				logger.log("NTRClient Packet error: Invalid packet size. "+pak.length+" bytes is too small.");
+				throw new Exception();
 			}
 			
 			// verify magic number
 			if(pak[0] != 0x78 || pak[1] != 0x56 || pak[2] != 0x34 || pak[3] != 0x12) {
-				// TODO: throw an exception?
-				logger.log("Processed NTR packet does not seem to match the expected format.");
-				return;
+				logger.log("NTRClient Packet error: Processed packet is most likely malformed.");
+				throw new Exception();
 			}
 			
 			seq = bytesToInt(pak, 4);
@@ -427,19 +450,21 @@ public class NTRClient implements StreamingInterface {
 				args[i] = bytesToInt(pak, i*4+16);
 			}
 			
+			// TODO: maybe make sure this number is (more) sane
 			// Unsigned 32-bit integer
 			int exdataLen = bytesToInt(pak, 80);
 			
 			if(exdataLen < 0) { // :(
 				// unsigned int -> signed int conversion error; please don't send >2GB of data :(
-				logger.log("NTRClient Packet error: exdataLen < 0. exdataLen = "+exdataLen);
+				logger.log("NTRClient Packet error: Reported exdata length is "+Integer.toUnsignedString(exdataLen)+" bytes. Something has gone wrong.");
 			} else if(exdataLen != 0) {
 				if(pak.length == 84) { // Calling method passed header only (this is supported)
 					exdata = new byte[exdataLen];
 				} else {
 					int expectedExdataLen = pak.length-84;
-					if(expectedExdataLen != exdataLen) { // shouldn't ever happen; code logic error.
-						logger.log("NTRClient Packet error: pak.length - 84 != exdataLen. "+expectedExdataLen+" != "+exdataLen);
+					// TODO: I'm undecided on whether to correct this mismatch issue, and how. -C
+					if(expectedExdataLen != exdataLen) {
+						logger.log("NTRClient Packet error: Reported exdata length ("+exdataLen+") is not equal to actual exdata length ("+expectedExdataLen+").");
 						if(expectedExdataLen < exdataLen) {
 							exdataLen = expectedExdataLen;
 						}
