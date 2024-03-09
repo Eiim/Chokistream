@@ -307,7 +307,7 @@ public class NTRClient implements StreamingInterface {
 	 */
 	public static int bytesToInt(byte[] dat, int i) {
 		try {
-			return dat[i+3]<<24 | dat[i+2]>>8 & 0xff00 | dat[i+1]<<8 & 0xff0000 | dat[i]>>>24;
+			return (dat[i+3]&0xff)<<24 | (dat[i+2]&0xff)<<16 | (dat[i+1]&0xff)<<8 | (dat[i]&0xff);
 		}
 		catch(ArrayIndexOutOfBoundsException e) {
 			e.printStackTrace(); // TODO: change this
