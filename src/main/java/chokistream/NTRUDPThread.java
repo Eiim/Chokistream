@@ -170,7 +170,7 @@ public class NTRUDPThread extends Thread {
 				}
 			} catch (SocketTimeoutException e) {
 				amIReceivingFrames = false;
-				logger.log("[NTR UDP] "+e.getClass()+": "+e.getMessage());
+				logger.log("NTRUDPThread: "+e.getClass()+": "+e.getMessage());
 			} catch (IOException e) {
 				amIReceivingFrames = false;
 				close();
