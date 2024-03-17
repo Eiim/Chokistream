@@ -54,9 +54,9 @@ public class NTRClient implements StreamingInterface {
 	private int topFrames;
 	private int bottomFrames;
 	
-	private Socket soc;
-	private OutputStream socOut;
-	private InputStream socIn;
+	private Socket soc = null;
+	private OutputStream socOut = null;
+	private InputStream socIn = null;
 
 	/**
 	 * Create an NTRClient.
@@ -74,12 +74,11 @@ public class NTRClient implements StreamingInterface {
 		thread = new NTRUDPThread(screen, colorMode, port);
 		thread.start();
 		
-		soc = new Socket(host, 8000);
-		soc.setSoTimeout(10000);
-		socOut = soc.getOutputStream();
-		socIn = soc.getInputStream();
-		
 		try {
+			soc = new Socket(host, 8000);
+			soc.setSoTimeout(10000);
+			socOut = soc.getOutputStream();
+			socIn = soc.getInputStream();
 			
 			sendInitPacket(port, screen, priority, quality, qos);
 			
@@ -95,8 +94,12 @@ public class NTRClient implements StreamingInterface {
 				logger.log(e.getClass()+": "+e.getMessage()+System.lineSeparator()+Arrays.toString(e.getStackTrace()), LogLevel.VERBOSE);
 				logger.log("NTR's NFC Patch seems to be active. Proceeding as normal...");
 			} else {
+				close();
 				throw e;
 			}
+		} catch (Exception e) {
+			close();
+			throw e;
 		}
 	}
 
@@ -104,9 +107,9 @@ public class NTRClient implements StreamingInterface {
 	public void close() throws IOException {
 		thread.interrupt();
 		thread.close();
-		socOut.close();
-		socIn.close();
-		soc.close();
+		if(soc != null && !soc.isClosed()) {
+			soc.close();
+		}
 	}
 
 	@Override
