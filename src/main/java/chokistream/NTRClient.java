@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.ConnectException;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
@@ -75,6 +76,7 @@ public class NTRClient implements StreamingInterface {
 		thread.start();
 		
 		try {
+			//reopenSocket(host);
 			soc = new Socket(host, 8000);
 			soc.setSoTimeout(10000);
 			socOut = soc.getOutputStream();
@@ -85,13 +87,26 @@ public class NTRClient implements StreamingInterface {
 			// Give NTR some time to think
 			TimeUnit.SECONDS.sleep(3);
 			
-			heartbeat();
-			TimeUnit.SECONDS.sleep(5);
-			heartbeat();
+			String heartbeatReply = heartbeat();
+			
+			// NTR (3.6 or 3.6.1) needs to reload to reinitialize quality, priority screen, etc. (?)
+			
+			// This is a somewhat hacky solution because a proper one doesn't exist.
+			// TODO: Account for the possible presence of irrelevant backlog debug output? (This *should* be harmless though.)
+			if(heartbeatReply.contains("remote play already started")) {
+				//logger.log("Reloading NTR...");
+				//sendReloadPacket();
+				//TimeUnit.SECONDS.sleep(3);
+				//reopenSocket(host);
+				//sendInitPacket(port, screen, priority, quality, qos);
+				//TimeUnit.SECONDS.sleep(3);
+				//heartbeat();
+			}
 		
 		} catch (ConnectException e) {
 			if(thread.isReceivingFrames()) {
-				logger.log(e.getClass()+": "+e.getMessage()+System.lineSeparator()+Arrays.toString(e.getStackTrace()), LogLevel.VERBOSE);
+				logger.log("NTRClient warning: "+e.getClass()+": "+e.getMessage());
+				logger.log(Arrays.toString(e.getStackTrace()), LogLevel.VERBOSE);
 				logger.log("NTR's NFC Patch seems to be active. Proceeding as normal...");
 			} else {
 				close();
@@ -144,7 +159,34 @@ public class NTRClient implements StreamingInterface {
 		}
 	}
 	
-	public void heartbeat() throws Exception, UnknownHostException, ConnectException, IOException {
+	/**
+	 * (Re-) Opens the Socket at the specified IP address.
+	 * 
+	 * @param host Host (IP address) of the 3DS.
+	 * @throws SocketException
+	 * @throws UnknownHostException
+	 * @throws IOException
+	 */
+	public void reopenSocket(String host) throws SocketException, UnknownHostException, IOException {
+		if(soc != null && !soc.isClosed()) {
+			soc.close();
+		} else {
+			logger.log("NTR reopenSocket warning: Socket is null or already closed.");
+		}
+		
+		try {
+			Socket newSoc = new Socket(host, 8000);
+			soc = newSoc;
+			soc.setSoTimeout(10000);
+			socOut = soc.getOutputStream();
+			socIn = soc.getInputStream();
+		} catch (Exception e) {
+			// TODO: Maybe close soc, for the sake of predictable behavior.
+			throw e;
+		}
+	}
+	
+	public String heartbeat() throws Exception, IOException {
 		Packet pak = new Packet();
 		int heartbeatSeq = random.nextInt(100);
 		pak.seq = heartbeatSeq;
@@ -152,6 +194,7 @@ public class NTRClient implements StreamingInterface {
 		pak.cmd = 0; // heartbeat command
 		
 		try {
+			logger.log("Sending NTR Heartbeat packet...");
 			sendPacket(pak);
 			logger.log("NTR Heartbeat packet sent.");
 		} catch(IOException e) {
@@ -184,7 +227,8 @@ public class NTRClient implements StreamingInterface {
 		logger.log("NTR Heartbeat response received.");
 		
 		if(reply.exdata.length > 0) {
-			String debugOut = new String(reply.exdata, StandardCharsets.UTF_8);
+			String debugOutUnmodified = new String(reply.exdata, StandardCharsets.UTF_8);
+			String debugOut = debugOutUnmodified;
 			if(debugOut.charAt(debugOut.length()-1) == '\n') {
 				debugOut = debugOut.substring(0, debugOut.length()-1);
 			}
@@ -197,8 +241,31 @@ public class NTRClient implements StreamingInterface {
 			}
 			debugOut = debugOut.replace("\n", "\n"+ntrText);
 			logger.log(ntrText+debugOut, LogLevel.REGULAR);
+			return debugOutUnmodified;
 		} else {
 			logger.log("NTR Heartbeat response is empty.");
+			return new String("");
+		}
+	}
+	
+	/**
+	 * Send a Reload command to NTR.
+	 * <p>Not applicable to NTR-HR; in such a case,
+	 *  the command will be ignored and this function should return safely.</p>
+	 * 
+	 * <p>Note: It is unknown whether NTR's Reload functionality works.</p>
+	 * 
+	 * @throws IOException refer to {@link #sendPacket(Packet)}
+	 */
+	public void sendReloadPacket() throws IOException {
+		Packet pak = new Packet();
+		pak.cmd = 4;
+		try {
+			logger.log("Sending Reload packet", LogLevel.VERBOSE);
+			sendPacket(pak);
+		} catch(IOException e) {
+			logger.log("NTR Reload failed!");
+			throw e;
 		}
 	}
 	
@@ -235,7 +302,7 @@ public class NTRClient implements StreamingInterface {
 		}
 	}
 	
-	public void sendInitPacket(int port, DSScreen screen, int priority, int quality, int qos) throws UnknownHostException, ConnectException, IOException, SocketTimeoutException {
+	public void sendInitPacket(int port, DSScreen screen, int priority, int quality, int qos) throws IOException {
 		Packet pak = new Packet();
 		pak.seq = 3000;
 		pak.type = 0;
@@ -254,14 +321,14 @@ public class NTRClient implements StreamingInterface {
 		}
 	}
 	
-	public void sendPacket(Packet packet) throws UnknownHostException, ConnectException, IOException, SocketTimeoutException {
+	public void sendPacket(Packet packet) throws IOException {
 		byte[] pak = packet.getRaw();
 		logger.log("Sending packet to NTR...", LogLevel.EXTREME);
 		logger.log(pak, LogLevel.EXTREME);
 		socOut.write(pak);
 	}
 	
-	public Packet recvPacket() throws Exception, UnknownHostException, ConnectException, IOException, SocketTimeoutException {
+	public Packet recvPacket() throws Exception, IOException {
 		Exception exception = null;
 		Packet pak = null;
 		byte[] header = new byte[84];
@@ -387,7 +454,7 @@ public class NTRClient implements StreamingInterface {
 		public int type = -1; // placeholder;
 		
 		/* Command. Required. */
-		public int cmd;
+		public int cmd = -1;
 		
 		/**
 		 * Arguments. Context-dependent, based on the Command.
