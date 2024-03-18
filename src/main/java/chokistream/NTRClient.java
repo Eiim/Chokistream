@@ -186,6 +186,17 @@ public class NTRClient implements StreamingInterface {
 		}
 	}
 	
+	/**
+	 * NTR Heartbeat; gets any new available debug log output from NTR, and logs it via Chokistream.Logger.
+	 * 
+	 * <p>This function works with NTR 3.6, NTR 3.6.1, and NTR-HR.</p>
+	 * 
+	 * @return Debug output data received from NTR, converted to a UTF-8 String but otherwise unmodified.
+	 *  If no debug output is received from NTR, this function returns an empty String.
+	 * @throws Exception              Thrown when the supposed response from NTR is invalid.
+	 *  Also rethrows any Exceptions thrown by {@link #recvPacket()}, and by extension {@link #Packet(byte[])}.
+	 * @throws IOException            refer to {@link #sendPacket(Packet)} and {@link #recvPacket()}
+	 */
 	public String heartbeat() throws Exception, IOException {
 		Packet pak = new Packet();
 		int heartbeatSeq = random.nextInt(100);
@@ -221,7 +232,7 @@ public class NTRClient implements StreamingInterface {
 			if(reply.seq != heartbeatSeq) {
 				logger.log("seq "+reply.seq+" != "+heartbeatSeq);
 			}
-			throw new Exception();
+			throw new Exception(); // TODO: More specific; add a message
 		}
 		
 		logger.log("NTR Heartbeat response received.");
@@ -302,6 +313,17 @@ public class NTRClient implements StreamingInterface {
 		}
 	}
 	
+	/**
+	 * Sends a packet to NTR which configures settings and signals to start streaming image data.
+	 * 
+	 * <p>
+	 *  Note: For NTR 3.6 and 3.6.1, if NTR has already started streaming,
+	 *  these settings cannot be changed just by using this function.
+	 *  This limitation does not apply to NTR-HR.
+	 * </p>
+	 * 
+	 * @throws IOException refer to {@link #sendPacket(Packet)}
+	 */
 	public void sendInitPacket(int port, DSScreen screen, int priority, int quality, int qos) throws IOException {
 		Packet pak = new Packet();
 		pak.seq = 3000;
@@ -321,6 +343,12 @@ public class NTRClient implements StreamingInterface {
 		}
 	}
 	
+	/**
+	 * Sends a packet to NTR using this NTRClient's Socket soc.
+	 * 
+	 * @param packet the Packet to send.
+	 * @throws IOException if an I/O error occurs.
+	 */
 	public void sendPacket(Packet packet) throws IOException {
 		byte[] pak = packet.getRaw();
 		logger.log("Sending packet to NTR...", LogLevel.EXTREME);
@@ -328,6 +356,15 @@ public class NTRClient implements StreamingInterface {
 		socOut.write(pak);
 	}
 	
+	/**
+	 * Receives a packet from NTR using this NTRClient's Socket soc.
+	 * If an Exception is thrown, this function logs as much received data as it can, for debugging purposes.
+	 * 
+	 * @return the received Packet.
+	 * @throws Exception if unable to receive a full 84-byte header, or if unable to receive full exdata section.
+	 *  Also rethrows any Exceptions thrown by {@link #Packet(byte[])}.
+	 * @throws IOException if an I/O error occurs.
+	 */
 	public Packet recvPacket() throws Exception, IOException {
 		Exception exception = null;
 		Packet pak = null;
@@ -347,7 +384,7 @@ public class NTRClient implements StreamingInterface {
 			
 			if(bytesReadHeader < 84) {
 				logger.log("NTR recvPacket error: Received only "+bytesReadHeader+" of expected "+84+" bytes.");
-				throw new Exception();
+				throw new Exception(); // TODO: More specific; add a message
 			}
 			
 			pak = new Packet(header);
@@ -359,7 +396,7 @@ public class NTRClient implements StreamingInterface {
 				if(bytesReadExdata < pak.exdata.length) {
 					// TODO: if this becomes a regular problem, maybe handle more elegantly.
 					logger.log("NTR recvPacket error: Received only "+bytesReadExdata+" of expected "+pak.exdata.length+" bytes.");
-					throw new Exception();
+					throw new Exception(); // TODO: More specific; add a message
 				}
 			}
 		} catch(Exception e) {
@@ -439,41 +476,62 @@ public class NTRClient implements StreamingInterface {
 	 */
 	private static class Packet {
 		
-		/* Header */
+		/** Header */
 		
-		/* NTR magic number. */
+		/** NTR magic number. */
 		public final int magic = 0x12345678;
 		
-		/* Sequence ID. More or less optional. */
+		/** Sequence ID. More or less optional. */
 		public int seq = 0;
 		
-		/* "Type."
-		 * Traditionally set to 0 if the Extra Data section is empty, and 1 otherwise.
-		 * This may or may not matter to NTR. Refer to docs. (TODO)
+		/**
+		 * "Type"
+		 * <p>
+		 *  As a general rule, this should be 1 if the exdata section contains data,
+		 *  and 0 if the exdata section is empty (0 bytes in length).
+		 *  Default value is -1, which tells {@link #getRaw()} to ignore this variable
+		 *  and use either 1 or 0 according to this rule.
+		 * </p>
+		 * 
+		 * <p>In practice, it is unknown whether this variable actually affects NTR's behavior.
+		 *  Refer to docs. (TODO)</p>
 		 */
-		public int type = -1; // placeholder;
+		public int type = -1;
 		
-		/* Command. Required. */
+		/**
+		 * Command
+		 * <p>
+		 *  Required.
+		 *  Default value is -1, which is an invalid command, so NTR just ignores the packet after receiving it.
+		 *  For a list of valid commands, refer to docs. (TODO)
+		 * </p>
+		 */
 		public int cmd = -1;
 		
 		/**
 		 * Arguments. Context-dependent, based on the Command.
-		 * Supports arbitrary array length between 0 and 16 (inclusive).
-		 * Technically unsigned 32-bit integers.
+		 * These are unsigned 32-bit integers, but that usually doesn't matter.
+		 * In this implementation, this array may be of arbitrary length between 0 and 16 (inclusive).
 		 */
 		public int[] args = new int[16];
 		
-		/* Length of the Extra Data section (exdata). */
+		/** Length of the exdata section. */
 		//public int exdataLen;
 		
-		/* Non-Header */
+		/** Non-Header */
 		
 		/**
-		 *  Extra Data (aka "Data") section.
-		 *  Supports arbitrary array length.
+		 * Exdata section
+		 * <p>
+		 *  NTR calls this the "Data" section. However for the sake of clarity,
+		 *  Chokistream's code and documentation will almost always refer to this as the
+		 *  "Exdata" or "exdata" section. (short for "extra data")
+		 * </p>
+		 * 
+		 * <p>This array may be of arbitrary length.</p>
 		 */
-		// TODO: Implement a length limit?
 		public byte[] exdata = new byte[0];
+		// TODO: Implement a length limit?
 		
 		
 		Packet(){};
@@ -493,23 +551,45 @@ public class NTRClient implements StreamingInterface {
 		
 		/**
 		 * Convert raw data into a Packet.
+		 * <p>
+		 *  When an exception is thrown, this Packet object may or may not have properly assigned all its variables.
+		 *  Doesn't do any sanity checks on seq, type, or cmd.
+		 * </p>
+		 * <p>
+		 *  It is acceptable for the input data to only consist of the 84-byte packet header.
+		 *  In such a case, the exdata variable will be a placeholder byte array, of length specified in the header.
+		 *  The intended use-case of this behavior is as follows:
+		 * </p>
+		 * <ol>
+		 *  <li>Receive the header data over the network.</li>
+		 *  <li>Pass the header data into this constructor to interpret the packet header.</li>
+		 *  <li>Check the length of the exdata section. (<code>exdata.length</code>)</li>
+		 *  <li>Receive the exdata over the network.</li>
+		 *  <li>Fill the <code>exdata</code> of this Packet object with the exdata received.</li>
+		 * </ol>
 		 * 
-		 * The input data doesn't necessarily have to contain the corresponding exdata; the header alone is enough.
-		 * In such a case where the exdata is not present, a placeholder byte array will be created for exdata, of the length specified in the header.
+		 * <p>Note: Other edge-case behavior related to exdata length is currently undefined,
+		 *  and subject to change in this implementation. (TODO)</p>
 		 * 
 		 * @param pak A packet, in the form of raw bytes.
+		 * @throws Exception Thrown in some cases of invalid packet data. Specifically:
+		 *  <ul>
+		 *  <li>If the input byte array is less than 84 bytes in length.
+		 *  That is the length of the header, and likewise the minimum required length for a packet to be valid.</li>
+		 *  <li>If the Magic Number is incorrect. That indicates the data is most likely malformed.</li>
+		 *  </ul>
 		 */
 		Packet(byte[] pak) throws Exception {
 			// minimum valid packet length; size of header
 			if(pak.length < 84) {
 				logger.log("NTRClient Packet error: Invalid packet size. "+pak.length+" bytes is too small.");
-				throw new Exception();
+				throw new Exception(); // TODO: More specific; add a message
 			}
 			
 			// verify magic number
 			if(pak[0] != 0x78 || pak[1] != 0x56 || pak[2] != 0x34 || pak[3] != 0x12) {
 				logger.log("NTRClient Packet error: Processed packet is most likely malformed.");
-				throw new Exception();
+				throw new Exception(); // TODO: More specific; add a message
 			}
 			
 			seq = bytesToInt(pak, 4);
