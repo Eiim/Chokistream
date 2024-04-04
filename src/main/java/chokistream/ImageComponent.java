@@ -25,8 +25,8 @@ public class ImageComponent extends JComponent {
 		this.screen = screen;
 		this.intrp = intrp;
 		this.scale = scale;
-		width = (int)((screen == DSScreen.TOP ? 400 : 320) * scale);
-		height = (int) (240 * scale);
+		width = (int)(854 * scale);
+		height = (int)(480 * scale);
 		img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		setOpaque(true);
 	}
