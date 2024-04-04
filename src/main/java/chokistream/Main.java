@@ -108,6 +108,16 @@ public class Main {
     				ui.displayError(e);
     				return null;
     			}
+    		case WIIUSTREAMINGPLUGIN:
+    			try {
+    				ColorMode colorMode = ui.getPropEnum(Prop.COLORMODE);
+    				// Initializes connection
+    				return new WiiUStreamingClient(ip, port, colorMode);
+    				//return null;
+    			} catch (Exception e) {
+    				ui.displayError(e);
+    				return null;
+    			}
     	}
     	return null; // Shouldn't ever get here
 	}

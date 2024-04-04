@@ -242,6 +242,7 @@ public class SwingGUI extends SettingsUI {
 					switch(getPropEnum(Prop.MOD)) {
 						case NTR -> "8001";
 						case HZMOD, CHIRUNOMOD -> "6464";
+						case WIIUSTREAMINGPLUGIN -> "8092";
 					}
 				);
 			}
@@ -307,6 +308,7 @@ public class SwingGUI extends SettingsUI {
 				case NTR -> Integer.parseInt(qualityNTR.getText());
 				case HZMOD -> Integer.parseInt(qualityHz.getText());
 				case CHIRUNOMOD -> Integer.parseInt(qualityCHM.getText());
+				case WIIUSTREAMINGPLUGIN -> (Integer)0;
 			};
 		} else if(p.equals(Prop.PRIORITYFACTOR)) {
 			return Integer.parseInt(priFac.getText());
