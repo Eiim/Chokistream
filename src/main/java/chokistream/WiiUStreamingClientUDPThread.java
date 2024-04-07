@@ -81,19 +81,23 @@ public class WiiUStreamingClientUDPThread extends Thread {
 				switch(state) {
 				
 				case 2: // Expected packet: JPEG data
-					
-					//if(priorityImageData.length + length > imageDataTotalLength) {
-						//length = imageDataTotalLength - priorityImageData.length;
-					//}
-					
 					byte[] newData = new byte[priorityImageData.length+data.length];
 					System.arraycopy(priorityImageData, 0, newData, 0, priorityImageData.length);
 					System.arraycopy(data, 0, newData, priorityImageData.length, data.length);
 					priorityImageData = newData;
-					
-					// Received a complete image, render
+
+					/* TODO
+					 * if image data exceeds expected length, bail before the following 'if' statement.
+					 * (but make this feature optional)
+					 * i haven't done this yet because something is broken :P
+					 */
 					if (priorityImageData.length >= imageDataTotalLength) {
-						
+						// Received a complete image, render
+
+						if (priorityImageData.length != imageDataTotalLength) {
+							logger.log("Warning: Image data does not match expected length! "+priorityImageData.length+" != "+imageDataTotalLength);
+						}
+
 						try {
 							priorityImage = ImageIO.read(new ByteArrayInputStream(priorityImageData));
 						} catch (Exception e) {
@@ -126,7 +130,11 @@ public class WiiUStreamingClientUDPThread extends Thread {
 						// TODO
 					} else if (length == 8) { // Length of JPEG data
 						// big-endian, 32-bit int
+						//logger.log("received report of image data length.");
+						//logger.log(data, LogLevel.REGULAR);
 						imageDataTotalLength = data[4]<<24 & 0xff000000 | data[5]<<16 & 0xff0000 | data[6]<<8 & 0xff00 | data[7] & 0xff;
+						priorityImageData = new byte[0];
+						priorityImage = null;
 						state = 2;
 					}
 					break;

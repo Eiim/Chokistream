@@ -3,7 +3,9 @@ package chokistream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.concurrent.TimeUnit;
 
@@ -63,7 +65,23 @@ public class WiiUStreamingClient implements StreamingInterface {
 	
 	private void connect() {
 		try {
-			tcpSoc = new Socket(host, port); // TCP port = 8092
+			logger.log("Connecting to Wii U...");
+			tcpSoc = new Socket();
+			InetSocketAddress socAddr = new InetSocketAddress(host, port);
+			
+			boolean connectFailed = true;
+
+			while (connectFailed) {
+				try {
+					tcpSoc.connect(new InetSocketAddress(host, port), 10000); // TCP connection timeout = 10 seconds
+					connectFailed = false; // break
+				} catch (SocketTimeoutException e) {
+					logger.log("WiiUStreamingClient Error: timed out :()");
+					logger.log("Attempting to reconnect...");
+					e.printStackTrace(); // TODO: replace
+				}
+			}
+			//tcpSoc.setSoTimeout(2000);
 			tcpOut = tcpSoc.getOutputStream();
 			tcpIn = tcpSoc.getInputStream();
 		} catch(Exception e) {
