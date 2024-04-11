@@ -74,6 +74,7 @@ public class WiiUStreamingClientUDPThread extends Thread {
 		while (!shouldDie.get()) {
 			DatagramPacket packet = new DatagramPacket(packetBuffer, packetBuffer.length);
 			try {
+				// NOTE: the true length of the packet will be packet.getLength() NOT packetBuffer.length !!!
 				socket.receive(packet);
 				byte[] data = packet.getData();
 				int length = packet.getLength();
@@ -81,9 +82,17 @@ public class WiiUStreamingClientUDPThread extends Thread {
 				switch(state) {
 				
 				case 2: // Expected packet: JPEG data
-					byte[] newData = new byte[priorityImageData.length+data.length];
+					int copyLength = 0;
+					if (priorityImageData.length + length > imageDataTotalLength) {
+						logger.log("Warning: Image data is longer than expected! "+(priorityImageData.length+length)+" > "+imageDataTotalLength);
+						copyLength = imageDataTotalLength - priorityImageData.length;
+					} else {
+						copyLength = length;
+					}
+					
+					byte[] newData = new byte[priorityImageData.length+copyLength];
 					System.arraycopy(priorityImageData, 0, newData, 0, priorityImageData.length);
-					System.arraycopy(data, 0, newData, priorityImageData.length, data.length);
+					System.arraycopy(data, 0, newData, priorityImageData.length, copyLength);
 					priorityImageData = newData;
 
 					/* TODO
@@ -93,11 +102,6 @@ public class WiiUStreamingClientUDPThread extends Thread {
 					 */
 					if (priorityImageData.length >= imageDataTotalLength) {
 						// Received a complete image, render
-
-						if (priorityImageData.length != imageDataTotalLength) {
-							logger.log("Warning: Image data does not match expected length! "+priorityImageData.length+" != "+imageDataTotalLength);
-						}
-
 						try {
 							priorityImage = ImageIO.read(new ByteArrayInputStream(priorityImageData));
 						} catch (Exception e) {
