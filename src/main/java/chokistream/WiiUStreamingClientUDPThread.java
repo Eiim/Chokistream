@@ -74,7 +74,7 @@ public class WiiUStreamingClientUDPThread extends Thread {
 				int length = packet.getLength();
 				logger.log("Received UDP packet of length "+length, LogLevel.VERBOSE);
 
-				if((length == 4 || length == 8) && imageDataTotalLength - priorityImageData.length > 8) {
+				if((length == 4 || length == 8) && state == 2 && imageDataTotalLength - priorityImageData.length > 8) {
 					// abandon current frame.
 					// TODO: make this a little smarter.
 					logger.log("Warning: Discarded likely malformed frame.");
