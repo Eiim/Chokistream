@@ -43,13 +43,7 @@ public class WiiUStreamingClientUDPThread extends Thread {
 	byte[] priorityImageData = new byte[0];
 	private int imageDataTotalLength = 0;
 	
-	byte[] secondaryImageData = new byte[0];
 	private BufferedImage priorityImage;
-	private BufferedImage secondaryImage;
-	private byte priorityExpectedFrame = 0;
-	private byte secondaryExpectedFrame = 0;
-	private byte priorityExpectedPacket = 0;
-	private byte secondaryExpectedPacket = 0;
 	private final ColorMode colorMode;
 	
 	private static final Logger logger = Logger.INSTANCE;
@@ -78,14 +72,35 @@ public class WiiUStreamingClientUDPThread extends Thread {
 				socket.receive(packet);
 				byte[] data = packet.getData();
 				int length = packet.getLength();
+				logger.log("Received UDP packet of length "+length, LogLevel.VERBOSE);
+
+				if((length == 4 || length == 8) && imageDataTotalLength - priorityImageData.length > 8) {
+					// abandon current frame.
+					// TODO: make this a little smarter.
+					logger.log("Warning: Discarded likely malformed frame.");
+					priorityImageData = new byte[0];
+					priorityImage = null;
+					//imageDataTotalLength = 0;
+					state = 0;
+				}
 				
 				switch(state) {
 				
 				case 2: // Expected packet: JPEG data
 					int copyLength = 0;
 					if (priorityImageData.length + length > imageDataTotalLength) {
-						logger.log("Warning: Image data is longer than expected! "+(priorityImageData.length+length)+" > "+imageDataTotalLength);
-						copyLength = imageDataTotalLength - priorityImageData.length;
+						// TODO: configurable "safe" and "unsafe" mode
+						// safe
+						logger.log("Warning: Discarded likely malformed frame.");
+						priorityImageData = new byte[0];
+						priorityImage = null;
+						//imageDataTotalLength = 0;
+						state = 0;
+						break;
+
+						// unsafe; continue and attempt to decode JPEG anyway
+						//logger.log("Warning: Image data is longer than expected! "+(priorityImageData.length+length)+" > "+imageDataTotalLength);
+						//copyLength = imageDataTotalLength - priorityImageData.length;
 					} else {
 						copyLength = length;
 					}
@@ -95,21 +110,15 @@ public class WiiUStreamingClientUDPThread extends Thread {
 					System.arraycopy(data, 0, newData, priorityImageData.length, copyLength);
 					priorityImageData = newData;
 
-					/* TODO
-					 * if image data exceeds expected length, bail before the following 'if' statement.
-					 * (but make this feature optional)
-					 * i haven't done this yet because something is broken :P
-					 */
 					if (priorityImageData.length >= imageDataTotalLength) {
 						// Received a complete image, render
 						try {
 							priorityImage = ImageIO.read(new ByteArrayInputStream(priorityImageData));
 						} catch (Exception e) {
 							e.printStackTrace();
+							logger.log("Warning: Discarded likely malformed frame.");
+							priorityImage = null;
 						}
-						
-						//priorityImageData = new byte[0];
-						//imageDataTotalLength = 0;
 						
 						// Bail if the JPEG is malformed.
 						// (For a malformed JPEG, ImageIO.read doesn't throw an exception, it just returns null.)
@@ -137,13 +146,20 @@ public class WiiUStreamingClientUDPThread extends Thread {
 						//logger.log("received report of image data length.");
 						//logger.log(data, LogLevel.REGULAR);
 						imageDataTotalLength = data[4]<<24 & 0xff000000 | data[5]<<16 & 0xff0000 | data[6]<<8 & 0xff00 | data[7] & 0xff;
-						priorityImageData = new byte[0];
-						priorityImage = null;
-						state = 2;
+						if (imageDataTotalLength > 0) {
+							priorityImageData = new byte[0];
+							priorityImage = null;
+							state = 2;
+						} else {
+							logger.log("Warning: Reported image data length "+imageDataTotalLength+" is invalid.");
+							imageDataTotalLength = 0;
+						}
+					} else {
+						logger.log("Warning: Incoming UDP packets are out of order."); //, LogLevel.VERBOSE
 					}
 					break;
 				}
-			} catch (IOException e) {
+			} catch (Exception e) {
 				close();
 				e.printStackTrace();
 			}
