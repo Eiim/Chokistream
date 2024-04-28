@@ -1,6 +1,6 @@
 ---
-name: Bug report
-about: Report a bug in Chokistream
+name: Bug report/connection issue
+about: Report an issue using Chokistream
 title: ''
 labels: ''
 assignees: ''
