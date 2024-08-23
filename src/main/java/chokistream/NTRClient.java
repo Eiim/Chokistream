@@ -63,6 +63,8 @@ public class NTRClient implements StreamingInterface {
 	private OutputStream socOut = null;
 	private InputStream socIn = null;
 	
+	private String host = "";
+	
 	private static class SettingsChangeQueue {
 		public boolean queued = false;
 		// safe defaults just in case
@@ -93,50 +95,45 @@ public class NTRClient implements StreamingInterface {
 		udpThread = new NTRUDPThread(screen, colorMode, port);
 		udpThread.start();
 		hbThread = new HeartbeatThread();
+		logger.log("Connecting...");
 		
-		try {
-			//reopenSocket(host);
-			soc = new Socket(host, 8000);
-			soc.setSoTimeout(10000);
-			socOut = soc.getOutputStream();
-			socIn = soc.getInputStream();
-			
-			sendInitPacket(quality, screen, priority, qos);
-			
-			// Give NTR some time to think
-			TimeUnit.SECONDS.sleep(3);
-			
-			String heartbeatReply = heartbeat();
-			
-			// NTR (3.6 or 3.6.1) needs to reload to reinitialize quality, priority screen, etc. (?)
-			
-			// This is a somewhat hacky solution because a proper one doesn't exist.
-			// TODO: Account for the possible presence of irrelevant backlog debug output? (This *should* be harmless though.)
-			if(heartbeatReply.contains("remote play already started")) {
-				//logger.log("Reloading NTR...");
-				//sendReloadPacket();
-				//TimeUnit.SECONDS.sleep(3);
-				//reopenSocket(host);
-				//sendInitPacket(port, screen, priority, quality, qos);
-				//TimeUnit.SECONDS.sleep(3);
-				//heartbeat();
-			}
-			
-			hbThread = new HeartbeatThread();
+		this.host = host;
+		if(udpThread.isReceivingFrames()) {
+			// defer TCP communication init to HeartbeatThread
+			//logger.log("NTR UDP client connected");
+			scq.quality = quality;
+			scq.screen = screen;
+			scq.priority = priority;
+			scq.qos = qos;
+			scq.queued = true;
 			hbThread.start();
-		
-		} catch (ConnectException e) {
-			if(udpThread.isReceivingFrames()) {
-				logger.log("NTRClient warning: "+e.getClass()+": "+e.getMessage());
-				logger.log(Arrays.toString(e.getStackTrace()), LogLevel.VERBOSE);
-				logger.log("NTR's NFC Patch seems to be active. Proceeding as normal...");
-			} else {
+		} else {
+			try {
+				reopenSocket();
+				//soc = new Socket(host, 8000);
+				//soc.setSoTimeout(10000);
+				//socOut = soc.getOutputStream();
+				//socIn = soc.getInputStream();
+				
+				sendInitPacket(quality, screen, priority, qos);
+				
+				// Give NTR some time to think
+				TimeUnit.SECONDS.sleep(2);
+				
+				hbThread.start();
+			} catch (ConnectException e) {
+				if(udpThread.isReceivingFrames()) {
+					logger.log("NTRClient warning: "+e.getClass()+": "+e.getMessage());
+					logger.log(Arrays.toString(e.getStackTrace()), LogLevel.VERBOSE);
+					logger.log("NTR's NFC Patch seems to be active. Proceeding as normal...");
+				} else {
+					close();
+					throw e;
+				}
+			} catch (Exception e) {
 				close();
 				throw e;
 			}
-		} catch (Exception e) {
-			close();
-			throw e;
 		}
 	}
 
@@ -146,6 +143,7 @@ public class NTRClient implements StreamingInterface {
 		udpThread.close();
 		if(hbThread != null) {
 			hbThread.close();
+			hbThread.interrupt();
 		}
 		if(soc != null && !soc.isClosed()) {
 			try {
@@ -200,6 +198,26 @@ public class NTRClient implements StreamingInterface {
 		
 		@Override
 		public void run() {
+			if(soc == null || soc.isClosed()) {
+				try {
+					reopenSocket();
+					scq.queued = true;
+				} catch (Exception e) {
+					boolean b = false;
+					try {
+						b = udpThread.isReceivingFrames();
+					} catch (InterruptedException e2) {}
+					if(b) {
+						logger.log("NTR's NFC Patch seems to be active. Shutting down HeartbeatThread...");
+						logger.log("NTRClient$HeartbeatThread warning: "+e.getClass()+": "+e.getMessage());
+						logger.log(Arrays.toString(e.getStackTrace()), LogLevel.EXTREME);
+					} else {
+						logger.log(Arrays.toString(e.getStackTrace()), LogLevel.REGULAR);
+					}
+					shouldDie.set(true);
+				}
+			}
+			
 			while (!shouldDie.get()) {
 				if(scq.queued) {
 					try {
@@ -249,25 +267,30 @@ public class NTRClient implements StreamingInterface {
 					shouldDie.set(true);
 				}
 			}
+			scq.queued = false;
 		}
 	}
 	
 	/**
 	 * (Re-) Opens the Socket at the specified IP address.
 	 * 
-	 * @param host Host (IP address) of the 3DS.
 	 * @throws SocketException
 	 * @throws UnknownHostException
 	 * @throws IOException
 	 */
-	public void reopenSocket(String host) throws SocketException, UnknownHostException, IOException {
+	public void reopenSocket() throws SocketException, UnknownHostException, IOException {
 		if(soc != null && !soc.isClosed()) {
 			soc.close();
-		} else {
-			logger.log("NTR reopenSocket warning: Socket is null or already closed.");
 		}
 		
 		try {
+			/**
+			 * TODO: Socket init takes waaaay too long. But I don't understand
+			 * Java standard libraries enough to improve this yet.
+			 * Specifically, the first line following this comment is the main hangup,
+			 * Because we can't manually set a timeout period. And default is too long.
+			 * I don't notice anything breaking due to this, but it's inconvenient. -C
+			 */
 			Socket newSoc = new Socket(host, 8000);
 			soc = newSoc;
 			soc.setSoTimeout(10000);
