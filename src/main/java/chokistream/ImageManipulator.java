@@ -167,7 +167,15 @@ public class ImageManipulator {
 		int ih = in.getHeight();
 		for(int i = 0; i < iw; i++) {
 			for(int j = 0; j < ih; j++) {
-				base.setRGB(j + offset, iw-i-1, ColorHotfix.hzModSwapRedBlue(in.getRGB(i, j)));
+				try {
+					base.setRGB(j + offset, iw-i-1, ColorHotfix.hzModSwapRedBlue(in.getRGB(i, j)));
+				} catch(ArrayIndexOutOfBoundsException e) {
+					logger.log("i="+i+", j="+j+", offset="+(offset)+", iw-i-1="+(iw-i-1));
+					//logger.log("ImageManipulator.java: "+e.getClass()+": "+e.getMessage());
+					//logger.log(Arrays.toString(e.getStackTrace()), LogLevel.EXTREME);
+					//break; // skip the rest of this row (or "row")
+					throw e;
+				}
 			}
 		}
 		return base;
