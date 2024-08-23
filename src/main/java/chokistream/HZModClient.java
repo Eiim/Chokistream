@@ -57,8 +57,8 @@ public class HZModClient implements StreamingInterface {
 		colorMode = receivedColorMode;
 		this.quality = quality;
 		
-		lastTopImage = new BufferedImage(240, 400, BufferedImage.TYPE_INT_RGB);
-		lastBottomImage = new BufferedImage(240, 320, BufferedImage.TYPE_INT_RGB);
+		lastTopImage = new BufferedImage(400, 240, BufferedImage.TYPE_INT_RGB);
+		lastBottomImage = new BufferedImage(320, 240, BufferedImage.TYPE_INT_RGB);
 		
 		if (capCPU > 0) {
 			sendLimitCPU(capCPU);
