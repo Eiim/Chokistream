@@ -33,6 +33,7 @@ import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.TimeUnit;
 import java.util.Random;
 
@@ -43,10 +44,13 @@ import chokistream.props.LogLevel;
 
 public class NTRClient implements StreamingInterface {
 	
+	public static boolean instanceIsRunning;
+	
 	/**
 	 * Thread used by NTRClient to read and buffer Frames received from the 3DS.
 	 */
-	private final NTRUDPThread thread;
+	private final NTRUDPThread udpThread;
+	private HeartbeatThread hbThread;
 	
 	private final Random random = new Random();
 	
@@ -58,6 +62,18 @@ public class NTRClient implements StreamingInterface {
 	private Socket soc = null;
 	private OutputStream socOut = null;
 	private InputStream socIn = null;
+	
+	private static class SettingsChangeQueue {
+		public boolean queued = false;
+		// safe defaults just in case
+		public int quality = 70;
+		public DSScreen screen = DSScreen.TOP;
+		public int priority = 4;
+		public int qos = 16;
+		public SettingsChangeQueue() {}
+	}
+	private static SettingsChangeQueue scq = new SettingsChangeQueue();
+	private static int nfcPatchQueued = -1;
 
 	/**
 	 * Create an NTRClient.
@@ -72,8 +88,11 @@ public class NTRClient implements StreamingInterface {
 	 * @throws InterruptedException 
 	 */
 	public NTRClient(String host, int quality, DSScreen screen, int priority, int qos, ColorMode colorMode, int port) throws Exception, UnknownHostException, IOException, InterruptedException {
-		thread = new NTRUDPThread(screen, colorMode, port);
-		thread.start();
+		instanceIsRunning = true;
+		scq.queued = false;
+		udpThread = new NTRUDPThread(screen, colorMode, port);
+		udpThread.start();
+		hbThread = new HeartbeatThread();
 		
 		try {
 			//reopenSocket(host);
@@ -82,7 +101,7 @@ public class NTRClient implements StreamingInterface {
 			socOut = soc.getOutputStream();
 			socIn = soc.getInputStream();
 			
-			sendInitPacket(port, screen, priority, quality, qos);
+			sendInitPacket(quality, screen, priority, qos);
 			
 			// Give NTR some time to think
 			TimeUnit.SECONDS.sleep(3);
@@ -102,9 +121,12 @@ public class NTRClient implements StreamingInterface {
 				//TimeUnit.SECONDS.sleep(3);
 				//heartbeat();
 			}
+			
+			hbThread = new HeartbeatThread();
+			hbThread.start();
 		
 		} catch (ConnectException e) {
-			if(thread.isReceivingFrames()) {
+			if(udpThread.isReceivingFrames()) {
 				logger.log("NTRClient warning: "+e.getClass()+": "+e.getMessage());
 				logger.log(Arrays.toString(e.getStackTrace()), LogLevel.VERBOSE);
 				logger.log("NTR's NFC Patch seems to be active. Proceeding as normal...");
@@ -119,17 +141,25 @@ public class NTRClient implements StreamingInterface {
 	}
 
 	@Override
-	public void close() throws IOException {
-		thread.interrupt();
-		thread.close();
-		if(soc != null && !soc.isClosed()) {
-			soc.close();
+	public void close() {
+		udpThread.interrupt();
+		udpThread.close();
+		if(hbThread != null) {
+			hbThread.close();
 		}
+		if(soc != null && !soc.isClosed()) {
+			try {
+				soc.close();
+			} catch (Exception e) {
+				logger.log(Arrays.toString(e.getStackTrace()), LogLevel.REGULAR);
+			}
+		}
+		instanceIsRunning = false;
 	}
 
 	@Override
 	public Frame getFrame() throws InterruptedException {
-		Frame f = thread.getFrame();
+		Frame f = udpThread.getFrame();
 		if(f.screen == DSScreen.TOP) {
 			topFrames++;
 		} else {
@@ -156,6 +186,69 @@ public class NTRClient implements StreamingInterface {
 				return f3;
 			default:
 				return 0; // Should never happen
+		}
+	}
+	
+	private class HeartbeatThread extends Thread {
+		private boolean nfcPatchSent = false;
+		public AtomicBoolean shouldDie = new AtomicBoolean(false);
+		HeartbeatThread() {}
+		
+		public void close() {
+			shouldDie.set(true);
+		}
+		
+		@Override
+		public void run() {
+			while (!shouldDie.get()) {
+				if(scq.queued) {
+					try {
+						changeSettingsWhileRunning(scq.quality, scq.screen, scq.priority, scq.qos);
+					} catch (Exception e) {
+						logger.log(Arrays.toString(e.getStackTrace()), LogLevel.REGULAR);
+					}
+					scq.queued = false;
+				}
+				
+				String heartbeatReply = "";
+				try {
+					String r = heartbeat();
+					heartbeatReply = r;
+				} catch (SocketException e) {
+					/**
+					 * "Connection reset" or "Connection reset by peer" (TODO: test for that string)
+					 * Which usually means the NFC Patch is now fully active.
+					 * NTR disconnected from Chokistream, and we can't reconnect over TCP.
+					 * so kill this thread.
+					 */
+					logger.log("NTRClient$HeartbeatThread warning: "+e.getClass()+": "+e.getMessage());
+					logger.log(Arrays.toString(e.getStackTrace()), LogLevel.EXTREME);
+					//if (nfcPatchSent)
+					logger.log("NTR's NFC Patch seems to be active. Shutting down HeartbeatThread...");
+					shouldDie.set(true);
+				} catch (SocketTimeoutException e) {
+					logger.log("NTRClient$HeartbeatThread warning: "+e.getClass()+": "+e.getMessage());
+					logger.log(Arrays.toString(e.getStackTrace()), LogLevel.EXTREME);
+				} catch (Exception e) {
+					logger.log(Arrays.toString(e.getStackTrace()), LogLevel.REGULAR);
+				}
+				
+				if (!nfcPatchSent && nfcPatchQueued != -1) {
+					try {
+						sendNFCPatch(nfcPatchQueued);
+						nfcPatchSent = true;
+					} catch (Exception e) {
+						logger.log(Arrays.toString(e.getStackTrace()), LogLevel.REGULAR);
+					}
+					nfcPatchQueued = -1;
+				}
+				
+				try {
+					TimeUnit.SECONDS.sleep(5);
+				} catch (InterruptedException e) {
+					shouldDie.set(true);
+				}
+			}
 		}
 	}
 	
@@ -205,9 +298,9 @@ public class NTRClient implements StreamingInterface {
 		pak.cmd = 0; // heartbeat command
 		
 		try {
-			logger.log("Sending NTR Heartbeat packet...");
+			logger.log("Sending NTR Heartbeat packet...", LogLevel.EXTREME);
 			sendPacket(pak);
-			logger.log("NTR Heartbeat packet sent.");
+			logger.log("NTR Heartbeat packet sent.", LogLevel.EXTREME);
 		} catch(IOException e) {
 			logger.log("NTR Heartbeat error: Packet failed to send.");
 			throw e;
@@ -235,7 +328,7 @@ public class NTRClient implements StreamingInterface {
 			throw new Exception(); // TODO: More specific; add a message
 		}
 		
-		logger.log("NTR Heartbeat response received.");
+		logger.log("NTR Heartbeat response received.", LogLevel.EXTREME);
 		
 		if(reply.exdata.length > 0) {
 			String debugOutUnmodified = new String(reply.exdata, StandardCharsets.UTF_8);
@@ -254,7 +347,7 @@ public class NTRClient implements StreamingInterface {
 			logger.log(ntrText+debugOut, LogLevel.REGULAR);
 			return debugOutUnmodified;
 		} else {
-			logger.log("NTR Heartbeat response is empty.");
+			logger.log("NTR Heartbeat response is empty.", LogLevel.EXTREME);
 			return new String("");
 		}
 	}
@@ -280,13 +373,6 @@ public class NTRClient implements StreamingInterface {
 		}
 	}
 	
-	/**
-	 * dummied out
-	 */
-	public static void sendNFCPatch(String host, int chooseAddr) {
-		
-	}
-	
 	public void sendNFCPatch(int chooseAddr) {
 		Packet pak = new Packet();
 		pak.seq = 24000;
@@ -308,8 +394,38 @@ public class NTRClient implements StreamingInterface {
 			sendPacket(pak);
 			logger.log("NFC Patch sent!");
 		} catch(IOException e) {
-			e.printStackTrace(); // TODO: change this?
+			logger.log(Arrays.toString(e.getStackTrace()), LogLevel.REGULAR);
 			logger.log("NFC Patch failed to send");
+		}
+	}
+	
+	/**
+	 * Queues up the NFC Patch.
+	 * Note: the queue only has one slot.
+	 * 
+	 * @param ver Which version of the NFC Patch is to be used.
+	 *            1 = NFC Patch for System Update 11.4.x or higher
+	 *            0 = NFC Patch for System Update 11.3.x or lower
+	 *           -1 = Un-queue a queued NFC Patch.
+	 */
+	public static void queueNFCPatch(int ver) {
+		switch(ver) {
+			case 0:
+			case 1:
+				nfcPatchQueued = ver;
+				if(!instanceIsRunning) {
+					logger.log("NTR NFC Patch queued");
+				}
+				break;
+			case -1:
+				if(nfcPatchQueued != ver) {
+					nfcPatchQueued = ver;
+					logger.log("NTR NFC Patch un-queued");
+				}
+				break;
+			default:
+				logger.log("Warning: Invalid argument passed to NTRClient.queueNFCPatch");
+				break;
 		}
 	}
 	
@@ -322,9 +438,14 @@ public class NTRClient implements StreamingInterface {
 	 *  This limitation does not apply to NTR-HR.
 	 * </p>
 	 * 
+	 * @param quality
+	 * @param screen
+	 * @param priority
+	 * @param qos NTR "Quality of Service" (misnomer)
+	 * 
 	 * @throws IOException refer to {@link #sendPacket(Packet)}
 	 */
-	public void sendInitPacket(int port, DSScreen screen, int priority, int quality, int qos) throws IOException {
+	public void sendInitPacket(int quality, DSScreen screen, int priority, int qos) throws IOException {
 		Packet pak = new Packet();
 		pak.seq = 3000;
 		pak.type = 0;
@@ -340,6 +461,76 @@ public class NTRClient implements StreamingInterface {
 		} catch(IOException e) {
 			logger.log("Init packet failed to send");
 			throw e;
+		}
+	}
+	
+	/**
+	 * Try to change NTR video settings while NTR is already connected and running.
+	 * For NTR-HR, this is essentially just a wrapper for sendInitPacket.
+	 * 
+	 * TODO: I don't know if changing screen or priority this way works as expected.
+	 *       Might have to tell NTRUDPThread about those changes...
+	 * 
+	 * TODO: This feature is currently unused and untested.
+	 * 
+	 * @throws Exception
+	 */
+	public void changeSettingsWhileRunning(int quality, DSScreen screen, int priority, int qos) throws Exception {
+		try {
+			// settings unchanged
+			//if(this.screen == screen && this.priority == priority && this.quality == quality && this.qos == qos)
+				//return;
+			
+			sendInitPacket(quality, screen, priority, qos);
+			
+			// Give NTR some time to think
+			TimeUnit.SECONDS.sleep(3);
+			
+			String heartbeatReply = heartbeat();
+			
+			/**
+			 * NTR (3.6 or 3.6.1) needs to reload to reinitialize quality, priority screen, etc. (?)
+			 * This is a somewhat hacky solution because a proper one doesn't exist.
+			 * TODO: Account for the possible presence of irrelevant backlog debug output? (This *should* be harmless though.)
+			 */
+			if(heartbeatReply.contains("remote play already started")) {
+				//logger.log("Reloading NTR...");
+				//sendReloadPacket();
+				//TimeUnit.SECONDS.sleep(3);
+				//reopenSocket(host);
+				//sendInitPacket(port, screen, priority, quality, qos);
+				//TimeUnit.SECONDS.sleep(3);
+				//heartbeat();
+			}
+		} catch (ConnectException e) {
+			if(udpThread.isReceivingFrames()) {
+				logger.log("NTRClient warning: "+e.getClass()+": "+e.getMessage());
+				logger.log(Arrays.toString(e.getStackTrace()), LogLevel.VERBOSE);
+				logger.log("NTR's NFC Patch seems to be active. Proceeding as normal...");
+			} else {
+				throw e;
+			}
+		} catch (IOException e) {
+			throw e;
+		} catch (InterruptedException e) {
+			throw e;
+		} catch (Exception e) { // from heartbeat()
+			throw e;
+		}
+	}
+	
+	/**
+	 * TODO: This feature is currently unused and untested.
+	 */
+	public static void queueSettingsChange(int quality, DSScreen screen, int priority, int qos) {
+		if(instanceIsRunning) {
+			scq.quality = quality;
+			scq.screen = screen;
+			scq.priority = priority;
+			scq.qos = qos;
+			scq.queued = true;
+		} else {
+			scq.queued = false;
 		}
 	}
 	

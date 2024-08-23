@@ -758,7 +758,7 @@ public class SwingGUI extends SettingsUI {
 		qos = new JTextField("Packet QoS value (Set to >100 to disable)");
 		add(qos, p, c, 1, 4);
 		
-		JButton patch = new JButton("Patch NTR");
+		JButton patch = new JButton("NFC Patch");
 		add(patch, p, c, 0, 5, 2, 1);
 		patch.addActionListener(new ActionListener() {
 			@Override
@@ -790,29 +790,30 @@ public class SwingGUI extends SettingsUI {
 		JLabel header = new JLabel("NFC Patch");
 		header.setFont(new Font("System", Font.PLAIN, 20));
 		add(header, p, c, 0, 0, 2, 1);
+		add(new JLabel("What is your 3DS system update version?"), p, c, 0, 1, 2, 1);
 		
-		JButton latest = new JButton(">= 11.4");
-		add(latest, p, c, 0, 1);
+		JButton latest = new JButton("11.4 or higher");
+		add(latest, p, c, 0, 2);
 		latest.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
     				nfcPatch.setVisible(false);
-					NTRClient.sendNFCPatch(getPropString(Prop.IP), 1);
+					NTRClient.queueNFCPatch(1);
 				} catch (RuntimeException ex) {
 					displayError(ex);
 				}
 			}
 		});
 		
-		JButton pre11_4 = new JButton("< 11.4");
-		add(pre11_4, p, c, 1, 1);
+		JButton pre11_4 = new JButton("11.3 or lower");
+		add(pre11_4, p, c, 1, 2);
 		pre11_4.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
     				nfcPatch.setVisible(false);
-    				NTRClient.sendNFCPatch(getPropString(Prop.IP), 0);
+    				NTRClient.queueNFCPatch(0);
 				} catch (RuntimeException ex) {
 					displayError(ex);
 				}
