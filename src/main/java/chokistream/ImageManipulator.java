@@ -70,11 +70,11 @@ public class ImageManipulator {
 	// Only offset + rotation
 	// TODO: Make faster with Raster
 	private static BufferedImage adjustStandard(BufferedImage base, BufferedImage in, int offset) {
-		int ow = base.getWidth();
-		int oh = base.getHeight();
-		for(int i = 0; i < ow; i++) {
-			for(int j = 0; j < oh; j++) {
-				base.setRGB(i + offset, oh-j-1, in.getRGB(j, i));
+		int iw = in.getWidth();
+		int ih = in.getHeight();
+		for(int i = 0; i < ih; i++) {
+			for(int j = 0; j < iw; j++) {
+				base.setRGB(i + offset, iw-j-1, in.getRGB(j, i));
 			}
 		}
 		return base;
