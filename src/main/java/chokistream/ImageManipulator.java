@@ -17,7 +17,7 @@ public class ImageManipulator {
 	public static BufferedImage adjust(BufferedImage in, ColorMode cm) {
 		BufferedImage out = new BufferedImage(in.getHeight(), in.getWidth(), in.getType());
 		if(cm == ColorMode.REGULAR) {
-			return adjustStandard(out, in, 0);
+			return adjustStandard(out, in, 0, 0);
 		} else {
 			return adjustCM(out, in, 0, cm);
 		}
@@ -35,33 +35,33 @@ public class ImageManipulator {
 	 * @param swapRB Swap R/B channels (HzM/CHM)
 	 * @return Resultant image
 	 */
-	public static BufferedImage adjust(BufferedImage base, BufferedImage in, boolean interlace, int interParity, int offset, ColorMode cm, boolean swapRB) {
+	public static BufferedImage adjust(BufferedImage base, BufferedImage in, boolean interlace, int interParity, int offsY, int offsX, ColorMode cm, boolean swapRB) {
 		if(interlace) {
 			if(swapRB) {
 				if(cm == ColorMode.REGULAR) {
-					return adjustIntRB(base, in, interParity, offset);
+					return adjustIntRB(base, in, interParity, offsY);
 				} else {
-					return adjustIntCMRB(base, in, interParity, offset, cm);
+					return adjustIntCMRB(base, in, interParity, offsY, cm);
 				}
 			} else {
 				if(cm == ColorMode.REGULAR) {
-					return adjustInt(base, in, interParity, offset);
+					return adjustInt(base, in, interParity, offsY);
 				} else {
-					return adjustIntCM(base, in, interParity, offset, cm);
+					return adjustIntCM(base, in, interParity, offsY, cm);
 				}
 			}
 		} else {
 			if(swapRB) {
 				if(cm == ColorMode.REGULAR) {
-					return adjustRB(base, in, offset);
+					return adjustRB(base, in, offsY, offsX);
 				} else {
-					return adjustCMRB(base, in, offset, cm);
+					return adjustCMRB(base, in, offsY, cm);
 				}
 			} else {
 				if(cm == ColorMode.REGULAR) {
-					return adjustStandard(base, in, offset);
+					return adjustStandard(base, in, offsY, offsX);
 				} else {
-					return adjustCM(base, in, offset, cm);
+					return adjustCM(base, in, offsY, cm);
 				}
 			}
 		}
@@ -69,12 +69,21 @@ public class ImageManipulator {
 	
 	// Only offset + rotation
 	// TODO: Make faster with Raster
-	private static BufferedImage adjustStandard(BufferedImage base, BufferedImage in, int offset) {
+	private static BufferedImage adjustStandard(BufferedImage base, BufferedImage in, int offsY, int offsX) {
 		int iw = in.getWidth();
 		int ih = in.getHeight();
 		for(int i = 0; i < ih; i++) {
 			for(int j = 0; j < iw; j++) {
-				base.setRGB(i + offset, iw-j-1, in.getRGB(j, i));
+				try {
+					base.setRGB(i + offsY, iw-j-1+offsX, in.getRGB(j, i));
+				} catch(ArrayIndexOutOfBoundsException e) {
+					logger.log("i="+i+", j="+j+", offsY="+(offsY)+", offsX="+(offsX)+", iw-j-1="+(iw-j-1));
+					//logger.log("ImageManipulator.java: "+e.getClass()+": "+e.getMessage());
+					//logger.log(Arrays.toString(e.getStackTrace()), LogLevel.EXTREME);
+					break; // skip the rest of this row (or "row")
+					//throw e;
+				}
+				
 			}
 		}
 		return base;
@@ -162,15 +171,15 @@ public class ImageManipulator {
 	}
 	
 	// offset + rotation + swap rb
-	private static BufferedImage adjustRB(BufferedImage base, BufferedImage in, int offset) {
+	private static BufferedImage adjustRB(BufferedImage base, BufferedImage in, int offsY, int offsX) {
 		int iw = in.getWidth();
 		int ih = in.getHeight();
 		for(int i = 0; i < iw; i++) {
 			for(int j = 0; j < ih; j++) {
 				try {
-					base.setRGB(j + offset, iw-i-1, ColorHotfix.hzModSwapRedBlue(in.getRGB(i, j)));
+					base.setRGB(j + offsY, iw-i-1+offsX, ColorHotfix.hzModSwapRedBlue(in.getRGB(i, j)));
 				} catch(ArrayIndexOutOfBoundsException e) {
-					logger.log("i="+i+", j="+j+", offset="+(offset)+", iw-i-1="+(iw-i-1));
+					logger.log("i="+i+", j="+j+", offsY="+(offsY)+", offsX="+(offsX)+", iw-i-1="+(iw-i-1));
 					//logger.log("ImageManipulator.java: "+e.getClass()+": "+e.getMessage());
 					//logger.log(Arrays.toString(e.getStackTrace()), LogLevel.EXTREME);
 					//break; // skip the rest of this row (or "row")

@@ -89,6 +89,12 @@ public class ChirunoModClient implements StreamingInterface {
 		}
 		sendInterlace(interlace);
 		sendScreen(reqScreen);
+		// experimental hack; un-comment these lines if you want
+		//logger.log("Setting Priority Factor to 8");
+		//int priorityFactor = 8;
+		//out.write((new Packet((byte)0x04, (byte)0x07, new byte[] {(byte)priorityFactor})).pack);
+		//logger.log("Setting \"GBVC Mode\" to Force-Enable");
+		//out.write((new Packet((byte)0x04, (byte)0x0B, new byte[] {(byte)2})).pack);
 		sendInit();
 	}
 	
@@ -313,20 +319,36 @@ public class ChirunoModClient implements StreamingInterface {
 		boolean fractional = (packet.subtypeB & FRACTIONAL_MASK) > 0; // Whether or not the image is fractional
 		int fraction = fractional ? (packet.subtypeB & FRACTION_MASK) : 0; // Which fraction of the screen this is
 		
+		int offsY;
+		int offsX;
+		if ((packet.subtypeA & TGA_MASK) == 1) {
+			offsY = (packet.data[10] & 0xff) + ((packet.data[11] & 0xff) << 8); // origin_y
+			offsX = (packet.data[8] & 0xff) + ((packet.data[9] & 0xff) << 8); // origin_x
+		} else { // JPEG
+			// fallback to current-spec compliant method
+			offsY = image.getHeight() * fraction;
+			offsX = 0;
+			// TODO: potential new feature of ChirunoMod spec. not yet though.
+			// First two bytes is pixel offset (actually four, but other two are never used)
+			//offsY = (packet.data[0] & 0xff) + ((packet.data[1] & 0xff) << 8);
+			//offsX = (packet.data[2] & 0xff) + ((packet.data[3] & 0xff) << 8);
+		}
+		
 		// Check if image dimensions are as expected
 		int expWidth = interlace ? 120 : 240;
 		int expHeight = screen == DSScreen.BOTTOM ? 320 : 400;
 		expHeight = fractional ? expHeight/8 : expHeight;
 		if(image.getHeight() != expHeight || image.getWidth() != expWidth) {
 			logger.log("Recieved incorrect dimensions! Expected "+expWidth+"x"+expHeight+", got "+image.getWidth()+"x"+image.getHeight());
-			return null;
+			//return null;
 		}
 		
 		// Check if this is the end of the frame (if interlacing, is it the second interlace? if fractional, is it the last fraction?)
 		lastFrame = (!interlace || parity == 1) && (!fractional || fraction == 7);
 		
 		BufferedImage base = screen == DSScreen.TOP ? lastTopImage : lastBottomImage;
-		image = ImageManipulator.adjust(base, image, interlace, parity, image.getHeight() * fraction, colorMode, rbSwap);
+		
+		image = ImageManipulator.adjust(base, image, interlace, parity, offsY, offsX, colorMode, rbSwap);
 		
 		if(screen == DSScreen.TOP) {
 			lastTopImage = image;
