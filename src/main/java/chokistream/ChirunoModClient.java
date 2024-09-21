@@ -1,6 +1,7 @@
 package chokistream;
 
 import java.awt.image.BufferedImage;
+import java.awt.image.RasterFormatException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -299,11 +300,22 @@ public class ChirunoModClient implements StreamingInterface {
 		boolean rbSwap = false;
 		
 		if ((packet.subtypeA & TGA_MASK) == 0) { // JPEG mode
-			image = ImageIO.read(new ByteArrayInputStream(packet.data));
+			try {
+				image = ImageIO.read(new ByteArrayInputStream(packet.data));
+			} catch (IOException e) {
+				logger.log("processImagePacket warning: ImageIO.read() threw an exception during JPEG decoding:", LogLevel.REGULAR);
+				logger.log(""+e.getClass()+": "+e.getMessage()+System.lineSeparator()+Arrays.toString(e.getStackTrace()), LogLevel.REGULAR);
+			}
 			// For some reason the red and blue channels are swapped. Fix it.
 			rbSwap = true;
 		} else { // TGA mode
 			image = TargaParser.parseBytes(packet.data, screen, TGAPixelFormat.fromInt(packet.subtypeA & FORMAT_MASK));
+		}
+		
+		if(image == null)
+		{
+			logger.log("processImagePacket error: \"image\" is null");
+			return null;
 		}
 		
 		// Fix odd images in some CHM versions
@@ -319,11 +331,12 @@ public class ChirunoModClient implements StreamingInterface {
 		boolean fractional = (packet.subtypeB & FRACTIONAL_MASK) > 0; // Whether or not the image is fractional
 		int fraction = fractional ? (packet.subtypeB & FRACTION_MASK) : 0; // Which fraction of the screen this is
 		
-		int offsY;
-		int offsX;
-		if ((packet.subtypeA & TGA_MASK) == 1) {
+		int offsY = 0;
+		int offsX = 0;
+		if ((packet.subtypeA & TGA_MASK) != 0) {
 			offsY = (packet.data[10] & 0xff) + ((packet.data[11] & 0xff) << 8); // origin_y
 			offsX = (packet.data[8] & 0xff) + ((packet.data[9] & 0xff) << 8); // origin_x
+			logger.log("offsY="+offsY+", offsX="+offsX, LogLevel.VERBOSE);
 		} else { // JPEG
 			// fallback to current-spec compliant method
 			offsY = image.getHeight() * fraction;
@@ -333,14 +346,39 @@ public class ChirunoModClient implements StreamingInterface {
 			//offsY = (packet.data[0] & 0xff) + ((packet.data[1] & 0xff) << 8);
 			//offsX = (packet.data[2] & 0xff) + ((packet.data[3] & 0xff) << 8);
 		}
+		// sanity check
+		if(offsY >= 720) {
+			logger.log("processImagePacket warning: offsY="+offsY, LogLevel.REGULAR);
+			offsY = 0;
+		}
+		if(offsX >= 240) {
+			logger.log("processImagePacket warning: offsX="+offsX, LogLevel.REGULAR);
+			offsX = 0;
+		}
 		
 		// Check if image dimensions are as expected
 		int expWidth = interlace ? 120 : 240;
 		int expHeight = screen == DSScreen.BOTTOM ? 320 : 400;
 		expHeight = fractional ? expHeight/8 : expHeight;
+		
+		if(image.getWidth() == 1 || image.getWidth() == 2) {
+			// known invalid
+			logger.log("processImagePacket warning: image.getWidth() == "+image.getWidth()+" (known invalid)", LogLevel.VERBOSE);
+			return null;
+		}
+		
 		if(image.getHeight() != expHeight || image.getWidth() != expWidth) {
-			logger.log("Recieved incorrect dimensions! Expected "+expWidth+"x"+expHeight+", got "+image.getWidth()+"x"+image.getHeight());
-			//return null;
+			/* (TODO) if(imgIsGbvcMode) then these are also known valid image dimensions */
+			if(true)
+			{
+				if(image.getHeight() != 160 || image.getWidth() != 144) {
+					logger.log("Received incorrect dimensions! Expected "+expWidth+"x"+expHeight+", got "+image.getWidth()+"x"+image.getHeight());
+					//return null;
+				}
+			} else {
+				logger.log("Received incorrect dimensions! Expected "+expWidth+"x"+expHeight+", got "+image.getWidth()+"x"+image.getHeight());
+				//return null;
+			}
 		}
 		
 		// Check if this is the end of the frame (if interlacing, is it the second interlace? if fractional, is it the last fraction?)
@@ -348,7 +386,57 @@ public class ChirunoModClient implements StreamingInterface {
 		
 		BufferedImage base = screen == DSScreen.TOP ? lastTopImage : lastBottomImage;
 		
-		image = ImageManipulator.adjust(base, image, interlace, parity, offsY, offsX, colorMode, rbSwap);
+		//rbSwap = false; // HACK
+		
+		/**
+		 * TODO: This is a very dirty hack, for now. I'll implement this as a proper feature soon.
+		 * 
+		 * We don't yet have a setting or flag to signal this special type of image, so this hack
+		 * just treats all TGA images as if they were the special type.
+		 * 
+		 * Er, change of plans because I'm feeling extra lazy.
+		 * If it's a JPEG, a top screen frame, and in RGB5A1 format, 
+		 * then carve a cutout so we don't cover up the pristine TGA GB screen with a crappy JPEG.
+		 */
+		if((TGAPixelFormat.fromInt(packet.subtypeA & FORMAT_MASK) == TGAPixelFormat.RGB5A1) 
+		 && (screen == DSScreen.TOP) && ((packet.subtypeA & TGA_MASK) == 0)) {
+			int step = 1;
+			// additional note: i don't care enough to support interlacing (...yet...?)
+			try {
+				// cut the JPEG into pieces so it doesn't overlap the GB screen
+				// (hilariously inefficient)
+				BufferedImage image1 = image.getSubimage(0, 0, 240, 120);
+				step++;
+				BufferedImage image2 = image.getSubimage(0, 120, 48, 160);
+				step++;
+				BufferedImage image3 = image.getSubimage(192, 120, 48, 160);
+				step++;
+				BufferedImage image4 = image.getSubimage(0, 280, 240, 120);
+				step++;
+				
+				image = ImageManipulator.adjust(base, image1, interlace, parity, 0, 0, colorMode, rbSwap);
+				step++;
+				image = ImageManipulator.adjust(base, image2, interlace, parity, 120, 192, colorMode, rbSwap);
+				step++;
+				image = ImageManipulator.adjust(base, image3, interlace, parity, 120, 0, colorMode, rbSwap);
+				step++;
+				image = ImageManipulator.adjust(base, image4, interlace, parity, 280, 0, colorMode, rbSwap);
+				
+			} catch(RasterFormatException e) {
+				logger.log("processImagePacket warning: Exception thrown by GBVC JPEG background cutout related code, during step "+step+":", LogLevel.REGULAR);
+				logger.log(""+e.getClass()+": "+e.getMessage(), LogLevel.REGULAR);
+				logger.log(Arrays.toString(e.getStackTrace()), LogLevel.EXTREME);
+				if(step <= 5) {
+					// fallback, as new image buffer has not yet been written to.
+					logger.log("Proceeding with fallback ImageManipulator.adjust() for this frame.");
+					image = ImageManipulator.adjust(base, image, interlace, parity, offsY, offsX, colorMode, rbSwap);
+				}
+			}
+		}
+		else
+		{
+			image = ImageManipulator.adjust(base, image, interlace, parity, offsY, offsX, colorMode, rbSwap);
+		}
 		
 		if(screen == DSScreen.TOP) {
 			lastTopImage = image;

@@ -30,7 +30,8 @@ public class ImageManipulator {
 	 * @param in Image to combine
 	 * @param interlace Whether or not to interlace
 	 * @param intrpParity Interlacing parity (0 or 1)
-	 * @param offset x-offset for partial images
+	 * @param offsY horizontal offset for partial images. mainly for Old 3DS running HzMod or ChirunoMod.
+	 * @param offsX vertical offset
 	 * @param cm Color adjustment mode
 	 * @param swapRB Swap R/B channels (HzM/CHM)
 	 * @return Resultant image
