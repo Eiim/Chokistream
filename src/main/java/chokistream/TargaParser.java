@@ -27,12 +27,32 @@ public class TargaParser {
 		
 		BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		
-		if(data[1] != 0x00) {
-			logger.log("Warning: Unexpected color-mapped image. Function not implemented. colormaptype="+(data[1] & 0xff));
+		boolean doColorMapDecode = false;
+		boolean colorMapPresent = (data[1] != 0x00);
+		byte imageType = data[2];
+		if(colorMapPresent) {
+			switch(imageType) {
+				case 1:
+				//case 9:
+					doColorMapDecode = true;
+					break;
+				default:
+					doColorMapDecode = false;
+					// todo: warning
+					break;
+			}
+		} else {
+			if(data[2] != 0x0A)
+				logger.log("Warning: reported image type is not BGR_RLE. Function not implemented. imagetype="+(data[2] & 0xff));
 		}
 		
-		if(data[2] != 0x0A) {
-			logger.log("Warning: reported image type is not BGR_RLE. Function not implemented. imagetype="+(data[2] & 0xff));
+		//int colorMapOrigin = (data[4] & 0xff) * 256 + (data[3] & 0xff);
+		int colorMapOrigin = 0; // not spec-compliant
+		int colorMapLength = (data[6] & 0xff) * 256 + (data[5] & 0xff);
+		
+		if(doColorMapDecode) {
+			if((data[16] & 0xff) != 8)
+				doColorMapDecode = false;
 		}
 		
 		// Note: This value is retrieved and used in HZModClient.java / ChirunoModClient.java, not here.
@@ -51,8 +71,19 @@ public class TargaParser {
 			case 24 -> TGAPixelFormat.RGB8;
 			case 32 -> TGAPixelFormat.RGBA8;
 			case 8 -> {
-				logger.log("Warning: Bit-depth \"BPP=8\" specified in Targa metadata. Function not implemented. (This error is common and can be safely ignored)", LogLevel.VERBOSE);
-				yield format; // Fallback
+				if(doColorMapDecode) {
+					yield switch(data[7] & 0xFF) {
+						case 16 -> TGAPixelFormat.RGB5A1;
+						case 17 -> TGAPixelFormat.RGB565;
+						case 18 -> TGAPixelFormat.RGBA4;
+						case 24 -> TGAPixelFormat.RGB8;
+						case 32 -> TGAPixelFormat.RGBA8;
+						default -> TGAPixelFormat.RGB5A1; // whatever
+					};
+				} else {
+					logger.log("Warning: Bit-depth \"BPP=8\" specified in Targa metadata. Function not implemented. (This error is common and can be safely ignored)", LogLevel.VERBOSE);
+					yield format; // Fallback
+				}
 			}
 			default -> {
 				logger.log("Warning: Invalid bit-depth \"BPP="+tgaBpp+"\" specified in Targa metadata. Falling back to "+format+" ...");
@@ -78,25 +109,24 @@ public class TargaParser {
 		// Account for Header (18 bytes + variable-length "ID" Field)
 		int startOfImgData = 18 + idFieldLength;
 		
-		/**
-		 * Account for Footer (26 bytes)
-		 * This is the "offset" (index / position) at which the "Image Data" area ends.
-		 * 
-		 * To clarify, data[endOfImgData] will give the first byte of the Footer area,
-		 * and data[endOfImgData-1] will give the last byte of the Image Data area.
-		 */
-		int endOfImgData = data.length - 26;
+		/* Footer should be 26 bytes */
+		int footerOffs = data.length - 26;
 		
-		byte[] decBuf = new byte[400 * 256 * 4]; // middle-man decode buffer
-		decBuf = tgaDecode(data, decBuf, tgaReportedFormat, width, height, startOfImgData, endOfImgData);
-		
-		// Workaround known HzMod bug; 3DS-side, 24bpp images are encoded as if they were 32bpp. Refer to docs.
-		if(isMalformed24bpp) {
-			tgaReportedFormat = TGAPixelFormat.RGB8;
+		if(doColorMapDecode) {
+			int colorMapOffs = startOfImgData;
+			startOfImgData = tgaReportedFormat.bytes * colorMapLength;
+			image = tgaDecodeRawColorMappedImg(data, image, tgaReportedFormat, width, height, startOfImgData, colorMapOffs, colorMapLength);
+		} else {
+			byte[] decBuf = new byte[400 * 256 * 4]; // middle-man decode buffer
+			decBuf = tgaDecode(data, decBuf, tgaReportedFormat, width, height, startOfImgData, footerOffs);
+			
+			// Workaround known HzMod bug; 3DS-side, 24bpp images are encoded as if they were 32bpp. Refer to docs.
+			if(isMalformed24bpp) {
+				tgaReportedFormat = TGAPixelFormat.RGB8;
+			}
+			
+			image = tgaTranslate(decBuf, image, tgaReportedFormat, width, height);
 		}
-		
-		image = tgaTranslate(decBuf, image, tgaReportedFormat, width, height);
-		
 		return image;
 	}
 	
@@ -219,6 +249,29 @@ public class TargaParser {
 			logger.log("Cont.: Decoded image data exceeds expected size by about "+(width*height*format.bytes - i)+" bytes. (Is bit-depth mismatched?)");
 		}
 		
+		return image;
+	}
+	
+	private static BufferedImage tgaDecodeRawColorMappedImg(byte[] data, BufferedImage image, TGAPixelFormat format, int width, int height, int imgDataOffs, int colorMapDataOffs, int colorMapLength) {
+		
+		//colorMapDataOffs += 4;
+		
+		int[] colorMap = new int[colorMapLength];
+		for(int i = 0; i < colorMapLength; i++) {
+			byte[] colorDat = Arrays.copyOfRange(data, i+colorMapDataOffs, i+colorMapDataOffs+format.bytes);
+			colorMap[i] = getRGB(colorDat, format);
+		}
+		
+		imgDataOffs += 18; // temp hack
+		
+		for(int pxnum = 0; pxnum < width*height; pxnum++) {
+			try {
+				int colorIndex = data[imgDataOffs+pxnum] & 0xFF;
+				image.setRGB(pxnum%width, pxnum/width, colorMap[colorIndex]);
+			} catch(Exception e) {
+				//break;
+			}
+		}
 		return image;
 	}
 	
