@@ -254,11 +254,10 @@ public class TargaParser {
 	
 	private static BufferedImage tgaDecodeRawColorMappedImg(byte[] data, BufferedImage image, TGAPixelFormat format, int width, int height, int imgDataOffs, int colorMapDataOffs, int colorMapLength) {
 		
-		//colorMapDataOffs += 4;
 		
 		int[] colorMap = new int[colorMapLength];
-		for(int i = 0; i < colorMapLength; i++) {
-			byte[] colorDat = Arrays.copyOfRange(data, i+colorMapDataOffs, i+colorMapDataOffs+format.bytes);
+		for(int i = 0; i < colorMapLength; i ++) {
+			byte[] colorDat = Arrays.copyOfRange(data, colorMapDataOffs+(i*format.bytes), colorMapDataOffs+(i*format.bytes+format.bytes));
 			colorMap[i] = getRGB(colorDat, format);
 		}
 		
