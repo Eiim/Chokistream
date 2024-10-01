@@ -23,8 +23,8 @@
 
 package chokistream;
 
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ConnectException;
 import java.net.Socket;
@@ -33,9 +33,9 @@ import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.TimeUnit;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import chokistream.props.ColorMode;
 import chokistream.props.DSScreen;
@@ -75,7 +75,7 @@ public class NTRClient implements StreamingInterface {
 		public SettingsChangeQueue() {}
 	}
 	private static SettingsChangeQueue scq = new SettingsChangeQueue();
-	private static int nfcPatchQueued = -1;
+	private static NFCPatchType nfcPatchQueued = null;
 	private int qualityDeltaQueue = 0;
 
 	/**
@@ -266,14 +266,14 @@ public class NTRClient implements StreamingInterface {
 					logger.log(Arrays.toString(e.getStackTrace()), LogLevel.REGULAR);
 				}
 				
-				if (!nfcPatchSent && nfcPatchQueued != -1) {
+				if (!nfcPatchSent && nfcPatchQueued != null) {
 					try {
 						sendNFCPatch(nfcPatchQueued);
 						nfcPatchSent = true;
 					} catch (Exception e) {
 						logger.log(Arrays.toString(e.getStackTrace()), LogLevel.REGULAR);
 					}
-					nfcPatchQueued = -1;
+					nfcPatchQueued = null;
 				}
 				//TimeUnit.SECONDS.sleep(1);
 			}
@@ -406,17 +406,17 @@ public class NTRClient implements StreamingInterface {
 		}
 	}
 	
-	public void sendNFCPatch(int chooseAddr) {
+	public void sendNFCPatch(NFCPatchType type) {
 		Packet pak = new Packet();
 		pak.seq = 24000;
 		pak.type = 1;
 		pak.cmd = 10;
 		
 		pak.args[0] = 26; // pid; 0x1A
-		pak.args[1] = switch(chooseAddr) {
-			case 0:
+		pak.args[1] = switch(type) {
+			case OLD:
 				yield 0x00105AE4; // Sys ver. < 11.4
-			default:
+			case NEW:
 				yield 0x00105B00; // Sys ver. >= 11.4
 		};
 		
@@ -441,24 +441,15 @@ public class NTRClient implements StreamingInterface {
 	 *            0 = NFC Patch for System Update 11.3.x or lower
 	 *           -1 = Un-queue a queued NFC Patch.
 	 */
-	public static void queueNFCPatch(int ver) {
-		switch(ver) {
-			case 0:
-			case 1:
-				nfcPatchQueued = ver;
-				if(!instanceIsRunning) {
-					logger.log("NTR NFC Patch queued");
-				}
-				break;
-			case -1:
-				if(nfcPatchQueued != ver) {
-					nfcPatchQueued = ver;
-					logger.log("NTR NFC Patch un-queued");
-				}
-				break;
-			default:
-				logger.log("Warning: Invalid argument passed to NTRClient.queueNFCPatch");
-				break;
+	public static void queueNFCPatch(NFCPatchType ver) {
+		if(ver == null && nfcPatchQueued != null) {
+			nfcPatchQueued = ver;
+			logger.log("NTR NFC Patch un-queued");
+		} else {
+			nfcPatchQueued = ver;
+			if(!instanceIsRunning) {
+				logger.log("NTR NFC Patch queued");
+			}
 		}
 	}
 	
@@ -693,6 +684,16 @@ public class NTRClient implements StreamingInterface {
 		data[2] = (byte)(num>>>16 & 0xff);
 		data[3] = (byte)(num>>>24 & 0xff);
 		return data;
+	}
+	
+	/** 
+	 * Represents a type of NFC patch
+	 */
+	public static enum NFCPatchType {
+		/** NFC Patch for System Update 11.3.x or lower */
+		OLD,
+		/** NFC Patch for System Update 11.4.x or higher */
+		NEW
 	}
 	
 	/**

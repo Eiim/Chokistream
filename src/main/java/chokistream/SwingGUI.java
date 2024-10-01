@@ -12,10 +12,10 @@ import java.awt.event.ItemListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.io.IOException;
 import java.util.EnumMap;
 
 import javax.swing.BorderFactory;
@@ -800,7 +800,7 @@ public class SwingGUI extends SettingsUI {
 			public void actionPerformed(ActionEvent e) {
 				try {
     				nfcPatch.setVisible(false);
-					NTRClient.queueNFCPatch(1);
+					NTRClient.queueNFCPatch(NTRClient.NFCPatchType.NEW);
 				} catch (RuntimeException ex) {
 					displayError(ex);
 				}
@@ -814,7 +814,7 @@ public class SwingGUI extends SettingsUI {
 			public void actionPerformed(ActionEvent e) {
 				try {
     				nfcPatch.setVisible(false);
-    				NTRClient.queueNFCPatch(0);
+    				NTRClient.queueNFCPatch(NTRClient.NFCPatchType.OLD);
 				} catch (RuntimeException ex) {
 					displayError(ex);
 				}
