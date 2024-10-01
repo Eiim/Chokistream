@@ -76,6 +76,7 @@ public class NTRClient implements StreamingInterface {
 	}
 	private static SettingsChangeQueue scq = new SettingsChangeQueue();
 	private static int nfcPatchQueued = -1;
+	private int qualityDeltaQueue = 0;
 
 	/**
 	 * Create an NTRClient.
@@ -219,6 +220,20 @@ public class NTRClient implements StreamingInterface {
 			}
 			
 			while (!shouldDie.get()) {
+				if(qualityDeltaQueue != 0) {
+					int newQual = scq.quality + qualityDeltaQueue;
+					qualityDeltaQueue = 0;
+					if(newQual < 10) {
+						newQual = 10;
+					} else if(newQual > 100) {
+						newQual = 100;
+					}
+					if(scq.quality != newQual) {
+						scq.quality = newQual;
+						scq.queued = true;
+					}
+				}
+
 				if(scq.queued) {
 					try {
 						changeSettingsWhileRunning(scq.quality, scq.screen, scq.priority, scq.qos);
@@ -242,7 +257,7 @@ public class NTRClient implements StreamingInterface {
 					logger.log("NTRClient$HeartbeatThread warning: "+e.getClass()+": "+e.getMessage());
 					logger.log(Arrays.toString(e.getStackTrace()), LogLevel.EXTREME);
 					//if (nfcPatchSent)
-					logger.log("NTR's NFC Patch seems to be active. Shutting down HeartbeatThread...");
+					//logger.log("NTR's NFC Patch seems to be active. Shutting down HeartbeatThread...");
 					shouldDie.set(true);
 				} catch (SocketTimeoutException e) {
 					logger.log("NTRClient$HeartbeatThread warning: "+e.getClass()+": "+e.getMessage());
@@ -260,12 +275,7 @@ public class NTRClient implements StreamingInterface {
 					}
 					nfcPatchQueued = -1;
 				}
-				
-				try {
-					TimeUnit.SECONDS.sleep(5);
-				} catch (InterruptedException e) {
-					shouldDie.set(true);
-				}
+				//TimeUnit.SECONDS.sleep(1);
 			}
 			scq.queued = false;
 		}
@@ -491,11 +501,6 @@ public class NTRClient implements StreamingInterface {
 	 * Try to change NTR video settings while NTR is already connected and running.
 	 * For NTR-HR, this is essentially just a wrapper for sendInitPacket.
 	 * 
-	 * TODO: I don't know if changing screen or priority this way works as expected.
-	 *       Might have to tell NTRUDPThread about those changes...
-	 * 
-	 * TODO: This feature is currently unused and untested.
-	 * 
 	 * @throws Exception
 	 */
 	public void changeSettingsWhileRunning(int quality, DSScreen screen, int priority, int qos) throws Exception {
@@ -507,7 +512,7 @@ public class NTRClient implements StreamingInterface {
 			sendInitPacket(quality, screen, priority, qos);
 			
 			// Give NTR some time to think
-			TimeUnit.SECONDS.sleep(3);
+			TimeUnit.SECONDS.sleep(1);
 			
 			String heartbeatReply = heartbeat();
 			
@@ -542,9 +547,6 @@ public class NTRClient implements StreamingInterface {
 		}
 	}
 	
-	/**
-	 * TODO: This feature is currently unused and untested.
-	 */
 	public static void queueSettingsChange(int quality, DSScreen screen, int priority, int qos) {
 		if(instanceIsRunning) {
 			scq.quality = quality;
@@ -552,10 +554,18 @@ public class NTRClient implements StreamingInterface {
 			scq.priority = priority;
 			scq.qos = qos;
 			scq.queued = true;
-		} else {
-			scq.queued = false;
 		}
 	}
+
+	/**
+	 * Increases or decreases video quality.
+	 * 
+	 * @param delta The amount by which to increase or decrease.
+	 */
+	public void incrementQuality(int delta) {
+		qualityDeltaQueue = qualityDeltaQueue + delta;
+	}
+
 	
 	/**
 	 * Sends a packet to NTR using this NTRClient's Socket soc.

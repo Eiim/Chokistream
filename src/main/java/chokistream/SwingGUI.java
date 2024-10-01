@@ -773,6 +773,7 @@ public class SwingGUI extends SettingsUI {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				saveSettings();
+				NTRClient.queueSettingsChange(getPropInt(Prop.QUALITY), getPropEnum(Prop.PRIORITYSCREEN), getPropInt(Prop.PRIORITYFACTOR), getPropInt(Prop.QOS));
 				ntrSettings.setVisible(false);
 			}
 		});
