@@ -44,13 +44,14 @@ import chokistream.props.LogLevel;
 
 public class NTRClient implements StreamingInterface {
 	
-	public static boolean instanceIsRunning;
+	// In practice, this probably doesn't need to be AtomicBoolean, as there should only ever be one instance of NTRClient. But this provides a little extra safety.
+	public static AtomicBoolean instanceIsRunning;
 	
 	/**
 	 * Thread used by NTRClient to read and buffer Frames received from the 3DS.
 	 */
 	private final NTRUDPThread udpThread;
-	private HeartbeatThread hbThread;
+	private final HeartbeatThread hbThread;
 	
 	private final Random random = new Random();
 	
@@ -91,7 +92,7 @@ public class NTRClient implements StreamingInterface {
 	 * @throws InterruptedException 
 	 */
 	public NTRClient(String host, int quality, DSScreen screen, int priority, int qos, ColorMode colorMode, int port) throws Exception, UnknownHostException, IOException, InterruptedException {
-		instanceIsRunning = true;
+		instanceIsRunning.set(true);
 		scq.queued = false;
 		udpThread = new NTRUDPThread(screen, colorMode, port);
 		udpThread.start();
@@ -153,7 +154,7 @@ public class NTRClient implements StreamingInterface {
 				logger.log(Arrays.toString(e.getStackTrace()), LogLevel.REGULAR);
 			}
 		}
-		instanceIsRunning = false;
+		instanceIsRunning.set(false);
 	}
 
 	@Override
@@ -243,10 +244,8 @@ public class NTRClient implements StreamingInterface {
 					scq.queued = false;
 				}
 				
-				String heartbeatReply = "";
 				try {
-					String r = heartbeat();
-					heartbeatReply = r;
+					heartbeat(); // TODO: use reply
 				} catch (SocketException e) {
 					/**
 					 * "Connection reset" or "Connection reset by peer" (TODO: test for that string)
@@ -306,7 +305,7 @@ public class NTRClient implements StreamingInterface {
 			soc.setSoTimeout(10000);
 			socOut = soc.getOutputStream();
 			socIn = soc.getInputStream();
-		} catch (Exception e) {
+		} catch (IOException e) {
 			// TODO: Maybe close soc, for the sake of predictable behavior.
 			throw e;
 		}
@@ -381,7 +380,7 @@ public class NTRClient implements StreamingInterface {
 			return debugOutUnmodified;
 		} else {
 			logger.log("NTR Heartbeat response is empty.", LogLevel.EXTREME);
-			return new String("");
+			return "";
 		}
 	}
 	
@@ -447,7 +446,7 @@ public class NTRClient implements StreamingInterface {
 			logger.log("NTR NFC Patch un-queued");
 		} else {
 			nfcPatchQueued = ver;
-			if(!instanceIsRunning) {
+			if(!instanceIsRunning.get()) {
 				logger.log("NTR NFC Patch queued");
 			}
 		}
@@ -492,9 +491,11 @@ public class NTRClient implements StreamingInterface {
 	 * Try to change NTR video settings while NTR is already connected and running.
 	 * For NTR-HR, this is essentially just a wrapper for sendInitPacket.
 	 * 
-	 * @throws Exception
+	 * TODO: Make the Exception from heartbeat() more specific.
+	 * 
+	 * @throws IOException, InterruptedException, Exception
 	 */
-	public void changeSettingsWhileRunning(int quality, DSScreen screen, int priority, int qos) throws Exception {
+	public void changeSettingsWhileRunning(int quality, DSScreen screen, int priority, int qos) throws IOException, InterruptedException, Exception {
 		try {
 			// settings unchanged
 			//if(this.screen == screen && this.priority == priority && this.quality == quality && this.qos == qos)
@@ -529,17 +530,11 @@ public class NTRClient implements StreamingInterface {
 			} else {
 				throw e;
 			}
-		} catch (IOException e) {
-			throw e;
-		} catch (InterruptedException e) {
-			throw e;
-		} catch (Exception e) { // from heartbeat()
-			throw e;
 		}
 	}
 	
 	public static void queueSettingsChange(int quality, DSScreen screen, int priority, int qos) {
-		if(instanceIsRunning) {
+		if(instanceIsRunning.get()) {
 			scq.quality = quality;
 			scq.screen = screen;
 			scq.priority = priority;
@@ -704,7 +699,7 @@ public class NTRClient implements StreamingInterface {
 		/** Header */
 		
 		/** NTR magic number. */
-		public final int magic = 0x12345678;
+		// public static final int magic = 0x12345678;
 		
 		/** Sequence ID. More or less optional. */
 		public int seq = 0;

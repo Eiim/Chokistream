@@ -77,7 +77,7 @@ public class NTRUDPThread extends Thread {
 	
 	public boolean isReceivingFrames() throws InterruptedException {
 		for (int i = 0; i < 4; i++) {
-			if (amIReceivingFrames == true)
+			if (amIReceivingFrames)
 				return true;
 			Thread.sleep(500);
 		}
