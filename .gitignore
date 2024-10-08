@@ -25,3 +25,4 @@ app/chokistream.log
 chokistream.log
 .classpath
 .settings/org.eclipse.buildship.core.prefs
+*.code-workspace
