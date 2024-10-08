@@ -76,8 +76,10 @@ public class NTRUDPThread extends Thread {
 	}
 	
 	public boolean isReceivingFrames() throws InterruptedException {
-		if (amIReceivingFrames == false) {
-			Thread.sleep(2000);
+		for (int i = 0; i < 4; i++) {
+			if (amIReceivingFrames)
+				return true;
+			Thread.sleep(500);
 		}
 		return amIReceivingFrames;
 	}
@@ -170,7 +172,7 @@ public class NTRUDPThread extends Thread {
 				}
 			} catch (SocketTimeoutException e) {
 				amIReceivingFrames = false;
-				logger.log("[NTR UDP] "+e.getClass()+": "+e.getMessage());
+				logger.log("NTRUDPThread: "+e.getClass()+": "+e.getMessage());
 			} catch (IOException e) {
 				amIReceivingFrames = false;
 				close();

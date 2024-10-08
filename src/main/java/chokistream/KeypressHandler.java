@@ -55,6 +55,14 @@ public class KeypressHandler implements KeyListener {
 				} else if(ck.get(Controls.INTERLACE).matches(e)) {
 					c.toggleInterlacing();
 				}
+			} else if(client instanceof NTRClient) {
+				NTRClient c = (NTRClient) client;
+
+				if(ck.get(Controls.QUALITY_UP).matches(e)) {
+					c.incrementQuality(5);
+				} else if(ck.get(Controls.QUALITY_DOWN).matches(e)) {
+					c.incrementQuality(-5);
+				}
 			}
 		} catch(IOException e1) {
 			output.displayError(e1);
