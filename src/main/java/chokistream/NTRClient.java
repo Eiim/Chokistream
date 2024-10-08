@@ -44,13 +44,18 @@ import chokistream.props.LogLevel;
 
 public class NTRClient implements StreamingInterface {
 	
-	// In practice, this probably doesn't need to be AtomicBoolean, as there should only ever be one instance of NTRClient. But this provides a little extra safety.
+	/**
+	 * In practice, this probably doesn't need to be AtomicBoolean, as there should
+	 * only ever be one instance of NTRClient. But this provides a little extra safety.
+	 * 
+	 * Todo (low-priority): Adjust code so it doesn't rely on
+	 * only one instance of NTRClient running at a time.
+	 */
 	public static AtomicBoolean instanceIsRunning;
 	
-	/**
-	 * Thread used by NTRClient to read and buffer Frames received from the 3DS.
-	 */
+	/** Thread used by NTRClient to read and buffer Frames received from the 3DS. */
 	private final NTRUDPThread udpThread;
+	/** Thread that keeps a persistent TCP connection to NTR. */
 	private final HeartbeatThread hbThread;
 	
 	private final Random random = new Random();
@@ -66,6 +71,10 @@ public class NTRClient implements StreamingInterface {
 	
 	private String host = "";
 	
+	/**
+	 * Todo (low-priority): Adjust code so it doesn't rely on
+	 * only one instance of NTRClient running at a time.
+	 */
 	private static class SettingsChangeQueue {
 		public boolean queued = false;
 		// safe defaults just in case
@@ -80,7 +89,7 @@ public class NTRClient implements StreamingInterface {
 	private int qualityDeltaQueue = 0;
 
 	/**
-	 * Create an NTRClient.
+	 * Create an NTRClient. 
 	 * @param host The host or IP to connect to.
 	 * @param quality The quality to stream at.
 	 * @param screen Which screen gets priority.
@@ -101,8 +110,17 @@ public class NTRClient implements StreamingInterface {
 		
 		this.host = host;
 		if(udpThread.isReceivingFrames()) {
-			// defer TCP communication init to HeartbeatThread
-			//logger.log("NTR UDP client connected");
+			/** 
+			 * If the UDP Thread is receiving incoming frames
+			 * before we even *connected* over TCP,
+			 * then fast-start and defer initialization 
+			 * of settings to HeartbeatThread.
+			 * 
+			 * Alternatively, in the case that the NFC Patch is fully active, 
+			 * and in an applicable game such as Pokemon OR/AS,
+			 * then the TCP connection will fail
+			 * but NTR will still stream frames over UDP.
+			 */
 			scq.quality = quality;
 			scq.screen = screen;
 			scq.priority = priority;
@@ -112,16 +130,8 @@ public class NTRClient implements StreamingInterface {
 		} else {
 			try {
 				reopenSocket();
-				//soc = new Socket(host, 8000);
-				//soc.setSoTimeout(10000);
-				//socOut = soc.getOutputStream();
-				//socIn = soc.getInputStream();
-				
 				sendInitPacket(quality, screen, priority, qos);
-				
-				// Give NTR some time to think
-				TimeUnit.SECONDS.sleep(2);
-				
+				TimeUnit.SECONDS.sleep(2); // NTR may need some time to think
 				hbThread.start();
 			} catch (ConnectException e) {
 				if(udpThread.isReceivingFrames()) {
@@ -189,6 +199,9 @@ public class NTRClient implements StreamingInterface {
 		}
 	}
 	
+	/**
+	 * Thread that keeps a persistent TCP connection to NTR.
+	 */
 	private class HeartbeatThread extends Thread {
 		private boolean nfcPatchSent = false;
 		public AtomicBoolean shouldDie = new AtomicBoolean(false);
@@ -348,7 +361,18 @@ public class NTRClient implements StreamingInterface {
 		
 		Packet reply = recvPacket();
 		
-		// TODO: sooner or later i'll implement this very differently. but this should work fine for now. -C
+		/**
+		 * Todo (low-priority):
+		 * Theoretical issues with thread-safety;
+		 * if we receive a reply packet that is replying to a 
+		 * different command packet from the one sent above,
+		 * (we can tell by the SEQ id number),
+		 * then that reply packet is basically thrown-out.
+		 * 
+		 * However, this issue should basically never come up
+		 * in practice, with the way things are designed right now.
+		 * - ChainSwordCS
+		 */
 		if(reply.cmd != 0 || reply.seq != heartbeatSeq) {
 			logger.log("NTR Heartbeat error: Received non-matching response packet.");
 			if(reply.cmd != 0) {
@@ -362,6 +386,7 @@ public class NTRClient implements StreamingInterface {
 		
 		logger.log("NTR Heartbeat response received.", LogLevel.EXTREME);
 		
+		// TODO: Split up logger output line by line, filter out known log spam.
 		if(reply.exdata.length > 0) {
 			String debugOutUnmodified = new String(reply.exdata, StandardCharsets.UTF_8);
 			String debugOut = debugOutUnmodified;
@@ -436,16 +461,15 @@ public class NTRClient implements StreamingInterface {
 	 * Note: the queue only has one slot.
 	 * 
 	 * @param ver Which version of the NFC Patch is to be used.
-	 *            1 = NFC Patch for System Update 11.4.x or higher
-	 *            0 = NFC Patch for System Update 11.3.x or lower
-	 *           -1 = Un-queue a queued NFC Patch.
+	 *            NFCPatchType.NEW = NFC Patch for System Update 11.4.x or higher
+	 *            NFCPatchType.OLD = NFC Patch for System Update 11.3.x or lower
+	 *            null = Un-queue a queued NFC Patch.
 	 */
 	public static void queueNFCPatch(NFCPatchType ver) {
+		nfcPatchQueued = ver;
 		if(ver == null && nfcPatchQueued != null) {
-			nfcPatchQueued = ver;
 			logger.log("NTR NFC Patch un-queued");
 		} else {
-			nfcPatchQueued = ver;
 			if(!instanceIsRunning.get()) {
 				logger.log("NTR NFC Patch queued");
 			}
@@ -491,16 +515,16 @@ public class NTRClient implements StreamingInterface {
 	 * Try to change NTR video settings while NTR is already connected and running.
 	 * For NTR-HR, this is essentially just a wrapper for sendInitPacket.
 	 * 
+	 * TODO: This doesn't yet work for NTR 3.6/3.6.1 :(
+	 * The relevant code is currently commented-out,
+	 * so it's still safe to call this method for NTR.
+	 * 
 	 * TODO: Make the Exception from heartbeat() more specific.
 	 * 
 	 * @throws IOException, InterruptedException, Exception
 	 */
 	public void changeSettingsWhileRunning(int quality, DSScreen screen, int priority, int qos) throws IOException, InterruptedException, Exception {
 		try {
-			// settings unchanged
-			//if(this.screen == screen && this.priority == priority && this.quality == quality && this.qos == qos)
-				//return;
-			
 			sendInitPacket(quality, screen, priority, qos);
 			
 			// Give NTR some time to think
@@ -514,6 +538,7 @@ public class NTRClient implements StreamingInterface {
 			 * TODO: Account for the possible presence of irrelevant backlog debug output? (This *should* be harmless though.)
 			 */
 			if(heartbeatReply.contains("remote play already started")) {
+				// TODO: This is commented-out because it doesn't work :(
 				//logger.log("Reloading NTR...");
 				//sendReloadPacket();
 				//TimeUnit.SECONDS.sleep(3);
@@ -551,7 +576,6 @@ public class NTRClient implements StreamingInterface {
 	public void incrementQuality(int delta) {
 		qualityDeltaQueue = qualityDeltaQueue + delta;
 	}
-
 	
 	/**
 	 * Sends a packet to NTR using this NTRClient's Socket soc.
