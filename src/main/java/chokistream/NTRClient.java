@@ -51,7 +51,7 @@ public class NTRClient implements StreamingInterface {
 	 * and preferably in a way that doesn't rely on
 	 * only one instance of NTRClient running at a time.
 	 */
-	public static AtomicBoolean instanceIsRunning;
+	public static AtomicBoolean instanceIsRunning = new AtomicBoolean(false);
 	
 	/** Thread used by NTRClient to read and buffer Frames received from the 3DS. */
 	private final NTRUDPThread udpThread;
@@ -480,7 +480,7 @@ public class NTRClient implements StreamingInterface {
 			logger.log("NTR NFC Patch un-queued");
 		} else {
 			// this check is unnecessary
-			if((instanceIsRunning == null) || !instanceIsRunning.get()) {
+			if(!instanceIsRunning.get()) {
 				logger.log("NTR NFC Patch queued");
 			}
 		}
@@ -582,7 +582,7 @@ public class NTRClient implements StreamingInterface {
 	 */
 	public static void queueSettingsChange(int quality, DSScreen screen, int priority, int qos) {
 		// The queue system is robust enough to handle it gracefully, so this check is redundant (for now)
-		if((instanceIsRunning != null) && instanceIsRunning.get()) {
+		if(instanceIsRunning.get()) {
 			scq.quality = quality;
 			scq.screen = screen;
 			scq.priority = priority;
