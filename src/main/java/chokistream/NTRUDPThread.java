@@ -7,6 +7,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
+import java.util.Arrays;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -119,15 +120,20 @@ public class NTRUDPThread extends Thread {
 					
 					// Received a complete image, render
 					if (isLastPacket) {
-						
-						priorityImage = ImageIO.read(new ByteArrayInputStream(priorityImageData));
+						try {
+							priorityImage = ImageIO.read(new ByteArrayInputStream(priorityImageData));
+						} catch (IOException e) {
+							logger.log("NTRUDPThread warning: Bad JPEG data (probably corrupted). "+e.getClass()+": "+e.getMessage());
+							logger.log(Arrays.toString(e.getStackTrace()), LogLevel.VERBOSE);
+							priorityImage = null;
+						}
+						if (priorityImage != null) {
+							priorityImage = ImageManipulator.adjust(priorityImage, colorMode);
+							frameBuffer.poll();
+							frameBuffer.add(new Frame(currentScreen, priorityImage));
+							priorityImage = null;
+						}
 						priorityImageData = new byte[0];
-						
-						priorityImage = ImageManipulator.adjust(priorityImage, colorMode);
-						
-						frameBuffer.poll();
-						frameBuffer.add(new Frame(currentScreen, priorityImage));
-						priorityImage = null;
 						priorityExpectedFrame = 0;
 	                    priorityExpectedPacket = 0;
 					}
@@ -150,15 +156,20 @@ public class NTRUDPThread extends Thread {
 					
 					// Received a complete image, render
 					if (isLastPacket) {
-						
-						secondaryImage = ImageIO.read(new ByteArrayInputStream(secondaryImageData));
+						try {
+							secondaryImage = ImageIO.read(new ByteArrayInputStream(secondaryImageData));
+						} catch (IOException e) {
+							logger.log("NTRUDPThread warning: Bad JPEG data (probably corrupted). "+e.getClass()+": "+e.getMessage());
+							logger.log(Arrays.toString(e.getStackTrace()), LogLevel.VERBOSE);
+							secondaryImage = null;
+						}
+						if (secondaryImage != null) {
+							secondaryImage = ImageManipulator.adjust(secondaryImage, colorMode);
+							frameBuffer.poll();
+							frameBuffer.add(new Frame(currentScreen, secondaryImage));
+							secondaryImage = null;
+						}
 						secondaryImageData = new byte[0];
-						
-						secondaryImage = ImageManipulator.adjust(secondaryImage, colorMode);
-						
-						frameBuffer.poll();
-						frameBuffer.add(new Frame(currentScreen, secondaryImage));
-						secondaryImage = null;
 						secondaryExpectedFrame = 0;
 	                    secondaryExpectedPacket = 0;
 					}
