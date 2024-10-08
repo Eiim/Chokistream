@@ -45,10 +45,10 @@ import chokistream.props.LogLevel;
 public class NTRClient implements StreamingInterface {
 	
 	/**
-	 * In practice, this probably doesn't need to be AtomicBoolean, as there should
-	 * only ever be one instance of NTRClient. But this provides a little extra safety.
-	 * 
-	 * Todo (low-priority): Adjust code so it doesn't rely on
+	 * Todo (low-priority): Currently, this variable isn't 
+	 * critical to functionality, and it's used in kind of a dumb way.
+	 * Reimplement the functionality this is used for in a better way,
+	 * and preferably in a way that doesn't rely on
 	 * only one instance of NTRClient running at a time.
 	 */
 	public static AtomicBoolean instanceIsRunning;
@@ -457,20 +457,30 @@ public class NTRClient implements StreamingInterface {
 	}
 	
 	/**
-	 * Queues up the NFC Patch.
-	 * Note: the queue only has one slot.
+	 * Sets the NFC Patch queue to apply a patch.
+	 * If an NFC Patch is already in the queue, it is replaced.
+	 * 
+	 * <p>
+	 *  Note regarding functionality:
+	 *  Whether an instance of NTRClient is running or not,
+	 *  this method is intended to work in both cases.
+	 *  In either case, the requested NFC Patch will be sent
+	 *  at the earliest convenience, when/if the NTRClient's
+	 *  HeartbeatThread is up and running.
+	 * </p>
 	 * 
 	 * @param ver Which version of the NFC Patch is to be used.
 	 *            NFCPatchType.NEW = NFC Patch for System Update 11.4.x or higher
 	 *            NFCPatchType.OLD = NFC Patch for System Update 11.3.x or lower
-	 *            null = Un-queue a queued NFC Patch.
+	 *            null = Empty the NFC Patch queue.
 	 */
 	public static void queueNFCPatch(NFCPatchType ver) {
 		nfcPatchQueued = ver;
 		if(ver == null && nfcPatchQueued != null) {
 			logger.log("NTR NFC Patch un-queued");
 		} else {
-			if(!instanceIsRunning.get()) {
+			// this check is unnecessary
+			if((instanceIsRunning == null) || !instanceIsRunning.get()) {
 				logger.log("NTR NFC Patch queued");
 			}
 		}
@@ -558,8 +568,21 @@ public class NTRClient implements StreamingInterface {
 		}
 	}
 	
+	/**
+	 * Queues a Settings-Change command, which will be sent to NTR.
+	 * 
+	 * <p>
+	 *  Note regarding functionality:
+	 *  When an instance of NTRClient starts, the caller passes the desired settings.
+	 *  So if NTRClient isn't running, there's no need to queue a settings-change.
+	 *  This method is intended to be used only while an instance of NTRClient is already running.
+	 *  If NTRClient isn't yet running, that gets handled gracefully by this method,
+	 *  but this behavior may change in the future.
+	 * </p>
+	 */
 	public static void queueSettingsChange(int quality, DSScreen screen, int priority, int qos) {
-		if(instanceIsRunning.get()) {
+		// The queue system is robust enough to handle it gracefully, so this check is redundant (for now)
+		if((instanceIsRunning != null) && instanceIsRunning.get()) {
 			scq.quality = quality;
 			scq.screen = screen;
 			scq.priority = priority;
