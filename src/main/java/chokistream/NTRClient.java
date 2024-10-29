@@ -200,6 +200,25 @@ public class NTRClient implements StreamingInterface {
 	}
 	
 	/**
+	 * TODO: minor edge-case behavior quirk:
+	 * If the 3DS disconnects from wifi, then reconnects,
+	 * without the Chokistream user having manually
+	 * disconnected and reconnected:
+	 * the NTRUDPThread starts processing frames again fine
+	 * because it never stopped listening, but the
+	 * HeartbeatThread stopped when the 3DS disconnected
+	 * and makes no attempt to restart / reconnect.
+	 * 
+	 * Ideally, I'd want the HeartbeatThread to start up again,
+	 * _somewhere_ in the code. Auto-reconnect is convenient.
+	 * I'm open to alternate ideas for implementation.
+	 * I haven't yet implemented a solution to cleanly handle this.
+	 * 
+	 * Additionally, note that this case is already handled
+	 * more or less fine, it's just a minor quirk.
+	 */
+
+	/**
 	 * Thread that keeps a persistent TCP connection to NTR.
 	 */
 	private class HeartbeatThread extends Thread {
