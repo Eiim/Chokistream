@@ -133,7 +133,21 @@ public class ChirunoModClient implements StreamingInterface {
 	
 	public void sendDisconnect() throws IOException {
 		logger.log("Sending disconnect packet", LogLevel.VERBOSE);
-		out.write((new Packet((byte)0x03, (byte)0x00, new byte[] {})).pack);
+		try {
+			out.write((new Packet((byte)0x03, (byte)0x00, new byte[] {})).pack);
+		} catch (SocketException e) {
+			/** 
+			 * Refer to docs.
+			 * https://github.com/Eiim/Chokistream/wiki/Technical-info-on-bugs-and-quirks/_edit#issues-with-luma3ds-control-wireless-connection-hack
+			 * todo: investigate */
+			if(e.getMessage().contains("Broken pipe")) {
+				// do something?
+			}
+
+			logger.log("ChirunoModClient.sendDisconnect() warning: "+e.getClass()+": "+e.getMessage());
+			logger.log(Arrays.toString(e.getStackTrace()), LogLevel.VERBOSE);
+			logger.log("The 3DS seems to have already disconnected");
+		}
 	}
 	
 	// We don't really have a use for this yet but might as well support it
