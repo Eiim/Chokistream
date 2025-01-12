@@ -33,17 +33,17 @@ public class KeypressHandler implements KeyListener {
 				HZModClient c = (HZModClient) client;
 				
 				if(ck.get(Controls.QUALITY_UP).matches(e)) {
-					c.increaseQuality(1);
+					c.incrementQuality(1);
 				} else if(ck.get(Controls.QUALITY_DOWN).matches(e)) {
-					c.decreaseQuality(1);
+					c.incrementQuality(-1);
 				}
 			} else if(client instanceof ChirunoModClient) {
 				ChirunoModClient c = (ChirunoModClient) client;
 				
 				if(ck.get(Controls.QUALITY_UP).matches(e)) {
-					c.increaseQuality(1);
+					c.incrementQuality(1);
 				} else if(ck.get(Controls.QUALITY_DOWN).matches(e)) {
-					c.decreaseQuality(1);
+					c.incrementQuality(-1);
 				} else if(ck.get(Controls.CPU_UP).matches(e)) {
 					c.increaseCPU(1);
 				} else if(ck.get(Controls.CPU_DOWN).matches(e)) {

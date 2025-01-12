@@ -616,7 +616,7 @@ public class NTRClient implements StreamingInterface {
 	 * @param delta The amount by which to increase or decrease.
 	 */
 	public void incrementQuality(int delta) {
-		qualityDeltaQueue = qualityDeltaQueue + delta;
+		qualityDeltaQueue += delta;
 	}
 	
 	/**

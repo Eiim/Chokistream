@@ -142,25 +142,21 @@ public class ChirunoModClient implements StreamingInterface {
 		out.write((new Packet((byte)0xFF, (byte)0x00, debugData)).pack);
 	}
 	
-	// Increase quality by a certain amount, up to 100
-	public void increaseQuality(int delta) throws IOException {
-		if(quality + delta < 100) {
-			quality = quality + delta;
-			sendQuality(quality);
-		} else if(quality < 100) {
-			quality = 100;
-			sendQuality(100);
+	/**
+	 * Increases or decreases video quality, limited to 1-100.
+	 * 
+	 * @param delta The amount by which to increase or decrease.
+	 */
+	public void incrementQuality(int delta) throws IOException {
+		int newQuality = quality + delta;
+		if (newQuality > 100) {
+			newQuality = 100;
+		} else if (newQuality < 1) {
+			newQuality = 1;
 		}
-	}
-	
-	// Decrease quality by a certain amount, down to 1
-	public void decreaseQuality(int delta) throws IOException {
-		if(quality - delta > 1) {
-			quality = quality - delta;
+		if (newQuality != quality) {
+			quality = newQuality;
 			sendQuality(quality);
-		} else if(quality > 1) {
-			quality = 1;
-			sendQuality(1);
 		}
 	}
 	
